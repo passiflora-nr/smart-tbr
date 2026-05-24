@@ -1,0 +1,42 @@
+# build output
+dist/
+
+# generated types
+.astro/
+
+# dependencies
+node_modules/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# environment variables
+.env
+.env.production
+.env*.local
+
+# cloudflare
+.dev.vars
+.wrangler/
+
+# macOS-specific files
+.DS_Store
+
+# jetbrains setting folder
+.idea/
+
+# skills
+.cursor/**/skill-creator-anthropic*
+
+# 10xdevs
+.cursor/**/10x-*
+.10x-cli-manifest.json
+
+# cursor
+.cursor/cli.json
+
+# test
+coverage/
