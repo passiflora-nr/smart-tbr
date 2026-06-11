@@ -32,14 +32,17 @@ Single-user MVP. No secondary persona for v1.
 ## Success Criteria
 
 ### Primary
+
 - The author has moved their entire active TBR backlog (≥ 100 books) out of Instagram saves, Amazon wishlist, and phone notes into SmartTBR within 2 weeks of the app being usable. (Proves the consolidation value — the scattered-surface problem is actually solved, not just theoretically solvable.)
 - The author uses the mood/trope selector to pick their next read at least 8 times in the 4 weeks following migration. (Proves the trope-driven selection flow is fast and useful enough to become the new default ritual, replacing scrolling Instagram saves.)
 
 ### Secondary
+
 - A beta cohort of ≥ 3 readers other than the author is invited after the author has used the app for ≥ 2 weeks of personal migration; ≥ 75% of beta testers, surveyed via a structured external questionnaire after a 4-week beta usage window, report that the suggested books accurately match the specific tropes they selected. (Validates the trope-matching logic generalizes beyond the author's own tagging habits.)
 - ≥ 75% of the same beta cohort, in the same questionnaire, report they no longer maintain active reading lists elsewhere because they've migrated to SmartTBR. (Validates the consolidation value externally.)
 
 ### Guardrails
+
 - A user can never see another user's TBR. (Cross-account data leak is a critical regression even if Primary holds.)
 - Adding a book takes ≤ 30 seconds of typing per book once the manual entry surface is open. (If data entry is slow, the up-front migration tax of moving ≥ 100 books kills the product before Primary can be measured.)
 - The trope/mood selector returns its 3 matched books in ≤ 2 seconds end-to-end. (A decision-paralysis product that itself makes the user wait fails its own value proposition.)
@@ -78,6 +81,7 @@ The MVP includes only the capabilities needed to consolidate a personal TBR and 
 - **Then** they see up to 3 books from their own TBR whose trope tags include at least one of the selected mood-tropes
 
 #### Acceptance Criteria
+
 - The trope-selection screen shows only trope tags that appear on at least one book in the user's own TBR (the universe of pickable tropes is derived from the user's own data, not a global vocabulary).
 - If the user's TBR is empty, the trope-selection screen shows an explanatory empty-state ("Add a book to your TBR first"), not a 0-result list.
 - If no books in the TBR match any of the selected tropes, the result screen shows an explanatory empty-state ("No matches — try different tropes"), not a blank screen.
@@ -88,6 +92,7 @@ The MVP includes only the capabilities needed to consolidate a personal TBR and 
 ## Functional Requirements
 
 ### Authentication
+
 - FR-001: A new visitor can create an account with email + password. Priority: must-have
   > Socrates: Reviewed counters (pre-seed the account and skip signup; passwordless as safer). Resolution: stands as written — beta testers in the Secondary success criterion require a public sign-up flow, and email + password keeps onboarding self-contained with no external email provider.
 - FR-002: A returning user can sign in with email + password. Priority: must-have
@@ -98,6 +103,7 @@ The MVP includes only the capabilities needed to consolidate a personal TBR and 
   > Socrates: Added 2026-05-22 from OQ #1 (formerly OQ #4) resolution. Counter-argument considered: "account deletion is rarely used in personal apps; could ship without it for v1, with users contacting the operator manually." Resolution: user picked self-serve over manual operator action — small build cost (~1–2 hours), gives beta testers a clean exit after the 4-week test, and satisfies a common privacy expectation without requiring out-of-band operator involvement.
 
 ### Book entries
+
 - FR-004: A signed-in user can add a book to their TBR by entering title (required), author (required), one or more free-text trope tags (required), and a free-text description (optional). Priority: must-have
   > Socrates: Counter-argument considered: "Title + author + tropes is too thin — without description I won't recognize older books I added months ago." Resolution: FR-004 REVISED — description added back as an OPTIONAL field so it doesn't slow down quick-add but is available when memory is fuzzy. Length field remains cut (not used by the recommendation rule).
 - FR-005: A signed-in user can view their full TBR as a browsable list. Priority: must-have
@@ -110,6 +116,7 @@ The MVP includes only the capabilities needed to consolidate a personal TBR and 
   > Socrates: Added in response to FR-005's counter — addresses "100-book flat list is unusable" without changing FR-005's render contract. No separate Socrates challenge needed; it inherits the resolution that prompted its creation.
 
 ### Trope-based recommendation
+
 - FR-008: A signed-in user can open a trope-selection screen that shows the set of distinct trope tags used at least once across their own TBR. Priority: must-have
   > Socrates: Reviewed counters (global vocabulary would aid discovery; cold-start screen is empty for new users; dynamic checklist is non-trivial UI). Resolution: stands as written — per-user vocabulary is required to honor FR-011's strict isolation; the empty-state is handled in US-01's acceptance criteria; the dynamic checklist is a single list render off existing data.
 - FR-009: A signed-in user can select up to 3 trope tags that match their current mood and request a recommendation. Priority: must-have
@@ -118,6 +125,7 @@ The MVP includes only the capabilities needed to consolidate a personal TBR and 
   > Socrates: Reviewed counters (any-match feels weak — one shared tag of five; no ranking risks repetition; 3 results is too few). Resolution: stands as written — any-match keeps results generous against a 100-book pile, where strict matching would frequently return zero; if repetition becomes a real problem during personal use, ranking can land in v2 without changing this FR's contract.
 
 ### Data isolation (defensive)
+
 - FR-011: A user's queries (browse, search/filter, recommend) return only books belonging to that user; books owned by other accounts are never reachable through any interface SmartTBR exposes. Priority: must-have
   > Socrates: Reviewed counters ("obvious, don't state"; future read-only browse-others view could be useful). Resolution: stands STRICT as written — making isolation an explicit FR prevents accidental leaks during v1 development (especially when handler code is being written quickly under timeline pressure); v2 sharing can be designed deliberately when v2 happens.
 

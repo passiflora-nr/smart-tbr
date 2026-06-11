@@ -42,10 +42,10 @@ A solo reader shipping a personal TBR + mood-trope recommender as a desktop-only
 
 ## Pre-scaffold verification
 
-| Signal       | Value                                                                       | Severity | Notes                                                                |
-| ------------ | --------------------------------------------------------------------------- | -------- | -------------------------------------------------------------------- |
-| npm package  | not run                                                                     | n/a      | `cmd_template` starts with `git clone`; no npm CLI to query          |
-| GitHub repo  | `przeprogramowani/10x-astro-starter` last pushed 2026-05-17T10:33:39Z       | fresh    | from `card.docs_url`; queried via GitHub REST API (gh CLI absent)    |
+| Signal      | Value                                                                 | Severity | Notes                                                             |
+| ----------- | --------------------------------------------------------------------- | -------- | ----------------------------------------------------------------- |
+| npm package | not run                                                               | n/a      | `cmd_template` starts with `git clone`; no npm CLI to query       |
+| GitHub repo | `przeprogramowani/10x-astro-starter` last pushed 2026-05-17T10:33:39Z | fresh    | from `card.docs_url`; queried via GitHub REST API (gh CLI absent) |
 
 ## Scaffold log
 
@@ -105,7 +105,7 @@ A solo reader shipping a personal TBR + mood-trope recommender as a desktop-only
 
 **Direct vs transitive**: 1 moderate direct (**`@astrojs/check`**); 4 moderates transitive (**`@astrojs/language-server`**, **`volar-service-yaml`**, **`yaml`**, **`yaml-language-server`**), all stemming from **`yaml`** in `node_modules/yaml-language-server/node_modules/yaml` (still `2.0.0 - 2.8.2` until `@astrojs/check` is upgraded off the vuln chain or forcibly pinned).
 
-npm’s suggested remediation for *all remaining* moderate rows is **`npm audit fix --force`**, which would install **`@astrojs/check@0.9.2`** (`fixAvailable`, `isSemVerMajor: true`) — reviewed as undesired versus keeping current `@astrojs/check` semver.
+npm’s suggested remediation for _all remaining_ moderate rows is **`npm audit fix --force`**, which would install **`@astrojs/check@0.9.2`** (`fixAvailable`, `isSemVerMajor: true`) — reviewed as undesired versus keeping current `@astrojs/check` semver.
 
 #### CRITICAL findings
 
@@ -145,21 +145,21 @@ Remaining risk is dev-time YAML tooling (**`yaml` → language server → Astro 
 
 ## Hints recorded but not acted on
 
-| Hint                       | Value                                                          |
-| -------------------------- | -------------------------------------------------------------- |
-| bootstrapper_confidence    | first-class                                                    |
-| quality_override           | false                                                          |
-| path_taken                 | standard                                                       |
-| self_check_answers         | null                                                           |
-| team_size                  | solo                                                           |
-| deployment_target          | cloudflare-pages                                               |
-| ci_provider                | github-actions                                                 |
-| ci_default_flow            | auto-deploy-on-merge                                           |
-| has_auth                   | true                                                           |
-| has_payments               | false                                                          |
-| has_realtime               | false                                                          |
-| has_ai                     | false                                                          |
-| has_background_jobs        | false                                                          |
+| Hint                    | Value                |
+| ----------------------- | -------------------- |
+| bootstrapper_confidence | first-class          |
+| quality_override        | false                |
+| path_taken              | standard             |
+| self_check_answers      | null                 |
+| team_size               | solo                 |
+| deployment_target       | cloudflare-pages     |
+| ci_provider             | github-actions       |
+| ci_default_flow         | auto-deploy-on-merge |
+| has_auth                | true                 |
+| has_payments            | false                |
+| has_realtime            | false                |
+| has_ai                  | false                |
+| has_background_jobs     | false                |
 
 These fields were read from the hand-off and preserved here for the audit trail. v1 surfaces them but does not act on them — a future memory-architecture skill will consume them when generating `AGENTS.md` / `CLAUDE.md` and CI workflows.
 
@@ -168,6 +168,7 @@ These fields were read from the hand-off and preserved here for the audit trail.
 Next: a future skill will set up agent context (CLAUDE.md, AGENTS.md). For now, your project is scaffolded and verified — happy hacking.
 
 Useful manual steps in the meantime:
+
 - `git init` (if you have not already) to start your own repo history.
 - Review any `.scaffold` siblings the conflict policy created and decide which version of each file to keep. (None were created on this run.)
 - Address audit findings per your project's risk tolerance — the full breakdown is in this log. Non-breaking **`npm audit fix`** was applied 2026-05-23; remaining moderates live in **`@astrojs/check`** → YAML tooling (see Post-scaffold audit).
