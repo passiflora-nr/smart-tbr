@@ -1,6 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "10x-astro-starter",
+  "name": "smart-tbr",
+  "account_id": "10e6c5de7ae20000c186703ad894eab2",
   "main": "@astrojs/cloudflare/entrypoints/server",
   "compatibility_date": "2026-05-08",
   "compatibility_flags": ["nodejs_compat"],
@@ -8,6 +9,7 @@
     "binding": "ASSETS",
     "directory": "./dist",
     "not_found_handling": "404-page",
+    "run_worker_first": ["/api/*"],
   },
   "observability": {
     "enabled": true,

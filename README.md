@@ -23,7 +23,7 @@ Key pieces:
 
 - **Node.js** — use [`.nvmrc`](./.nvmrc) (currently 22.x)
 - **npm**
-- Optional: **Docker** (~7 GB RAM) if you run Supabase locally
+- **Docker** — only if you run the [local Supabase stack](#local-stack-recommended-for-offline-iteration). Not required for hosted Supabase, CI, or production deploy (Cloudflare Workers has no Dockerfile).
 
 ## Getting started
 
@@ -82,7 +82,33 @@ Auth uses Supabase. **`SUPABASE_URL`** and **`SUPABASE_KEY`** are **server-only*
 
 ### Local stack (recommended for offline iteration)
 
-Requires Docker.
+Requires a container runtime compatible with the Docker API. Production deploy and hosted-Supabase dev do **not** use Docker.
+
+#### Docker setup (local Supabase only)
+
+1. Install and start one of:
+   - [Docker Desktop](https://docs.docker.com/desktop/) (macOS, Windows, Linux)
+   - [OrbStack](https://orbstack.dev/) (macOS; lighter alternative)
+   - [Rancher Desktop](https://rancherdesktop.io/) or [Podman](https://podman.io/) (must expose a Docker-compatible socket)
+2. Allocate enough resources in the runtime settings: **at least ~7–8 GB RAM** for Docker and **~10 GB free disk** for images on first `supabase start`.
+3. Confirm the daemon is running before starting the stack:
+
+```bash
+docker info
+```
+
+If this fails with “Cannot connect to the Docker daemon”, start Docker Desktop (or your runtime) and retry.
+
+4. On an **untrusted public network**, bind the local stack to localhost only ([Supabase docs](https://supabase.com/docs/guides/local-development)):
+
+```bash
+docker network create -o 'com.docker.network.bridge.host_binding_ipv4=127.0.0.1' local-network
+npx supabase start --network-id local-network
+```
+
+Otherwise use `npx supabase start` as in step 2 below.
+
+#### Start the local stack
 
 1. Create **`.env`** for the Supabase CLI (distinct from Workers):
 
@@ -90,7 +116,7 @@ Requires Docker.
 cp .env.example .env
 ```
 
-2. This repo already contains [`supabase/config.toml`](./supabase/config.toml). Start the stack (first run pulls images):
+2. This repo already contains [`supabase/config.toml`](./supabase/config.toml). With Docker running, start the stack (first run pulls images; can take several minutes):
 
 ```bash
 npx supabase start
@@ -124,14 +150,28 @@ Protected paths are centralized in **`PROTECTED_ROUTES`** in [`src/middleware.ts
 
 ## Deployment
 
+No Docker image or `Dockerfile` is involved — [`@astrojs/cloudflare`](./astro.config.mjs) builds a Worker bundle deployed with Wrangler.
+
 1. Build: `npm run build`
 2. Deploy: `npx wrangler deploy` (same worker name as [`wrangler.jsonc`](./wrangler.jsonc) until you rename the project everywhere)
 
 Configure **`SUPABASE_URL`** and **`SUPABASE_KEY`** as [Wrangler secrets](https://developers.cloudflare.com/workers/configuration/secrets/) for production.
 
+[`wrangler.jsonc`](./wrangler.jsonc) sets `assets.run_worker_first: ["/api/*"]` so API routes (auth, future TBR endpoints) hit the Worker instead of Static Assets. Keep this when adding paths under `src/pages/api/`.
+
 ## CI
 
-[`.github/workflows/ci.yml`](./github/workflows/ci.yml) runs **`npm ci` → `npx astro sync` → `npm run lint` → `npm run build`** on pushes and PRs to **`main`**. Define **`SUPABASE_URL`** and **`SUPABASE_KEY`** as repository secrets for the build step.
+[`.github/workflows/ci.yml`](./.github/workflows/ci.yml) runs **`npm ci` → `npx astro sync` → `npm run lint` → `npm run build`** on pushes and PRs to **`main`**.
+
+On **push to `main`**, a **`deploy`** job (after CI passes) runs **`wrangler deploy`** via [`cloudflare/wrangler-action@v3`](https://github.com/cloudflare/wrangler-action) and uploads Worker secrets. Trigger a manual redeploy from the Actions tab with **`workflow_dispatch`**.
+
+Repository secrets required:
+
+| Secret | Purpose |
+| ------ | ------- |
+| `SUPABASE_URL` / `SUPABASE_KEY` | Build-time Astro env + Worker runtime secrets |
+| `CLOUDFLARE_API_TOKEN` | Wrangler deploy (use the **Edit Cloudflare Workers** template) |
+| `CLOUDFLARE_ACCOUNT_ID` | Target Cloudflare account |
 
 ## Starter attribution
 

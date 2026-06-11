@@ -4,11 +4,14 @@ Astro v6 server-rendered app with React 19 islands, Tailwind v4, and Supabase Au
 
 ## Hard Rules
 
+- **Deploy target is Cloudflare Workers (Static Assets), not Pages.** Use `wrangler deploy` via `@wrangler.jsonc`; do not deploy to Cloudflare Pages — Astro 6 SSR breaks there.
 - **Supabase env is server-only.** `SUPABASE_URL` / `SUPABASE_KEY` are declared `context: "server"`, `access: "secret"` in `@astro.config.mjs`. Import only from `astro:env/server`; never read them in client code.
 - **Local secrets live in `.dev.vars`, not `.env`.** Cloudflare workerd (used by `npm run dev`) reads `.dev.vars`; `.env` is for the Supabase CLI. Copy `@.env.example` to both. Both are gitignored.
 - **Protected routes are gated by `PROTECTED_ROUTES` in `@src/middleware.ts`.** Add new auth-required paths there; nowhere else.
 - **`createClient` in `@src/lib/supabase.ts` can return `null`** when env is unset — always null-check before using the client.
-- **Dev runs in workerd, not Node.** Code in `src/pages/api/**` and `src/middleware.ts` should avoid Node-only APIs unless covered by `nodejs_compat` (`@wrangler.jsonc`).
+- **Dev runs in workerd, not Node.** Code in `src/pages/api/**` and `src/middleware.ts` should avoid Node-only APIs unless covered by `nodejs_compat` (`@wrangler.jsonc`). Before adding npm packages, confirm they work on Workers/edge; prefer Supabase REST over raw Postgres drivers.
+- **API routes must reach the Worker, not Static Assets.** Keep `assets.run_worker_first: ["/api/*"]` in `@wrangler.jsonc` when adding routes under `src/pages/api/` — without it, auth and other API handlers return 1003/403.
+- **Platform constraints:** deploy/ops gotchas and mitigated risks — `@context/foundation/infrastructure.md` Risk Register.
 
 ## Project Structure
 

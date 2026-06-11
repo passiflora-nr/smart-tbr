@@ -16,7 +16,7 @@ The reader has their "To Be Read" (TBR) book lists scattered across multiple inc
 
 - AI-generated book details or summaries
 - Book recommendation flow using AI
-- Importing book entries
+- Importing book entries (v2 would need chunked/queued work — Workers ~30s CPU limit blocks single-request bulk import; see `@context/foundation/infrastructure.md`)
 - Integration with other platforms
 - Sharing the TBR with other users
 - Mobile application (in the beginning only web app)
