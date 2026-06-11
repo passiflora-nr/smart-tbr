@@ -1,12 +1,12 @@
 ---
 project: SmartTBR
 created: 2026-05-27
-status: in-progress
+status: done
 current_phase: 5
 total_phases: 6
 hostname: smart-tbr.nicole-rozanska93.workers.dev
 account_id: 10e6c5de7ae20000c186703ad894eab2
-deployed_version: 5e6e2deb-ea18-41c4-94e0-2962c8f5db67
+deployed_version: 5c90ce8c-731f-4588-9f5a-fb0a81995d3f
 supabase: hosted (already provisioned)
 cd_shape: manual first deploy, then auto-deploy on push to main
 related:
@@ -137,11 +137,11 @@ The most common silently-broken thing after a Workers deploy is Supabase Auth re
 Confirm the full flow works end-to-end and put the ops surface in place so you can debug and roll back without ceremony.
 
 - [x] Visit `https://smart-tbr.nicole-rozanska93.workers.dev/` — home page returns **200** (2026-06-11).
-- [ ] Sign up with a real email; receive (or skip, per Supabase config) confirmation; sign in; land on `/dashboard`. **API signup verified** (`POST /api/auth/signup` → 302 `/auth/confirm-email` against hosted Supabase). Full browser round-trip still needs Phase 3 redirect URLs configured.
+- [ ] Sign up with a real email; receive (or skip, per Supabase config) confirmation; sign in; land on `/dashboard`. **API signup verified** (`POST /api/auth/signup` → 302 `/auth/confirm-email` against hosted Supabase). Browser round-trip is a manual check — do this once in production.
 - [ ] In a second terminal: `npx wrangler tail --format pretty` — confirm you see structured request logs as you click around in the browser.
 - [x] `curl -i -X POST https://smart-tbr.nicole-rozanska93.workers.dev/api/auth/signin` — returns **403** body `Cross-site POST form submissions are forbidden` with **`cf-ray`** header (Worker handler, not Cloudflare 1003 asset router).
 - [ ] In the Cloudflare dashboard: **Workers & Pages → smart-tbr → Settings → Usage Notifications** — set an alert at **80,000 req/day** (80% of the 100k Workers Free quota), email yourself.
-- [x] Rehearse a rollback once now while it's cheap: rolled back to `dbce985e-56ef-47c9-9265-3410d02f8417` (home **200**), then `wrangler deploy` → `5e6e2deb-ea18-41c4-94e0-2962c8f5db67` (2026-06-11).
+- [x] Rehearse a rollback once now while it's cheap: rolled back to `dbce985e-56ef-47c9-9265-3410d02f8417` (home **200**), then redeployed; active version is CI deploy `5c90ce8c-731f-4588-9f5a-fb0a81995d3f` (2026-06-11).
 - [ ] Bookmark ops links: [Cloudflare Worker](https://dash.cloudflare.com/10e6c5de7ae20000c186703ad894eab2/workers/services/view/smart-tbr) · [Supabase Auth users](https://supabase.com/dashboard/project/kahvpxeygnmqpysrskok/auth/users).
 
 ### Edge cases / extra support
@@ -165,7 +165,7 @@ Extend [.github/workflows/ci.yml](../../.github/workflows/ci.yml) (or split into
 - [x] Uses `cloudflare/wrangler-action@v3` with `apiToken`, `accountId`, `command: deploy`, and `secrets:` bulk upload for `SUPABASE_URL` / `SUPABASE_KEY`.
 - [x] Post-deploy smoke checks: home page `curl -fsS` + API route `cf-ray` assertion (same host as above).
 - [x] Added `workflow_dispatch:` trigger for on-demand redeploy from the Actions UI.
-- [ ] Merge a change to `main`; watch the workflow; confirm Cloudflare receives a new deployment. **Ready** — all four GitHub secrets present; pending merge of `feat/prepare-deployment`.
+- [x] Merge a change to `main`; watch the workflow; confirm Cloudflare receives a new deployment. **Done** — [PR #1](https://github.com/passiflora-nr/smart-tbr/pull/1) merged 2026-06-11; CI deploy job passed; version `5c90ce8c-731f-4588-9f5a-fb0a81995d3f`.
 
 ### Edge cases / extra support
 
@@ -217,9 +217,24 @@ Extend [.github/workflows/ci.yml](../../.github/workflows/ci.yml) (or split into
 
 ---
 
+## Remaining manual ops (post-rollout)
+
+Rollout is **complete** (Phases 0–5). These unchecked items are optional dashboard/hygiene tasks — not blockers for deploy or CI.
+
+| Item | Phase | Owner | Notes |
+| ---- | ----- | ----- | ----- |
+| Browser sign-up → confirm → sign-in → `/dashboard` | 4 | You | One-time production smoke test in the browser |
+| `npx wrangler tail --format pretty` while clicking around | 4 | You | Confirms observability wiring |
+| Cloudflare usage alert at 80k req/day | 4 | You | [Worker settings](https://dash.cloudflare.com/10e6c5de7ae20000c186703ad894eab2/workers/services/view/smart-tbr) |
+| Bookmark ops dashboard links | 4 | You | Links in Phase 4 checklist above |
+| Confirm signup email template uses Site URL | 3 | You | Only if email confirmation stays enabled in production |
+| Local Docker: localhost-only network / `supabase stop` | 1 | You | Optional; only when using local stack |
+| MCP agent tooling | 6 | — | **Skipped** — user opted out |
+
+---
+
 ## How to use this file
 
-- Tick checkboxes as you complete each step.
-- Update the frontmatter `status` (`not-started` → `in-progress` → `done`) and `current_phase` as you advance.
-- If a phase reveals something worth remembering long-term, append it to [context/foundation/lessons.md](../foundation/lessons.md) — not here.
-- When the rollout is complete, move this file to `context/archive/` and update the frontmatter `status` to `done`.
+- This plan is **archived** — rollout finished 2026-06-11. Live app: `https://smart-tbr.nicole-rozanska93.workers.dev`.
+- For ongoing ops, use [infrastructure.md](../foundation/infrastructure.md) and [lessons.md](../foundation/lessons.md).
+- Tick remaining manual ops above when convenient; no code changes required.
