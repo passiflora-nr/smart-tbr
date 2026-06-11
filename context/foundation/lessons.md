@@ -29,3 +29,10 @@
 - **Problem**: The agent proceeds through the plan, marks steps as "blocked" in the doc, and moves on without stopping to ask the user — even when the user already said prerequisites are done and the missing input is something only they can supply.
 - **Rule**: If a step needs user input (secrets, credentials, dashboard config, approval), stop and ask immediately — do not mark it blocked and continue. Treat "Phase 0 done" or "credentials ready" as a signal to request them, not to skip the step.
 - **Applies to**: implement
+
+## Show remaining manual ops before archiving plans
+
+- **Context**: Deployment/rollout plans (`context/deployment/*.md`, deploy checklists) when marking a plan `status: done` or moving it to `context/archive/`.
+- **Problem**: Archiving or closing a plan before the user sees the remaining manual ops hides dashboard/hygiene tasks they still need to do — the agent marked rollout complete and moved deploy-plan to archive in the same commit without the user reviewing what was left.
+- **Rule**: Before archiving a plan or setting `status: done`, show the user a "Remaining manual ops" summary and get acknowledgment. Only archive after they have seen it.
+- **Applies to**: plan, plan-review, implement, impl-review

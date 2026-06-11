@@ -4,6 +4,7 @@ Astro v6 server-rendered app with React 19 islands, Tailwind v4, and Supabase Au
 
 ## Hard Rules
 
+- **Never work on `main` directly.** Do not develop, commit, or push to `main`. Create a feature branch first (`git checkout -b feat/...` or similar), do all work there, and merge via PR only.
 - **Deploy target is Cloudflare Workers (Static Assets), not Pages.** Use `wrangler deploy` via `@wrangler.jsonc`; do not deploy to Cloudflare Pages — Astro 6 SSR breaks there.
 - **Supabase env is server-only.** `SUPABASE_URL` / `SUPABASE_KEY` are declared `context: "server"`, `access: "secret"` in `@astro.config.mjs`. Import only from `astro:env/server`; never read them in client code.
 - **Local secrets live in `.dev.vars`, not `.env`.** Cloudflare workerd (used by `npm run dev`) reads `.dev.vars`; `.env` is for the Supabase CLI. Copy `@.env.example` to both. Both are gitignored.
@@ -42,4 +43,4 @@ No test framework is wired up. If you add one, wire it into `@.github/workflows/
 
 ## Commit & Pull Request Guidelines
 
-History is single-commit; no convention is established yet — prefer Conventional Commits (`feat:`, `fix:`, `chore:`). PRs target `main`; CI runs `npm ci → npx astro sync → npm run lint → npm run build` and must pass (`@.github/workflows/ci.yml`). Husky `pre-commit` runs lint-staged (see `@package.json`) — don't bypass with `--no-verify`.
+History is single-commit; no convention is established yet — prefer Conventional Commits (`feat:`, `fix:`, `chore:`). **All changes land on `main` through PRs only** — branch from `main`, push the branch, open a PR; never commit or push directly to `main`. CI runs `npm ci → npx astro sync → npm run lint → npm run build` and must pass (`@.github/workflows/ci.yml`). Husky `pre-commit` runs lint-staged (see `@package.json`) — don't bypass with `--no-verify`.
