@@ -132,6 +132,8 @@ For early development you only need **`auth.users`**; app-specific tables appear
 
 Use the project URL and **anon** public key from the Supabase dashboard (Settings → API) in `.env`, `.dev.vars`, and CI secrets — same variable names.
 
+**Production Auth URLs** (required for sign-up/sign-in on the live Worker): in Supabase → **Authentication → URL Configuration**, set **Site URL** to `https://smart-tbr.nicole-rozanska93.workers.dev` and add redirect URLs for `https://smart-tbr.nicole-rozanska93.workers.dev/**` and `http://localhost:4321/**`. Re-apply after any custom-domain change.
+
 ### Email confirmation during dev
 
 Supabase often requires verified email before sign-in. To skip confirmation in development, toggle **Authentication → Email → Confirm email** off for your local or staging project.
@@ -150,14 +152,17 @@ Protected paths are centralized in **`PROTECTED_ROUTES`** in [`src/middleware.ts
 
 ## Deployment
 
+**Production:** https://smart-tbr.nicole-rozanska93.workers.dev (Cloudflare Workers, deployed 2026-06-11)
+
 No Docker image or `Dockerfile` is involved — [`@astrojs/cloudflare`](./astro.config.mjs) builds a Worker bundle deployed with Wrangler.
 
-1. Build: `npm run build`
-2. Deploy: `npx wrangler deploy` (same worker name as [`wrangler.jsonc`](./wrangler.jsonc) until you rename the project everywhere)
+**Routine deploy:** merge to `main` — CI runs lint + build, then auto-deploys via [`wrangler-action`](./.github/workflows/ci.yml). **Manual redeploy:** GitHub Actions → **CI** → **Run workflow**. **Local emergency:** `npm run build && npx wrangler deploy`.
 
-Configure **`SUPABASE_URL`** and **`SUPABASE_KEY`** as [Wrangler secrets](https://developers.cloudflare.com/workers/configuration/secrets/) for production.
+Configure **`SUPABASE_URL`** and **`SUPABASE_KEY`** as [Wrangler secrets](https://developers.cloudflare.com/workers/configuration/secrets/) for production (CI uploads them on each deploy).
 
 [`wrangler.jsonc`](./wrangler.jsonc) sets `assets.run_worker_first: ["/api/*"]` so API routes (auth, future TBR endpoints) hit the Worker instead of Static Assets. Keep this when adding paths under `src/pages/api/`.
+
+Ops reference: [`context/foundation/infrastructure.md`](./context/foundation/infrastructure.md) · archived rollout log: [`context/archive/deploy-plan.md`](./context/archive/deploy-plan.md)
 
 ## CI
 
