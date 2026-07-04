@@ -4,6 +4,8 @@ researched_at: 2026-05-26
 recommended_platform: Cloudflare Workers (with Static Assets)
 runner_up: Render
 context_type: mvp
+deployed_at: 2026-06-11
+production_url: https://smart-tbr.nicole-rozanska93.workers.dev
 tech_stack:
   language: TypeScript
   framework: Astro v6 + React 19 islands
@@ -15,6 +17,8 @@ tech_stack:
 **Deploy on Cloudflare Workers (with Static Assets).**
 
 The project is already scaffolded with `@astrojs/cloudflare` v13 and `wrangler.jsonc`, the Workers Free plan covers the MVP's expected traffic (10k–100k req/month) by ~10×, and Cloudflare's MCP suite + `llms.txt`/`llms-full.txt` give the agent first-class operational and documentation access. With external Supabase as the data layer, Q5's "co-location preferred" doesn't apply — and Hyperdrive sits in reserve if/when raw Postgres access from edge becomes useful. The cost-sensitive answer (Q2) is decisive: Cloudflare Workers is the only shortlisted option that is genuinely free at MVP scale.
+
+**Production is live** at `https://smart-tbr.nicole-rozanska93.workers.dev` (first manual deploy + CI auto-deploy on merge to `main`, 2026-06-11). Rollout details and post-deploy checklist: [`context/archive/deploy-plan.md`](../archive/deploy-plan.md).
 
 ## Platform Comparison
 
@@ -69,46 +73,58 @@ Six months in, SmartTBR's beta cohort grew to 5 readers and the author wanted to
 
 ## Operational Story
 
-How Cloudflare Workers actually operates day to day for this project.
+How Cloudflare Workers actually operates day to day for this project. Production Worker: **`smart-tbr`** · account `10e6c5de7ae20000c186703ad894eab2` · URL above.
 
-- **Preview deploys**: `wrangler versions upload` (or push to a non-`main` branch with GitHub Actions invoking `wrangler versions upload`) creates a versioned preview at `<version-id>-<worker-name>.<account>.workers.dev`. No Cloudflare Access needed for solo MVP; add Access in front of preview URLs once the beta cohort exists if they shouldn't see in-progress builds. Preview URLs are not generated for fork PRs unless you wire `pull_request_target` carefully.
-- **Secrets**: `SUPABASE_URL` and `SUPABASE_KEY` are declared `context: "server"`, `access: "secret"` in `astro.config.mjs`. Locally they live in `.dev.vars` (read by workerd in `npm run dev`). In production they're set via `wrangler secret put SUPABASE_URL` / `wrangler secret put SUPABASE_KEY`, or via the Cloudflare dashboard under Workers → your worker → Settings → Variables → Secret. CI sets them via the `cloudflare/wrangler-action@v3` step with `secrets:` input. Rotation: regenerate in Supabase, then `wrangler secret put` again — no redeploy needed.
-- **Rollback**: `wrangler versions list` to find a known-good version ID, then `wrangler rollback [VERSION_ID]`. Typical time-to-revert: ~10–30 seconds. Caveat: rollback does not undo data migrations on Supabase — schema changes need separate, manual reversal in Supabase Studio.
-- **Approval**: An agent can do `wrangler deploy` (production), `wrangler versions upload` (preview), `wrangler tail` (logs), and `wrangler rollback` unattended. Human approval gates: rotating Supabase keys (because Supabase Auth sessions break for active users), running schema migrations against Supabase production, and dropping the Worker entirely. Configure GitHub Actions to require manual approval on the production deploy job for the human gate.
-- **Logs**: `wrangler tail --status error --search "<query>" --format json` from the terminal. Optionally, the Cloudflare MCP observability server (`https://observability.mcp.cloudflare.com/mcp`) can expose recent logs as structured tool calls in Cursor — not required; `wrangler tail` and the dashboard (24h retention) are sufficient for MVP. Cloudflare also retains 24h of logs in the dashboard for visual inspection.
+- **Production deploys**: Push to `main` → GitHub Actions `ci` job (lint + build) → `deploy` job (`cloudflare/wrangler-action@v3`, post-deploy curl smoke checks). Manual redeploy: Actions → **CI** → **Run workflow** (`workflow_dispatch`). Local emergency deploy: `npm run build && npx wrangler deploy` (prefer CI for routine changes).
+- **Preview deploys**: `wrangler versions upload` (or push to a non-`main` branch with GitHub Actions invoking `wrangler versions upload`) creates a versioned preview at `<version-id>-<worker-name>.<account>.workers.dev`. No Cloudflare Access needed for solo MVP; add Access in front of preview URLs once the beta cohort exists if they shouldn't see in-progress builds. Preview URLs are not generated for fork PRs unless you wire `pull_request_target` carefully. **Not wired yet** — parked in deploy plan.
+- **Secrets**: `SUPABASE_URL` and `SUPABASE_KEY` are declared `context: "server"`, `access: "secret"` in `astro.config.mjs`. Locally they live in `.dev.vars` (read by workerd in `npm run dev`). In production they're set on the Worker via `wrangler secret put` and refreshed by CI's `wrangler-action` `secrets:` input. GitHub repo secrets: `SUPABASE_URL`, `SUPABASE_KEY`, `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`. Rotation: regenerate in Supabase, update GitHub secrets, then re-run deploy (or `wrangler secret put` locally).
+- **Supabase Auth URLs**: Hosted project Site URL and redirect URLs must include the production workers.dev hostname (`https://smart-tbr.nicole-rozanska93.workers.dev/**`) plus `http://localhost:4321/**` for local dev. Configured 2026-06-11; re-apply after any custom-domain change.
+- **Rollback**: `npx wrangler deployments list` to find a known-good version ID, then `npx wrangler rollback [VERSION_ID]`. Rehearsed 2026-06-11 (~10–30 s). Caveat: rollback does not undo data migrations on Supabase — schema changes need separate, manual reversal in Supabase Studio.
+- **Approval**: An agent can do `wrangler deploy` (production), `wrangler versions upload` (preview), `wrangler tail` (logs), and `wrangler rollback` unattended. Human approval gates: rotating Supabase keys (because Supabase Auth sessions break for active users), running schema migrations against Supabase production, and dropping the Worker entirely. Optional: GitHub Environment with required reviewers on the `deploy` job.
+- **Logs**: `npx wrangler tail --format pretty` from the terminal (`observability.enabled: true` in `wrangler.jsonc`). Optionally, the Cloudflare MCP observability server — **skipped** for this project; `wrangler tail` and the dashboard (24h retention) are sufficient for MVP.
 
 ## Risk Register
 
 | Risk | Source | Likelihood | Impact | Mitigation |
 |---|---|---|---|---|
 | ~~`tech-stack.md` says `cloudflare-pages`~~ — stale deploy target misleads future agent/self into Pages, where Astro 6 SSR is broken | Devil's advocate | ~~High~~ Low (mitigated) | Medium (silent SSR failures, 1–2 evenings lost) | **Done (2026-05-27):** `tech-stack.md` frontmatter + prose updated to `cloudflare-workers`; `AGENTS.md` Hard Rule added. |
-| ~~API auth routes return 1003/403 because Static Assets router shadows them~~ | Devil's advocate / Research | ~~Medium~~ Low (mitigated) | High (auth flow blocked) | **Done (2026-05-27):** `run_worker_first: ["/api/*"]` in `wrangler.jsonc`; `AGENTS.md` Hard Rule. Optional: curl smoke check for `/api/auth/signin` in deploy CI. |
+| ~~API auth routes return 1003/403 because Static Assets router shadows them~~ | Devil's advocate / Research | ~~Medium~~ Low (mitigated) | High (auth flow blocked) | **Done (2026-05-27):** `run_worker_first: ["/api/*"]` in `wrangler.jsonc`; `AGENTS.md` Hard Rule. **Done (2026-06-11):** deploy CI curl smoke check for `/api/auth/signin` (`cf-ray` + status assertion). |
 | 30s CPU ceiling blocks future fan-out / bulk-import features | Devil's advocate / Pre-mortem | Medium (only if scope creeps beyond MVP) | Medium | **Documented:** `idea-notes.md`, `lessons.md`, `AGENTS.md` pointer. MVP tag-set intersection is fine; v2 bulk work needs Queues/DO/chunking. |
 | `workerd` ≠ Node — runtime failure on Node-only npm deps | Devil's advocate | Low–Medium | Medium | **Documented:** `AGENTS.md` Hard Rule — audit deps before adding; prefer edge-safe clients (`@supabase/supabase-js`). |
 | Hyperdrive returns slightly stale data on rapid reads after writes | Unknown unknowns | Low (Supabase Auth + REST path doesn't use Hyperdrive) | Low–Medium (only matters if/when you reach for raw Postgres) | If you adopt Hyperdrive later, pass `cache: 'no-store'` on queries where freshness matters; document the trade-off when introducing it. |
-| Surprise Workers paid bill if traffic spikes past free tier unnoticed | Unknown unknowns | Low (MVP traffic is small) | Low ($5–$20 unexpected) | Set a Workers usage alert in the Cloudflare dashboard (Settings → Usage Notifications) at 80% of free quota. |
+| Surprise Workers paid bill if traffic spikes past free tier unnoticed | Unknown unknowns | Low (MVP traffic is small) | Low ($5–$20 unexpected) | Set a Workers usage alert in the Cloudflare dashboard (Settings → Usage Notifications) at 80k req/day (80% of free tier). **Open** — see deploy plan post-rollout checklist. |
 | `wrangler dev` vs production parity gaps in cron / scheduled workers | Unknown unknowns | Low (MVP has no cron) | Low | Not relevant to MVP. Re-evaluate if a cron feature is added. |
 | Astro 6 + adapter v13 leading-edge bugs | Devil's advocate | Low–Medium | Low–Medium | Pin versions in `package.json`; subscribe to `withastro/astro` and `cloudflare/workers-sdk` GitHub releases. Don't auto-bump major versions during the 4-week MVP build. |
 | Free Cloudflare account suspension for ToS edge cases (paid lookups, etc.) | Devil's advocate / general platform risk | Low | High (could lose deployment access) | Keep deployment-relevant config in version control. Have a billing card on file once the MVP is live to remove friction if you hit limits. |
 
 ## Getting Started
 
-The repo is already scaffolded for Cloudflare Workers via the 10x Astro Starter. These first steps validate the current state and close the gaps surfaced in the risk register.
+The repo is already scaffolded for Cloudflare Workers via the 10x Astro Starter. Rollout completed 2026-06-11; archived step-by-step log: [`context/archive/deploy-plan.md`](../archive/deploy-plan.md).
 
-1. ~~**Fix the stale doc.**~~ **Done.** `tech-stack.md` and `AGENTS.md` now consistently target Cloudflare Workers (not Pages).
-2. ~~**Audit `wrangler.jsonc` for the API-shadowing gotcha.**~~ **Done.** `run_worker_first: ["/api/*"]` is set; optional follow-up: curl smoke check in deploy CI.
-3. **Verify local dev parity.** `npm run dev` should run on workerd via the `@astrojs/cloudflare` Vite plugin (already wired by the starter). Confirm `.dev.vars` is gitignored and contains the Supabase keys; confirm `.env` (for the Supabase CLI) is also gitignored. Both are documented in `AGENTS.md`.
-4. **Set production secrets in Cloudflare.** `wrangler secret put SUPABASE_URL` and `wrangler secret put SUPABASE_KEY` (against the production environment) — do this once before the first production deploy. Alternatively, set them in GitHub Actions Secrets and let `cloudflare/wrangler-action@v3` push them.
-5. **First production deploy.** `npm run build && npx wrangler deploy`. Confirm the deployed URL serves the home page, sign-in flow works against production Supabase, and `wrangler tail` shows requests in real time.
-6. **Set a usage alert.** Cloudflare dashboard → Workers & Pages → your Worker → Settings → Usage Notifications → set an alert at ~80k req/day (80% of free tier).
-7. **(Optional) Install the Cloudflare MCP servers in Cursor.** Add `mcp.cloudflare.com/mcp` (Code Mode) and `observability.mcp.cloudflare.com/mcp` to `.cursor/mcp.json` for agent-driven log inspection and deploy triage. Skip if you prefer `wrangler tail` and the dashboard — not required for deploy or MVP ops.
+1. ~~**Fix the stale doc.**~~ **Done (2026-05-27).** `tech-stack.md` and `AGENTS.md` now consistently target Cloudflare Workers (not Pages).
+2. ~~**Audit `wrangler.jsonc` for the API-shadowing gotcha.**~~ **Done (2026-05-27).** `run_worker_first: ["/api/*"]` is set; deploy CI smoke check added 2026-06-11.
+3. ~~**Verify local dev parity.**~~ **Done (2026-06-11).** `npm run dev` on workerd; `.dev.vars` / `.env` gitignored; hosted Supabase credentials synced.
+4. ~~**Set production secrets in Cloudflare.**~~ **Done (2026-06-11).** Worker secrets via `wrangler secret put`; GitHub Actions secrets for CI deploy.
+5. ~~**First production deploy.**~~ **Done (2026-06-11).** Live at `https://smart-tbr.nicole-rozanska93.workers.dev`; Supabase Auth Site URL + redirect URLs configured; API signup/signin smoke-tested.
+6. **Set a usage alert.** Cloudflare dashboard → Workers & Pages → **smart-tbr** → Settings → Usage Notifications → alert at ~80k req/day. **Remaining manual op.**
+7. ~~**(Optional) Install the Cloudflare MCP servers in Cursor.**~~ **Skipped** — user opted out; use `wrangler tail` and the dashboard.
+
+### Remaining manual ops
+
+Optional dashboard/hygiene tasks (not blockers). Full table: [`deploy-plan.md` → Remaining manual ops](../archive/deploy-plan.md#remaining-manual-ops-post-rollout).
+
+- Browser sign-up → confirm → sign-in → `/dashboard` (one-time production smoke test)
+- `npx wrangler tail --format pretty` while clicking around
+- Cloudflare usage alert at 80k req/day
+- Bookmark [Worker dashboard](https://dash.cloudflare.com/10e6c5de7ae20000c186703ad894eab2/workers/services/view/smart-tbr) and [Supabase Auth users](https://supabase.com/dashboard/project/kahvpxeygnmqpysrskok/auth/users)
 
 ## Out of Scope
 
-The following were not evaluated in this research:
+The following were not evaluated in this research (or were deferred to the deployment rollout, now complete):
 
 - Docker image configuration (Workers doesn't use Docker; `@astrojs/cloudflare` produces a bundled Worker script, no Dockerfile needed)
-- CI/CD pipeline setup (existing `.github/workflows/ci.yml` already runs lint + build; the deploy job is a separate scope item)
+- ~~CI/CD pipeline setup~~ — **Done (2026-06-11):** `.github/workflows/ci.yml` runs lint + build on PR/push; `deploy` job auto-deploys on push to `main` via `wrangler-action@v3` with post-deploy smoke checks
+- Per-PR preview deploys — parked; see deploy plan
 - Production-scale architecture (multi-region failover, SLA commitments, dedicated support tiers) — explicit Non-Goal per PRD ("v1 makes no formal uptime commitment", "single-region deployment")
 - Formal compliance certification (per PRD Non-Goal: "Avoid: aiming for any compliance certification beyond baseline practices")
 - Database backup / disaster recovery beyond Supabase's defaults (per PRD: "best-effort data durability, no formal commitment")

@@ -1,0 +1,31 @@
+{
+  // IDE chat agent permissions. Set Cursor Settings > Agents > Run Mode to "Allowlist (with Sandbox)".
+  // Prefix-matched commands auto-approve; do not chain with &&, ;, or | (see AGENTS.md).
+  "terminalAllowlist": [
+    "git:diff*",
+    "git:log*",
+    "git:status*",
+    "git:branch*",
+    "git:stash*",
+    "git:remote get-url*",
+    "git:remote -v",
+    "gh:auth status",
+    "gh:repo view*",
+    "gh:issue list*",
+    "gh:pr list*",
+    "gh:label list*",
+    "npm:run lint*",
+    "npm:run build*",
+    "npm:run dev*",
+    "npm:run format*",
+    "npx:astro*"
+  ],
+  "autoRun": {
+    "allow_instructions": [
+      "Allow reading any file in the workspace (equivalent to Read(**))."
+    ],
+    "block_instructions": [
+      "Block rm commands for manual approval, including rm -rf (equivalent to Shell(rm) and Shell(rm:-rf*))."
+    ]
+  }
+}

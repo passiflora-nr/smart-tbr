@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10xDevs Skills Workflow — Cheat Sheet</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0C0E14;
+  --bg2: #12151E;
+  --bg3: #191D2A;
+  --bg4: #1F2436;
+  --text: #E8E6E1;
+  --text2: #9B99A1;
+  --text3: #6B697A;
+  --accent-green: #3EEBC0;
+  --accent-green-dim: #1A6B56;
+  --accent-purple: #A78BFA;
+  --accent-purple-dim: #4C3D80;
+  --accent-amber: #F5B044;
+  --accent-amber-dim: #6B4A10;
+  --accent-coral: #F0997B;
+  --accent-coral-dim: #6B3A24;
+  --accent-blue: #60A5FA;
+  --accent-blue-dim: #1E3A5F;
+  --border: rgba(255,255,255,0.06);
+  --border2: rgba(255,255,255,0.1);
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'DM Sans', system-ui, sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+.page {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 48px 40px 60px;
+}
+
+/* ---- HEADER ---- */
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 44px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--border2);
+}
+.header h1 {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+.header h1 span { color: var(--accent-green); }
+.header .sub {
+  font-size: 13px;
+  color: var(--text3);
+  text-align: right;
+  line-height: 1.6;
+}
+
+/* ---- LEGEND ---- */
+.legend-bar {
+  display: flex;
+  gap: 28px;
+  margin-bottom: 36px;
+  font-size: 12px;
+  color: var(--text2);
+  flex-wrap: wrap;
+}
+.legend-bar .li { display: flex; align-items: center; gap: 6px; }
+.ldot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.ldot-g { background: var(--accent-green); }
+.ldot-b { background: var(--accent-amber); }
+.ldot-shared { background: var(--accent-purple); }
+.lline { width: 20px; height: 2px; border-radius: 1px; }
+.lline-dash { background: repeating-linear-gradient(90deg, var(--accent-coral) 0 4px, transparent 4px 8px); }
+
+/* ---- TWO COLUMNS ---- */
+.cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+
+/* ---- COLUMN ---- */
+.col {
+  background: var(--bg2);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.col-head {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.col-head .badge {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+.badge-g { background: var(--accent-green-dim); color: var(--accent-green); }
+.badge-b { background: var(--accent-amber-dim); color: var(--accent-amber); }
+.col-head h2 { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; }
+.col-body { padding: 20px 24px 28px; }
+
+/* ---- MODULE LABEL ---- */
+.mod {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 12px;
+  margin-top: 20px;
+  padding: 4px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.mod::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border2);
+}
+.mod:first-child { margin-top: 0; }
+.mod-m1 { color: var(--accent-purple); }
+.mod-m2 { color: var(--accent-green); }
+
+/* ---- STEP ---- */
+.step {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 10px;
+  margin-bottom: 6px;
+  padding: 7px 0;
+  position: relative;
+}
+.step::before {
+  content: '';
+  position: absolute;
+  left: 13px;
+  top: 32px;
+  bottom: -6px;
+  width: 1px;
+  background: var(--border2);
+}
+.step:last-child::before { display: none; }
+.snum {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+.sn-g { background: var(--accent-green-dim); color: var(--accent-green); }
+.sn-b { background: var(--accent-amber-dim); color: var(--accent-amber); }
+.sn-p { background: var(--accent-purple-dim); color: var(--accent-purple); }
+.sbody { padding-top: 3px; }
+.sbody .cmd {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--accent-green);
+  background: rgba(62, 235, 192, 0.08);
+  padding: 1px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.sbody .cmd-b {
+  color: var(--accent-amber);
+  background: rgba(245, 176, 68, 0.08);
+}
+.sbody .desc {
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.5;
+  margin-top: 2px;
+}
+.sbody .out {
+  font-size: 11.5px;
+  color: var(--text3);
+  margin-top: 2px;
+  font-family: var(--mono);
+}
+
+/* ---- LOOP BOX ---- */
+.loop {
+  border: 1px dashed var(--accent-coral-dim);
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin: 12px 0 8px;
+  position: relative;
+}
+.loop-tag {
+  position: absolute;
+  top: -9px;
+  left: 16px;
+  background: var(--bg2);
+  padding: 0 8px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent-coral);
+}
+
+/* ---- NOTE ---- */
+.note {
+  background: var(--bg3);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 12px;
+  color: var(--text2);
+  line-height: 1.6;
+  margin: 8px 0 12px;
+  border-left: 3px solid var(--accent-purple-dim);
+}
+
+/* ---- DIFF BADGE ---- */
+.diff {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 2px 7px;
+  border-radius: 10px;
+  vertical-align: middle;
+  margin-left: 4px;
+}
+.diff-only { background: var(--accent-green-dim); color: var(--accent-green); }
+.diff-only-b { background: var(--accent-amber-dim); color: var(--accent-amber); }
+
+/* ---- FULL WIDTH SECTION ---- */
+.full-section {
+  margin-top: 32px;
+  background: var(--bg2);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  padding: 24px 28px 28px;
+}
+.full-section h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.full-section h2 span { color: var(--accent-coral); }
+
+/* ---- CHAIN VISUAL ---- */
+.chain {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex-wrap: wrap;
+  margin: 16px 0;
+}
+.chain-node {
+  background: var(--bg4);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-family: var(--mono);
+  color: var(--text);
+  white-space: nowrap;
+}
+.chain-arrow {
+  color: var(--text3);
+  font-size: 16px;
+  padding: 0 4px;
+  flex-shrink: 0;
+}
+
+/* ---- DECISION TABLE ---- */
+.dtable {
+  width: 100%;
+  font-size: 12.5px;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+.dtable th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--text2);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border2);
+}
+.dtable td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text2);
+  vertical-align: top;
+  line-height: 1.5;
+}
+.dtable td:first-child {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--accent-green);
+  white-space: nowrap;
+}
+.dtable tr:last-child td { border-bottom: none; }
+
+/* ---- FOOTER ---- */
+.footer {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text3);
+}
+
+@media print {
+  body { background: #fff; color: #111; }
+  .col { border-color: #ddd; background: #fafafa; }
+  .cmd { background: #f0f0f0 !important; color: #1a6b56 !important; }
+}
+@media (max-width: 900px) {
+  .cols { grid-template-columns: 1fr; }
+  .page { padding: 24px 16px 40px; }
+  .header { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .header .sub { text-align: left; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- HEADER -->
+<div class="header">
+  <h1>10xDevs <span>Skills</span> Workflow<br>Cheat Sheet</h1>
+  <div class="sub">Kurs: 10xDevs 3.0 · Przeprogramowani.pl<br>Moduł 1 (Sprint Zero) + Moduł 2 (Plan → Code → Review)</div>
+</div>
+
+<!-- LEGEND -->
+<div class="legend-bar">
+  <div class="li"><span class="ldot ldot-g"></span> Greenfield only</div>
+  <div class="li"><span class="ldot ldot-b"></span> Brownfield only</div>
+  <div class="li"><span class="ldot ldot-shared"></span> Wspólne kroki</div>
+  <div class="li"><span class="lline lline-dash"></span> Pętla per slice</div>
+</div>
+
+<!-- TWO COLUMNS -->
+<div class="cols">
+
+<!-- ===== GREENFIELD ===== -->
+<div class="col">
+  <div class="col-head">
+    <span class="badge badge-g">greenfield</span>
+    <h2>Nowy projekt od zera</h2>
+  </div>
+  <div class="col-body">
+
+    <div class="mod mod-m1">Moduł 1 — sprint zero</div>
+
+    <div class="step">
+      <span class="snum sn-p">1</span>
+      <div class="sbody">
+        <span class="cmd">/10x-shape</span>
+        <div class="desc">Sesja sokratejska — agent drąży pomysł</div>
+        <div class="out">→ shape-notes.md</div>
+      </div>
+    </div>
+    <div class="step">
+      <span class="snum sn-p">2</span>
+      <div class="sbody">
+        <span class="cmd">/10x-prd</span>
+        <div class="desc">Kontrakt produktowy z notatek</div>
+        <div class="out">→ prd.md</div>
+      </div>
+    </div>
+    <div class="step">
+      <span class="snum sn-g">3</span>
+      <div class="sbody">
+        <span class="cmd">/10x-tech-stack-selector</span>
+        <div class="desc">Wybór stacku + startera z rejestru</div>
+        <div class="out">→ tech-stack.md</div>
+      </div>
+    </div>
+    <div class="step">
+      <span class="snum sn-g">4</span>
+      <div class="sbody">
+        <span class="cmd">/10x-bootstrapper</span>
+        <div class="desc">Starter CLI → scaffolded repo</div>
+        <div class="out">→ projekt + verification.md</div>
+      </div>
+    </div>
+    <div class="step">
+      <span class="snum sn-p">5</span>
+      <div class="sbody">
+        <span class="cmd">/init</span> lub <span class="cmd">/10x-agents-md</span>
+        <div class="desc">Reguły projektowe dla agenta</div>
+        <div class="out">→ CLAUDE.md / AGENTS.md</div>
+      </div>
+    </div>
+    <div class="step">
+      <span class="snum sn-p">6</span>
+      <div class="sbody">
+        <span class="cmd">/10x-rule-review</span>
+        <div class="desc">Audyt jakości reguł (OK / WARN / FAIL)</div>
+      </div>
+    </div>
+    <div class="step">
+      <span class="snum sn-p">7</span>
+      <div class="sbody">
+        <span class="cmd">/10x-infra-research</span>
+        <div class="desc">Research platform + testy anti-bias</div>
+        <div class="out">→ infrastructure.md</div>
+      </div>
+    </div>
+    <div class="step">
+      <span class="snum sn-g">8</span>
+      <div class="sbody">
+        <span class="cmd">Plan Mode</span> <span style="color:var(--text3);font-size:12px">(Shift+Tab)</span>
+        <div class="desc">Pierwszy deploy na produkcję</div>
+        <div class="out">→ aplikacja live</div>
+      </div>
+    </div>
+
+    <div class="mod mod-m2">Moduł 2 — implementacja</div>
+
+    <div class="step">
+      <span class="snum sn-p">9</span>
+      <div class="sbody">
+        <span class="cmd">/10x-roadmap</span>
+        <div class="desc">Vertical slices + foundations z PRD</div>
+        <div class="out">→ roadmap.md</div>
+      </div>
+    </div>
+
+    <div class="loop">
+      <span class="loop-tag">↻ per slice</span>
+      <div class="step">
+        <span class="snum sn-p">10</span>
+        <div class="sbody">
+          <span class="cmd">/10x-new &lt;id&gt;</span>
+          <div class="out">→ context/changes/&lt;id&gt;/</div>
+        </div>
+      </div>
+      <div class="step">
+        <span class="snum sn-p" style="opacity:.5">~</span>
+        <div class="sbody">
+          <span style="color:var(--accent-coral);font-size:12px;font-weight:500">Research (opcjonalnie)</span>
+          <div class="desc">Exa.ai + Context7 + <span class="cmd" style="font-size:11px">/10x-research</span></div>
+          <div class="out">→ research.md</div>
+        </div>
+      </div>
+      <div class="step">
+        <span class="snum sn-p">11</span>
+        <div class="sbody">
+          <span class="cmd">/10x-plan</span> → <span class="cmd">/10x-plan-review</span>
+          <div class="out">→ plan.md + plan-brief.md</div>
+        </div>
+      </div>
+      <div class="step">
+        <span class="snum sn-p">12</span>
+        <div class="sbody">
+          <span class="cmd">/10x-implement &lt;id&gt; phase N</span>
+          <div class="desc">Fazowa realizacja + commit per faza</div>
+          <div class="out">→ kod + ## Progress</div>
+        </div>
+      </div>
+      <div class="step" style="margin-bottom:0">
+        <span class="snum sn-p">13</span>
+        <div class="sbody">
+          <span class="cmd">/10x-impl-review</span> → triage → merge
+          <div class="desc">Scorecard 6 wymiarów + /10x-lesson</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== BROWNFIELD ===== -->
+<div class="col">
+  <div class="col-head">
+    <span class="badge badge-b">brownfield</span>
+    <h2>Istniejący projekt</h2>
+  </div>
+  <div class="col-body">
+
+    <div class="mod mod-m1">Moduł 1 — sprint zero</div>
+
+    <div class="step">
+      <span class="snum sn-p">1</span>
+      <div class="sbody">
+        <span class="cmd cmd-b">/10x-shape</span> <span class="diff diff-only-b">brownfield mode</span>
+        <div class="desc">Pyta: co chcesz dodać / poprawić?</div>
+        <div class="out">→ shape-notes.md</div>
+      </div>
+    </div>
+    <div class="step">
+      <span class="snum sn-p">2</span>
+      <div class="sbody">
+        <span class="cmd cmd-b">/10x-prd</span>
+        <div class="desc">Focus: nowe wymagania / zmiany</div>
+        <div class="out">→ prd.md</div>
+      </div>
+    </div>
+    <div class="step">
+      <span class="snum sn-b">3</span>
+      <div class="sbody">
+        <span class="cmd cmd-b">/10x-stack-assess</span>
+        <div class="desc">Diagnoza: typed? convention-based? popular? documented?</div>
+        <div class="out">→ stack-assessment.md + plan kompensacji</div>
+      </div>
+    </div>
+    <div class="step">
+      <span class="snum sn-b">4</span>
+      <div class="sbody">
+        <span class="cmd cmd-b">/10x-health-check</span>
+        <div class="desc">Stan repo: zależności, config, testy, lint</div>
+        <div class="out">→ raport stanu</div>
+      </div>
+    </div>
+    <div class="step">
+      <span class="snum sn-p">5</span>
+      <div class="sbody">
+        <span class="cmd">/init</span> lub <span class="cmd">/10x-agents-md</span>
+        <div class="desc">Reguły projektowe dla agenta</div>
+        <div class="out">→ CLAUDE.md / AGENTS.md</div>
+      </div>
+    </div>
+    <div class="step">
+      <span class="snum sn-p">6</span>
+      <div class="sbody">
+        <span class="cmd">/10x-rule-review</span>
+        <div class="desc">Audyt jakości reguł (OK / WARN / FAIL)</div>
+      </div>
+    </div>
+    <div class="step">
+      <span class="snum sn-p">7</span>
+      <div class="sbody">
+        <span class="cmd">/10x-infra-research</span>
+        <div class="desc">Tylko jeśli zmiana platformy / nowy deploy</div>
+        <div class="out">→ infrastructure.md</div>
+      </div>
+    </div>
+    <div class="step">
+      <span class="snum sn-b">8</span>
+      <div class="sbody">
+        <span style="color:var(--text3);font-size:12px">Deploy już istnieje — pomiń lub zaktualizuj</span>
+      </div>
+    </div>
+
+    <div class="mod mod-m2">Moduł 2 — implementacja (identyczna)</div>
+
+    <div class="step">
+      <span class="snum sn-p">9</span>
+      <div class="sbody">
+        <span class="cmd">/10x-roadmap</span>
+        <div class="desc">Vertical slices + foundations z PRD</div>
+        <div class="out">→ roadmap.md</div>
+      </div>
+    </div>
+
+    <div class="loop">
+      <span class="loop-tag">↻ per slice</span>
+      <div class="step">
+        <span class="snum sn-p">10</span>
+        <div class="sbody">
+          <span class="cmd">/10x-new &lt;id&gt;</span>
+          <div class="out">→ context/changes/&lt;id&gt;/</div>
+        </div>
+      </div>
+      <div class="step">
+        <span class="snum sn-p" style="opacity:.5">~</span>
+        <div class="sbody">
+          <span style="color:var(--accent-coral);font-size:12px;font-weight:500">Research (opcjonalnie)</span>
+          <div class="desc">Exa.ai + Context7 + <span class="cmd" style="font-size:11px">/10x-research</span></div>
+          <div class="out">→ research.md</div>
+        </div>
+      </div>
+      <div class="step">
+        <span class="snum sn-p">11</span>
+        <div class="sbody">
+          <span class="cmd">/10x-plan</span> → <span class="cmd">/10x-plan-review</span>
+          <div class="out">→ plan.md + plan-brief.md</div>
+        </div>
+      </div>
+      <div class="step">
+        <span class="snum sn-p">12</span>
+        <div class="sbody">
+          <span class="cmd">/10x-implement &lt;id&gt; phase N</span>
+          <div class="desc">Fazowa realizacja + commit per faza</div>
+          <div class="out">→ kod + ## Progress</div>
+        </div>
+      </div>
+      <div class="step" style="margin-bottom:0">
+        <span class="snum sn-p">13</span>
+        <div class="sbody">
+          <span class="cmd">/10x-impl-review</span> → triage → merge
+          <div class="desc">Scorecard 6 wymiarów + /10x-lesson</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="note" style="border-left-color:var(--accent-amber-dim)">
+      Brownfield: moduł 2 jest identyczny. Różni się tylko sprint zero — diagnoza stacku zamiast wyboru, health-check zamiast bootstrapu.
+    </div>
+
+  </div>
+</div>
+
+</div><!-- end cols -->
+
+<!-- ===== ARTIFACT CHAIN ===== -->
+<div class="full-section">
+  <h2><span>→</span> Łańcuch artefaktów</h2>
+  <div class="chain">
+    <div class="chain-node">shape-notes.md</div><span class="chain-arrow">→</span>
+    <div class="chain-node">prd.md</div><span class="chain-arrow">→</span>
+    <div class="chain-node">tech-stack.md</div><span class="chain-arrow">→</span>
+    <div class="chain-node">repo</div><span class="chain-arrow">→</span>
+    <div class="chain-node">AGENTS.md</div><span class="chain-arrow">→</span>
+    <div class="chain-node">infrastructure.md</div><span class="chain-arrow">→</span>
+    <div class="chain-node">roadmap.md</div><span class="chain-arrow">→</span>
+    <div class="chain-node" style="border-color:var(--accent-coral-dim);color:var(--accent-coral)">per slice:</div><span class="chain-arrow">→</span>
+    <div class="chain-node">change.md</div><span class="chain-arrow">→</span>
+    <div class="chain-node">research.md</div><span class="chain-arrow">→</span>
+    <div class="chain-node">plan.md</div><span class="chain-arrow">→</span>
+    <div class="chain-node">kod + commity</div><span class="chain-arrow">→</span>
+    <div class="chain-node">review → merge</div>
+  </div>
+  <p style="font-size:12px;color:var(--text3);margin-top:8px">Każdy artefakt jest wsadem dla następnego. Pominięcie = agent improwizuje.</p>
+</div>
+
+<!-- ===== DECISION TABLE ===== -->
+<div class="full-section">
+  <h2><span>?</span> Kiedy co odpalić</h2>
+  <table class="dtable">
+    <thead>
+      <tr><th>Sytuacja</th><th>Skill / działanie</th><th>Dlaczego</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Nowy pomysł</td><td>/10x-shape → /10x-prd</td><td>Zanim cokolwiek kodujesz — kontrakt</td></tr>
+      <tr><td>Mam PRD, nie mam stacku</td><td>/10x-tech-stack-selector</td><td>Rejestr starterów > pamięć modelu</td></tr>
+      <tr><td>Wchodzę w istniejący projekt</td><td>/10x-stack-assess → /10x-health-check</td><td>Diagnoza zamiast wyboru</td></tr>
+      <tr><td>Mam stack, nie mam repo</td><td>/10x-bootstrapper</td><td>Starter CLI > boilerplate z głowy</td></tr>
+      <tr><td>Agent łamie konwencje</td><td>/init + /10x-rule-review</td><td>Reguły w pliku > poprawki per prompt</td></tr>
+      <tr><td>Nie wiem gdzie deployować</td><td>/10x-infra-research</td><td>Scoring + devil's advocate + pre-mortem</td></tr>
+      <tr><td>Mam PRD + repo, co dalej?</td><td>/10x-roadmap</td><td>Vertical slices, nie "zbuduj mi MVP"</td></tr>
+      <tr><td>Prosty slice (CRUD, fundament)</td><td>/10x-new → /10x-plan → /10x-implement</td><td>Szybka ścieżka bez researchu</td></tr>
+      <tr><td>Trudny slice (logika, biblioteki)</td><td>Exa + Context7 + /10x-research → plan</td><td>Research przed planem, nie po</td></tr>
+      <tr><td>Kod gotowy, przed merge</td><td>/10x-impl-review → triage</td><td>Scorecard 6 wymiarów, nie "wygląda ok"</td></tr>
+      <tr><td>Powtarzający się błąd agenta</td><td>/10x-lesson</td><td>Reguła w lessons.md > poprawka per sesja</td></tr>
+      <tr><td>Wiele niezależnych slice'ów</td><td>git worktree + /goal per worktree</td><td>Izolacja: katalog + branch + agent</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ===== REVIEW SCORECARD REMINDER ===== -->
+<div class="full-section">
+  <h2><span>✓</span> Review scorecard — 6 wymiarów</h2>
+  <table class="dtable">
+    <thead>
+      <tr><th>Wymiar</th><th>Pytanie</th></tr>
+    </thead>
+    <tbody>
+      <tr><td style="color:var(--accent-purple)">Plan adherence</td><td>Czy implementacja realizuje zatwierdzony plan?</td></tr>
+      <tr><td style="color:var(--accent-purple)">Scope discipline</td><td>Czy agent nie dorzucił zmian spoza zakresu?</td></tr>
+      <tr><td style="color:var(--accent-purple)">Safety & quality</td><td>Czy zmiana nie otwiera ryzyk bezpieczeństwa / danych / stabilności?</td></tr>
+      <tr><td style="color:var(--accent-purple)">Architecture</td><td>Czy rozwiązanie pasuje do architektury projektu?</td></tr>
+      <tr><td style="color:var(--accent-purple)">Pattern consistency</td><td>Czy kod używa lokalnych wzorców zamiast wymyślać własne?</td></tr>
+      <tr><td style="color:var(--accent-purple)">Success criteria</td><td>Czy kryteria sukcesu są naprawdę spełnione?</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:12px;color:var(--text3);margin-top:12px">Triage per finding: <strong style="color:var(--accent-green)">fix now</strong> · <strong style="color:var(--accent-blue)">fix differently</strong> · <strong style="color:var(--text2)">skip</strong> · <strong style="color:var(--accent-amber)">record as lesson</strong></p>
+</div>
+
+<div class="footer">
+  <span>Na podstawie kursu 10xDevs 3.0 — Przeprogramowani.pl</span>
+  <span>Wygenerowano: maj 2026</span>
+</div>
+
+</div>
+</body>
+</html>

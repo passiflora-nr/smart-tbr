@@ -1,6 +1,6 @@
 # Repository Guidelines
 
-Astro v6 server-rendered app with React 19 islands, Tailwind v4, and Supabase Auth, deployed to Cloudflare Workers via `@astrojs/cloudflare`. Node 22 (`@.nvmrc`), npm, TypeScript strict.
+Astro v6 server-rendered app with React 19 islands, Tailwind v4, and Supabase Auth, deployed to Cloudflare Workers via `@astrojs/cloudflare`. Node 22 (`@.nvmrc`), npm, TypeScript strict. **Production:** `https://smart-tbr.nicole-rozanska93.workers.dev` — ops details in `@context/foundation/infrastructure.md`.
 
 ## Hard Rules
 
@@ -13,6 +13,7 @@ Astro v6 server-rendered app with React 19 islands, Tailwind v4, and Supabase Au
 - **Dev runs in workerd, not Node.** Code in `src/pages/api/**` and `src/middleware.ts` should avoid Node-only APIs unless covered by `nodejs_compat` (`@wrangler.jsonc`). Before adding npm packages, confirm they work on Workers/edge; prefer Supabase REST over raw Postgres drivers.
 - **API routes must reach the Worker, not Static Assets.** Keep `assets.run_worker_first: ["/api/*"]` in `@wrangler.jsonc` when adding routes under `src/pages/api/` — without it, auth and other API handlers return 1003/403.
 - **Platform constraints:** deploy/ops gotchas and mitigated risks — `@context/foundation/infrastructure.md` Risk Register.
+- **Shell commands:** run allowlisted shell commands one at a time. Do not chain with `&&`, `;`, or `|`.
 
 ## Project Structure
 
@@ -21,6 +22,7 @@ Astro v6 server-rendered app with React 19 islands, Tailwind v4, and Supabase Au
 - `src/layouts/`, `src/lib/`, `src/middleware.ts`, `src/styles/global.css` (Tailwind v4 entry).
 - `supabase/config.toml` — local stack config; `wrangler.jsonc` — Cloudflare deploy; `public/` — static assets.
 - Setup, auth routes, and deployment steps: `@README.md`.
+- Production ops, rollback, and remaining manual tasks: `@context/foundation/infrastructure.md` (rollout log: `@context/archive/deploy-plan.md`).
 
 ## Build, Test, and Development Commands
 
