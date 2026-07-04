@@ -3,7 +3,7 @@ project: SmartTBR
 version: 1
 status: draft
 created: 2026-06-14
-updated: 2026-06-14
+updated: 2026-06-21
 prd_version: 1
 main_goal: speed
 top_blocker: time
@@ -46,6 +46,37 @@ Navigation aid - groups items that share a Prerequisites chain. Canonical orderi
 | A | Validation spine | `F-01` -> `S-01` -> `S-05` | The north-star path; sequenced first per `main_goal: speed`. |
 | B | TBR management | `S-02` -> `S-03` / `S-04` | Joins Stream A at `S-01`; `S-03` and `S-04` are parallel after `S-02`. |
 | C | Account lifecycle | `S-06` | Depends on `F-01` + present auth; parallel with Stream B. |
+
+## Dependency graph (illustration)
+
+> Derived from **At a glance** (Prerequisites column) and each item's `- **Prerequisites:**` line. Illustration only — if this diagram diverges from the table or slice bodies, treat those as authoritative. Implementation specs live in `context/changes/<change-id>/plan.md`, not here.
+
+```mermaid
+flowchart TB
+  F01["F-01 · TBR data + RLS<br/>(foundation, ready)"]
+
+  subgraph A["Stream A · Validation spine"]
+    S01["S-01 · Add book"]
+    S05["S-05 · Mood-trope pick<br/>(north star)"]
+  end
+
+  subgraph B["Stream B · TBR management"]
+    S02["S-02 · Browse TBR"]
+    S03["S-03 · Edit / delete"]
+    S04["S-04 · Search / filter"]
+  end
+
+  subgraph C["Stream C · Account lifecycle"]
+    S06["S-06 · Account lifecycle"]
+  end
+
+  F01 --> S01
+  F01 --> S06
+  S01 --> S05
+  S01 --> S02
+  S02 --> S03
+  S02 --> S04
+```
 
 ## Baseline
 
