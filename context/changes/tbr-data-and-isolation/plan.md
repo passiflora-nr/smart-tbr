@@ -256,6 +256,14 @@ Generate the TypeScript schema types, wire a regeneration script, and type the S
 
 **Contract**: Import `Database` from `./database.types` and pass it as the generic to `createServerClient<Database>(...)`. Preserve the existing null-return-when-unset behavior. No client-side import of server env.
 
+#### 4. Exclude generated types from linting
+
+**File**: `eslint.config.js`
+
+**Intent**: Keep the machine-generated `src/lib/database.types.ts` out of type-aware ESLint so `npm run lint` stays green without hand-editing generated output.
+
+**Contract**: Add `{ ignores: ["src/lib/database.types.ts"] }` to the flat config. _(Addendum, added during implementation review 2026-07-05: this file change was made during Phase 3 but was not in the original Changes Required list.)_
+
 ### Success Criteria:
 
 #### Automated Verification:

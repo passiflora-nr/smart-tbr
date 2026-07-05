@@ -36,3 +36,10 @@
 - **Problem**: Archiving or closing a plan before the user sees the remaining manual ops hides dashboard/hygiene tasks they still need to do — the agent marked rollout complete and moved deploy-plan to archive in the same commit without the user reviewing what was left.
 - **Rule**: Before archiving a plan or setting `status: done`, show the user a "Remaining manual ops" summary and get acknowledgment. Only archive after they have seen it.
 - **Applies to**: plan, plan-review, implement, impl-review
+
+## Rerun affected tests after changing test files or their dependencies
+
+- **Context**: Any implementation/review work that edits test files or the code, fixtures, or config those tests depend on.
+- **Problem**: A change to a test file or a file the test depends on can silently break the test; without rerunning, the breakage ships undetected.
+- **Rule**: When changing any test file or any file the tests depend on, rerun the affected tests to confirm they still pass before considering the change done.
+- **Applies to**: implement, impl-review

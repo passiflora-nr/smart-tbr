@@ -1,9 +1,9 @@
 -- FR-011 isolation proof: cross-account access denied, owner access works.
 -- Run: psql "$LOCAL_DB_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rls.sql
-
-\set user_a 'a0000000-0000-4000-8000-000000000001'
-\set user_b 'b0000000-0000-4000-8000-000000000001'
-\set user_a_book_count 6
+--
+-- UUIDs and the expected count are hardcoded inline: psql does not
+-- interpolate :variables inside dollar-quoted (do $$ ... $$) blocks,
+-- which is where the fixtures are used. Keep seed.sql UUIDs in sync.
 
 -- User B cannot read User A's books
 begin;
