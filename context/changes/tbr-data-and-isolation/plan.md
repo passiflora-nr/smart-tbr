@@ -364,28 +364,28 @@ Negligible at MVP scale (~100 books/user, single-digit users). The GIN index on 
 
 #### Automated
 
-- [x] 2.1 `supabase db reset` loads the seed without FK/constraint errors
-- [x] 2.2 Isolation proof passes with zero assertion failures (`rls.sql`)
-- [x] 2.3 Owner-visibility assertion (User A sees own rows) passes
+- [x] 2.1 `supabase db reset` loads the seed without FK/constraint errors — 47630e2
+- [x] 2.2 Isolation proof passes with zero assertion failures (`rls.sql`) — 47630e2
+- [x] 2.3 Owner-visibility assertion (User A sees own rows) passes — 47630e2
 
 #### Manual
 
-- [x] 2.4 (Optional, Studio-only) Confirm seed users in auth.users and books rows show expected user_id owners
-- [x] 2.5 Seed data visible in Studio under correct owners
+- [x] 2.4 (Optional, Studio-only) Confirm seed users in auth.users and books rows show expected user_id owners — 47630e2
+- [x] 2.5 Seed data visible in Studio under correct owners — 47630e2
 
 ### Phase 3: Typed Data Boundary
 
 #### Automated
 
-- [ ] 3.1 `npm run gen:types` produces non-empty `database.types.ts` with a `books` type
-- [ ] 3.2 `npx astro sync` runs clean
-- [ ] 3.3 `npm run lint` passes
-- [ ] 3.4 `npm run build` passes
+- [x] 3.1 `npm run gen:types` produces non-empty `database.types.ts` with a `books` type
+- [x] 3.2 `npx astro sync` runs clean
+- [x] 3.3 `npm run lint` passes
+- [x] 3.4 `npm run build` passes
 
 #### Manual
 
-- [ ] 3.5 Scratch typed `from("books")` shows typed columns
-- [ ] 3.6 No server-only env leaks into client bundles
+- [x] 3.5 Scratch typed `from("books")` shows typed columns
+- [x] 3.6 No server-only env leaks into client bundles
 
 ### Phase 4: Production Rollout (Human-Gated)
 
