@@ -10,7 +10,7 @@ The critical guarantee is **FR-011 / privacy Guardrail**: a user can never see a
 
 - **No data layer exists.** `supabase/config.toml` defines the local stack (`db.migrations.enabled = true`, seed path `./seed.sql`), but there is **no `supabase/migrations/` directory and no `books` schema**. This is the first migration in the repo.
 - **The RLS enforcement path is already correctly wired.** `src/lib/supabase.ts` builds a `createServerClient` (`@supabase/ssr`) using the user's forwarded cookies plus the anon/publishable `SUPABASE_KEY`. Requests therefore run as the authenticated Postgres role, so `auth.uid()`-based policies are actually enforced — the app is **not** on a service-role key that would bypass RLS.
-- **Auth is present.** Supabase email+password sign-up/in/out exist (`src/pages/api/auth/*`), `src/middleware.ts` populates `context.locals.user`, and `/dashboard` is gated. `App.Locals.user` is typed in `src/env.d.ts`.
+- **Auth is present.** Supabase email+password sign-up/in/out exist (`src/pages/api/auth/`*), `src/middleware.ts` populates `context.locals.user`, and `/dashboard` is gated. `App.Locals.user` is typed in `src/env.d.ts`.
 - **Tooling is ready.** `supabase` CLI v2.101.0 is a devDependency; `@supabase/supabase-js` v2 is installed. No `gen:types` script exists yet.
 - **No test framework** is wired up (per `AGENTS.md`) — RLS verification is done with a checked-in SQL script run against the local stack, not a JS test runner.
 - **Production migrations are human-gated.** `context/foundation/infrastructure.md` lists "running schema migrations against Supabase production" as a human approval gate, and notes `wrangler rollback` does **not** undo schema migrations (manual reversal only).
@@ -19,7 +19,7 @@ The critical guarantee is **FR-011 / privacy Guardrail**: a user can never see a
 ### Key Discoveries:
 
 - `src/lib/supabase.ts:9` — `createServerClient(SUPABASE_URL, SUPABASE_KEY, …)` with cookie-scoped auth → RLS is live for every app query. **Invariant to preserve:** TBR data access must always go through this cookie-scoped client, never a service-role key.
-- `src/lib/supabase.ts:6` — `createClient` returns `null` when env is unset; every consumer must null-check (already the codebase convention).
+- `sr`c/lib/supabase.ts:6` — `createClient` returns `null` when env is unset; every consumer must null-check (already the codebase convention).
 - `supabase/config.toml:53-65` — migrations and seed are enabled; seed loads from `./seed.sql` on `supabase db reset`.
 - `astro.config.mjs:17-22` — `SUPABASE_URL` / `SUPABASE_KEY` are `context:"server"`, `access:"secret"`; server-only, never read in client code.
 - `wrangler.jsonc:12` — `run_worker_first: ["/api/*"]`; unrelated to this change but the pattern future TBR API routes depend on.
@@ -61,9 +61,10 @@ set local request.jwt.claims to '{"sub":"<user-uuid>","role":"authenticated"}';
 ```
 
   Queries then execute under that user's RLS context. This is the non-obvious mechanism the isolation proof depends on.
-- **`rls.sql` connection string.** Phase 2 runs the proof with `psql "$LOCAL_DB_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rls.sql`. Set `LOCAL_DB_URL` from `npx supabase status` (look for the DB URL), or use the default local stack URL: `postgresql://postgres:postgres@127.0.0.1:54322/postgres` (port matches `supabase/config.toml`).
-- **`updated_at` auto-update** should use the standard `moddatetime` extension via a `BEFORE UPDATE` trigger, rather than a hand-rolled function, to keep the migration minimal. The migration must enable it first with `create extension if not exists moddatetime schema extensions;`, then call `extensions.moddatetime(updated_at)`.
-- **`supabase gen types --local` requires the local stack running** (`supabase start`, i.e. Docker up). It reads the live local schema, so it must run after the migration is applied locally.
+
+- `**rls.sql` connection string.** Phase 2 runs the proof with `psql "$LOCAL_DB_URL" -v ON_ERROR_STOP=1 -f supabase/tests/rls.sql`. Set `LOCAL_DB_URL` from `npx supabase status` (look for the DB URL), or use the default local stack URL: `postgresql://postgres:postgres@127.0.0.1:54322/postgres` (port matches `supabase/config.toml`).
+- `**updated_at` auto-update** should use the standard `moddatetime` extension via a `BEFORE UPDATE` trigger, rather than a hand-rolled function, to keep the migration minimal. The migration must enable it first with `create extension if not exists moddatetime schema extensions;`, then call `extensions.moddatetime(updated_at)`.
+- `**supabase gen types --local` requires the local stack running** (`supabase start`, i.e. Docker up). It reads the live local schema, so it must run after the migration is applied locally.
 - **Production apply requires linking + DB credentials** (`supabase link`, then `supabase db push`) or applying the migration SQL via the Supabase Studio SQL editor. Either path is the human-gated step — do not run it unattended.
 
 ## Phase 1: Schema Migration
@@ -81,6 +82,7 @@ Create the first repo migration defining the `books` table with all columns, con
 **Intent**: Define the entire `books` schema and its isolation policies in one atomic migration so the table can never exist without RLS protecting it.
 
 **Contract**: A `public.books` table with:
+
 - `id uuid primary key default gen_random_uuid()`
 - `user_id uuid not null references auth.users(id) on delete cascade`
 - `title text not null`, `author text not null`
@@ -146,18 +148,20 @@ Add local seed data and a checked-in SQL script that proves FR-011: a second use
 
 **Contract**: Idempotent inserts (fixed UUIDs) into `auth.users` for two users (User A, User B), followed by ~5-10 `books` rows per user with varied, overlapping `tropes` arrays. Users must be inserted before books (FK). Local-only; never applied to production. These synthetic users do not need to be loginable via Supabase Auth; downstream UI/API slices should create real accounts through signup or add loginable fixtures deliberately.
 
-**`auth.users` seed checklist** (local stack; use fixed UUIDs for User A and User B so `rls.sql` can reference them):
+`**auth.users` seed checklist** (local stack; use fixed UUIDs for User A and User B so `rls.sql` can reference them):
 
-| Column | Value / notes |
-| --- | --- |
-| `id` | Fixed UUID per user (referenced by `books.user_id` and `rls.sql`) |
-| `instance_id` | `'00000000-0000-0000-0000-000000000000'` (local dev default) |
-| `aud` | `'authenticated'` |
-| `role` | `'authenticated'` |
-| `email` | Unique per user, e.g. `user-a@example.test` / `user-b@example.test` |
-| `encrypted_password` | Bcrypt hash of a known test password (e.g. `password123`) |
-| `email_confirmed_at` | `now()` (so local auth treats the account as confirmed) |
-| `created_at` / `updated_at` | `now()` |
+
+| Column                      | Value / notes                                                       |
+| --------------------------- | ------------------------------------------------------------------- |
+| `id`                        | Fixed UUID per user (referenced by `books.user_id` and `rls.sql`)   |
+| `instance_id`               | `'00000000-0000-0000-0000-000000000000'` (local dev default)        |
+| `aud`                       | `'authenticated'`                                                   |
+| `role`                      | `'authenticated'`                                                   |
+| `email`                     | Unique per user, e.g. `user-a@example.test` / `user-b@example.test` |
+| `encrypted_password`        | Bcrypt hash of a known test password (e.g. `password123`)           |
+| `email_confirmed_at`        | `now()` (so local auth treats the account as confirmed)             |
+| `created_at` / `updated_at` | `now()`                                                             |
+
 
 Use `ON CONFLICT (id) DO NOTHING` (or equivalent) so re-running seed after `db reset` stays idempotent. Insert both users before any `books` rows.
 
@@ -168,6 +172,7 @@ Use `ON CONFLICT (id) DO NOTHING` (or equivalent) so re-running seed after `db r
 **Intent**: Assert the isolation contract deterministically so any agent/human can re-run it after any policy change.
 
 **Contract**: A script that, per user transaction block (using `BEGIN`/`ROLLBACK`, with role and claims set via `SET LOCAL`), first asserts `auth.uid()` equals the expected fixed user UUID, then asserts:
+
 - As User B: `select` over User A's books returns 0 rows.
 - As User B: `update`/`delete` targeting User A's rows affect 0 rows (RLS filters them out).
 - As User B: `insert` with `user_id = <User A>` is rejected by the insert `with check`.
@@ -339,21 +344,21 @@ Negligible at MVP scale (~100 books/user, single-digit users). The GIN index on 
 
 ## Progress
 
-> Convention: `- [ ]` pending, `- [x]` done. Append ` — <commit sha>` when a step lands. Do not rename step titles. See `references/progress-format.md`.
+> Convention: `- [ ]` pending, `- [x]` done. Append  `— <commit sha>` when a step lands. Do not rename step titles. See `references/progress-format.md`.
 
 ### Phase 1: Schema Migration
 
 #### Automated
 
-- [ ] 1.1 Migration file exists under `supabase/migrations/`
-- [ ] 1.2 Local stack starts: `npx supabase start`
-- [ ] 1.3 Migration applies cleanly: `npx supabase migration up`
-- [ ] 1.4 `books` table + RLS + 4 policies present
+- [x] 1.1 Migration file exists under `supabase/migrations/`
+- [x] 1.2 Local stack starts: `npx supabase start`
+- [x] 1.3 Migration applies cleanly: `npx supabase migration up`
+- [x] 1.4 `books` table + RLS + 4 policies present
 
 #### Manual
 
-- [ ] 1.5 Columns, types, defaults, constraints match the contract in Studio
-- [ ] 1.6 Empty tropes array / blank title rejected by the DB
+- [x] 1.5 Columns, types, defaults, constraints match the contract in Studio
+- [x] 1.6 Empty tropes array / blank title rejected by the DB
 
 ### Phase 2: Seed + RLS Isolation Proof
 
