@@ -350,28 +350,28 @@ Negligible at MVP scale (~100 books/user, single-digit users). The GIN index on 
 
 #### Automated
 
-- [x] 1.1 Migration file exists under `supabase/migrations/`
-- [x] 1.2 Local stack starts: `npx supabase start`
-- [x] 1.3 Migration applies cleanly: `npx supabase migration up`
-- [x] 1.4 `books` table + RLS + 4 policies present
+- [x] 1.1 Migration file exists under `supabase/migrations/` — 67b9e44
+- [x] 1.2 Local stack starts: `npx supabase start` — 67b9e44
+- [x] 1.3 Migration applies cleanly: `npx supabase migration up` — 67b9e44
+- [x] 1.4 `books` table + RLS + 4 policies present — 67b9e44
 
 #### Manual
 
-- [x] 1.5 Columns, types, defaults, constraints match the contract in Studio
-- [x] 1.6 Empty tropes array / blank title rejected by the DB
+- [x] 1.5 Columns, types, defaults, constraints match the contract in Studio — 67b9e44
+- [x] 1.6 Empty tropes array / blank title rejected by the DB — 67b9e44
 
 ### Phase 2: Seed + RLS Isolation Proof
 
 #### Automated
 
-- [ ] 2.1 `supabase db reset` loads the seed without FK/constraint errors
-- [ ] 2.2 Isolation proof passes with zero assertion failures (`rls.sql`)
-- [ ] 2.3 Owner-visibility assertion (User A sees own rows) passes
+- [x] 2.1 `supabase db reset` loads the seed without FK/constraint errors
+- [x] 2.2 Isolation proof passes with zero assertion failures (`rls.sql`)
+- [x] 2.3 Owner-visibility assertion (User A sees own rows) passes
 
 #### Manual
 
-- [ ] 2.4 (Optional, Studio-only) Confirm seed users in auth.users and books rows show expected user_id owners
-- [ ] 2.5 Seed data visible in Studio under correct owners
+- [x] 2.4 (Optional, Studio-only) Confirm seed users in auth.users and books rows show expected user_id owners
+- [x] 2.5 Seed data visible in Studio under correct owners
 
 ### Phase 3: Typed Data Boundary
 
