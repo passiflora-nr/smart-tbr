@@ -391,10 +391,10 @@ Negligible at MVP scale (~100 books/user, single-digit users). The GIN index on 
 
 #### Automated
 
-- [x] 4.1 `supabase db push` reports migration applied (or Studio confirms)
+- [x] 4.1 `supabase db push` reports migration applied (or Studio confirms) — af8b39b
 
 #### Manual
 
-- [x] 4.2 Production shows `books` with RLS enabled + four policies
-- [x] 4.3 Prod RLS check via Studio SQL (JWT impersonation) or fresh account — zero rows, no RLS error
-- [x] 4.4 Manual rollback path acknowledged
+- [x] 4.2 Production shows `books` with RLS enabled + four policies — af8b39b
+- [x] 4.3 Prod RLS check via Studio SQL (JWT impersonation) or fresh account — zero rows, no RLS error — af8b39b
+- [x] 4.4 Manual rollback path acknowledged — af8b39b
