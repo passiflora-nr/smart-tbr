@@ -504,24 +504,24 @@ No schema migration. The `books` table, its constraints, indexes, RLS policies, 
 
 #### Automated
 
-- [x] 3.1 `npx astro sync` completes clean
-- [x] 3.2 Type-aware lint passes: `npm run lint`
-- [x] 3.3 Production build passes: `npm run build`
-- [x] 3.4 Unauthenticated `GET /books/new` redirects to `/auth/signin` (302), confirming the `PROTECTED_ROUTES` entry
+- [x] 3.1 `npx astro sync` completes clean — cb75e68
+- [x] 3.2 Type-aware lint passes: `npm run lint` — cb75e68
+- [x] 3.3 Production build passes: `npm run build` — cb75e68
+- [x] 3.4 Unauthenticated `GET /books/new` redirects to `/auth/signin` (302), confirming the `PROTECTED_ROUTES` entry — cb75e68
 
 
 
 #### Manual
 
-- [x] 3.5 A book with title, author, two tropes, and no description saves; the fields clear and focus lands back on the title input
-- [x] 3.6 The saved book appears at the top of the session list with the tropes as stored
-- [x] 3.7 A second book can be entered immediately with no page reload, and both appear in the list
-- [x] 3.8 The description is saved when provided and stored as null when left blank
-- [x] 3.9 Submitting with an empty title, empty author, or no tropes shows field-level errors and does not POST
-- [x] 3.10 Saving a duplicate title and author shows the non-blocking duplicate notice and still saves
-- [x] 3.11 A failed save (e.g. dev server stopped) shows an error and preserves everything typed
-- [x] 3.12 The dashboard link reaches the page, and the page's back-link reaches the dashboard
-- [x] 3.13 After saving two books, refreshing the page empties the session list — and the heading and empty-state wording make clear that nothing was lost (the books are still in Supabase Studio)
+- [x] 3.5 A book with title, author, two tropes, and no description saves; the fields clear and focus lands back on the title input — cb75e68
+- [x] 3.6 The saved book appears at the top of the session list with the tropes as stored — cb75e68
+- [x] 3.7 A second book can be entered immediately with no page reload, and both appear in the list — cb75e68
+- [x] 3.8 The description is saved when provided and stored as null when left blank — cb75e68
+- [x] 3.9 Submitting with an empty title, empty author, or no tropes shows field-level errors and does not POST — cb75e68
+- [x] 3.10 Saving a duplicate title and author shows the non-blocking duplicate notice and still saves — cb75e68
+- [x] 3.11 A failed save (e.g. dev server stopped) shows an error and preserves everything typed — cb75e68
+- [x] 3.12 The dashboard link reaches the page, and the page's back-link reaches the dashboard — cb75e68
+- [x] 3.13 After saving two books, refreshing the page empties the session list — and the heading and empty-state wording make clear that nothing was lost (the books are still in Supabase Studio) — cb75e68
 
 
 
@@ -532,12 +532,12 @@ No schema migration. The `books` table, its constraints, indexes, RLS policies, 
 #### Automated
 
 - [x] 4.1 `supabase/tests/rls.sql` runs clean against the local stack
-- [ ] 4.2 CI passes on the branch (`npm ci`, `npx astro sync`, `npm run lint`, `npm run build`)
+- [x] 4.2 CI passes on the branch (`npm ci`, `npx astro sync`, `npm run lint`, `npm run build`)
 
 
 
 #### Manual
 
-- [ ] 4.3 Three consecutive realistic books each take under 30 seconds of input
-- [ ] 4.4 A body containing a foreign `user_id` cannot create a row owned by another account
-- [ ] 4.5 The feature works on at least two of the four mainstream desktop browsers (per the PRD browser NFR)
+- [x] 4.3 Three consecutive realistic books each take under 30 seconds of input
+- [x] 4.4 A body containing a foreign `user_id` cannot create a row owned by another account
+- [x] 4.5 The feature works on at least two of the four mainstream desktop browsers (per the PRD browser NFR)
