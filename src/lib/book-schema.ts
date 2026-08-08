@@ -39,9 +39,9 @@ const authorSchema = z
 
 const descriptionSchema = z
   .string()
-  .optional()
+  .nullish()
   .transform((value) => {
-    if (value === undefined) return null;
+    if (value == null) return null;
     const trimmed = value.trim();
     return trimmed.length === 0 ? null : trimmed;
   })
@@ -77,7 +77,7 @@ function isBookRow(value: unknown): value is Tables<"books"> {
     typeof row.author === "string" &&
     Array.isArray(row.tropes) &&
     row.tropes.every((t) => typeof t === "string") &&
-    (row.description === null || typeof row.description === "string") &&
+    (row.description == null || typeof row.description === "string") &&
     typeof row.created_at === "string" &&
     typeof row.updated_at === "string"
   );

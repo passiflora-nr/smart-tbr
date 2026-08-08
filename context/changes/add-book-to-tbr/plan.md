@@ -482,19 +482,19 @@ No schema migration. The `books` table, its constraints, indexes, RLS policies, 
 
 #### Automated
 
-- [x] 2.1 Type-aware lint passes, including `react-compiler/react-compiler`: `npm run lint`
-- [x] 2.2 Production build passes: `npm run build`
+- [x] 2.1 Type-aware lint passes, including `react-compiler/react-compiler`: `npm run lint` — 1348bb7
+- [x] 2.2 Production build passes: `npm run build` — 1348bb7
 
 
 
 #### Manual
 
-- [x] 2.3 Typing a trope and pressing Enter creates a chip and clears the field, without submitting the form
-- [x] 2.4 Typing a comma commits the tag the same way
-- [x] 2.5 Backspace on an empty field removes the last chip
-- [x] 2.6 Clicking a chip's remove control deletes that chip only
-- [x] 2.7 Blurring with uncommitted text commits it rather than discarding it
-- [x] 2.8 Re-entering an existing tag verbatim does not create a second chip; a different-case variant does create its own chip (per the decision to preserve wording)
+- [x] 2.3 Typing a trope and pressing Enter creates a chip and clears the field, without submitting the form — 1348bb7
+- [x] 2.4 Typing a comma commits the tag the same way — 1348bb7
+- [x] 2.5 Backspace on an empty field removes the last chip — 1348bb7
+- [x] 2.6 Clicking a chip's remove control deletes that chip only — 1348bb7
+- [x] 2.7 Blurring with uncommitted text commits it rather than discarding it — 1348bb7
+- [x] 2.8 Re-entering an existing tag verbatim does not create a second chip; a different-case variant does create its own chip (per the decision to preserve wording) — 1348bb7
 
 
 

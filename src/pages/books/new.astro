@@ -1,0 +1,23 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import AddBookForm from "@/components/books/AddBookForm";
+---
+
+<Layout title="Add a book">
+  <div class="bg-cosmic flex min-h-screen items-center justify-center p-4">
+    <div class="w-full max-w-2xl rounded-2xl border border-white/10 bg-white/10 p-8 text-white backdrop-blur-xl">
+      <div class="mb-6 flex items-center justify-between gap-4">
+        <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent">
+          Add a book
+        </h1>
+        <a
+          href="/dashboard"
+          class="shrink-0 rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
+        >
+          Back to dashboard
+        </a>
+      </div>
+      <AddBookForm client:load />
+    </div>
+  </div>
+</Layout>
