@@ -395,28 +395,28 @@ No schema migration. The `books` table, its constraints, indexes, RLS policies, 
 
 #### Automated
 
-- [x] 1.1 `npx astro sync` completes clean
-- [x] 1.2 Type-aware lint passes: `npm run lint`
-- [x] 1.3 Production build passes: `npm run build`
-- [x] 1.4 The fixture loads cleanly against the local stack, and re-running it a second time changes nothing (idempotent)
-- [x] 1.5 `supabase/tests/rls.sql` still passes with the fixture loaded, proving it did not disturb the six-book assertion for user A
-- [x] 1.6 Unauthenticated `GET /books` redirects to `/auth/signin` (302)
-- [x] 1.7 Signed-in `GET /books` returns 200 and the response HTML source already contains the book titles, proving the list is server-rendered rather than fetched by the browser
+- [x] 1.1 `npx astro sync` completes clean — 28090d7
+- [x] 1.2 Type-aware lint passes: `npm run lint` — 28090d7
+- [x] 1.3 Production build passes: `npm run build` — 28090d7
+- [x] 1.4 The fixture loads cleanly against the local stack, and re-running it a second time changes nothing (idempotent) — 28090d7
+- [x] 1.5 `supabase/tests/rls.sql` still passes with the fixture loaded, proving it did not disturb the six-book assertion for user A — 28090d7
+- [x] 1.6 Unauthenticated `GET /books` redirects to `/auth/signin` (302) — 28090d7
+- [x] 1.7 Signed-in `GET /books` returns 200 and the response HTML source already contains the book titles, proving the list is server-rendered rather than fetched by the browser — 28090d7
 
 #### Manual
 
-- [x] 1.8 Signed in as `user-c@example.test` with the fixture loaded, all 25 books appear with their title, author, and tropes
-- [x] 1.9 The heading count reads 25 and matches the number of rows actually rendered
-- [x] 1.10 The three no-description rows (7, 15, and 25) render cleanly with no empty gap or stray separator — including row 25, which is the last row on the page
-- [x] 1.11 The long-description row (18) is clamped to two lines rather than expanding to fill the page
-- [x] 1.12 Row 1 appears first and row 25 last, and repeated refreshes produce the same order
-- [x] 1.13 Rows 11 and 12 share a timestamp, and "Carry On" appears above "Winter's Orbit" — confirming the title tiebreaker
-- [x] 1.14 A book added from `/books/new` while signed in as user C appears above all 25 fixture rows
-- [x] 1.15 Signed in as `user-a@example.test`, the six original seed books appear instead — confirming the page is not tied to one account
-- [x] 1.16 With every row deleted for a test user, the page shows the empty state and its "Add your first book" link reaches `/books/new`
-- [x] 1.17 With the local stack running, temporarily revoke `select` on `public.books` from `authenticated`, reload `/books`, and confirm the load-failure panel — explicitly not the empty state — and the page's links still work; then restore the grant with `grant select on public.books to authenticated`
-- [x] 1.18 Row 18 shows a "Show more" affordance that expands its description in place and collapses again via "Show less" (amendment)
-- [x] 1.19 Short-description rows show neither a clamp nor an affordance, and null-description rows are unchanged (amendment)
+- [x] 1.8 Signed in as `user-c@example.test` with the fixture loaded, all 25 books appear with their title, author, and tropes — 28090d7
+- [x] 1.9 The heading count reads 25 and matches the number of rows actually rendered — 28090d7
+- [x] 1.10 The three no-description rows (7, 15, and 25) render cleanly with no empty gap or stray separator — including row 25, which is the last row on the page — 28090d7
+- [x] 1.11 The long-description row (18) is clamped to two lines rather than expanding to fill the page — 28090d7
+- [x] 1.12 Row 1 appears first and row 25 last, and repeated refreshes produce the same order — 28090d7
+- [x] 1.13 Rows 11 and 12 share a timestamp, and "Carry On" appears above "Winter's Orbit" — confirming the title tiebreaker — 28090d7
+- [x] 1.14 A book added from `/books/new` while signed in as user C appears above all 25 fixture rows — 28090d7
+- [x] 1.15 Signed in as `user-a@example.test`, the six original seed books appear instead — confirming the page is not tied to one account — 28090d7
+- [x] 1.16 With every row deleted for a test user, the page shows the empty state and its "Add your first book" link reaches `/books/new` — 28090d7
+- [x] 1.17 With the local stack running, temporarily revoke `select` on `public.books` from `authenticated`, reload `/books`, and confirm the load-failure panel — explicitly not the empty state — and the page's links still work; then restore the grant with `grant select on public.books to authenticated` — 28090d7
+- [x] 1.18 Row 18 shows a "Show more" affordance that expands its description in place and collapses again via "Show less" (amendment) — 28090d7
+- [x] 1.19 Short-description rows show neither a clamp nor an affordance, and null-description rows are unchanged (amendment) — 28090d7
 
 ### Phase 2: Navigation wiring
 
