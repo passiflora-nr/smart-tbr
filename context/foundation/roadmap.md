@@ -3,7 +3,7 @@ project: SmartTBR
 version: 1
 status: draft
 created: 2026-06-14
-updated: 2026-08-01
+updated: 2026-08-08
 prd_version: 1
 main_goal: speed
 top_blocker: time
@@ -30,10 +30,10 @@ SmartTBR collapses a 100+ book "to be read" backlog that today lives scattered a
 | ID | Change ID | Outcome (user can ...) | Prerequisites | PRD refs | Status |
 |---|---|---|---|---|---|
 | F-01 | tbr-data-and-isolation | (foundation) books + trope tags persisted with per-user RLS isolation | - | FR-011, Access Control, NFR: isolation | done |
-| S-01 | add-book-to-tbr | add a book (title, author, tropes, optional description) to their private TBR | F-01 ✓ | FR-004, NFR: <=30s entry | **ready** |
+| S-01 | add-book-to-tbr | add a book (title, author, tropes, optional description) to their private TBR | F-01 ✓ | FR-004, NFR: <=30s entry | done |
 | S-06 | account-lifecycle | rely on gated routes and self-delete their account + all data | F-01 ✓ | FR-003, FR-013, FR-001, FR-002, Access Control | **ready** |
-| S-05 | mood-trope-recommendation | pick 1-3 mood tropes and get up to 3 matching books from their own TBR | F-01 ✓, S-01 | US-01, FR-008, FR-009, FR-010, NFR: <=2s | proposed |
-| S-02 | browse-tbr-list | browse their full TBR as a list | S-01 | FR-005 | proposed |
+| S-05 | mood-trope-recommendation | pick 1-3 mood tropes and get up to 3 matching books from their own TBR | F-01 ✓, S-01 ✓ | US-01, FR-008, FR-009, FR-010, NFR: <=2s | **ready** |
+| S-02 | browse-tbr-list | browse their full TBR as a list | S-01 ✓ | FR-005 | **ready** |
 | S-03 | edit-delete-book | edit or delete any book in their TBR | S-02 | FR-006, FR-007 | proposed |
 | S-04 | search-filter-tbr | narrow the TBR by title/author substring and/or trope filter | S-02 | FR-012 | proposed |
 
@@ -58,7 +58,7 @@ flowchart TB
   F01["F-01 · TBR data + RLS<br/>(foundation, done)"]
 
   subgraph A["Stream A · Validation spine"]
-    S01["S-01 · Add book"]
+    S01["S-01 · Add book<br/>(done)"]
     S05["S-05 · Mood-trope pick<br/>(north star)"]
   end
 
@@ -118,7 +118,7 @@ What's already in place in the codebase as of 2026-06-14 (auto-researched + user
 - **Blockers:** -
 - **Unknowns:** -
 - **Risk:** First write path against F-01; entry friction directly gates the Primary success criterion (migrate 100+ books), so the <=30s NFR is the load-bearing constraint here.
-- **Status:** ready
+- **Status:** done
 
 ### S-05: Pick the next book by mood-tropes (north star)
 
@@ -130,7 +130,7 @@ What's already in place in the codebase as of 2026-06-14 (auto-researched + user
 - **Blockers:** -
 - **Unknowns:** -
 - **Risk:** The validation milestone; tag-set intersection over ~100 books is O(N) and fits the Workers per-request budget (per `lessons.md`). Sequenced as early as a populated TBR allows.
-- **Status:** proposed
+- **Status:** ready
 
 ### S-02: Browse the TBR list
 
@@ -142,7 +142,7 @@ What's already in place in the codebase as of 2026-06-14 (auto-researched + user
 - **Blockers:** -
 - **Unknowns:** -
 - **Risk:** Narrow render contract (FR-012 search/filter is split into S-04); low risk.
-- **Status:** proposed
+- **Status:** ready
 
 ### S-03: Edit and delete a book
 
@@ -184,10 +184,10 @@ What's already in place in the codebase as of 2026-06-14 (auto-researched + user
 | Roadmap ID | Change ID | Suggested issue title | Ready for /10x-plan | Notes |
 |---|---|---|---|---|
 | F-01 | tbr-data-and-isolation | TBR data layer with per-user RLS isolation | done | Archived 2026-08-01 |
-| S-01 | add-book-to-tbr | Add a book to the TBR | yes | Next on Stream A (north-star path) |
+| S-01 | add-book-to-tbr | Add a book to the TBR | done | Archived 2026-08-08 |
 | S-06 | account-lifecycle | Account gating + self-serve deletion | yes | Parallel with Stream B; F-01 done |
-| S-05 | mood-trope-recommendation | Pick next book by mood-tropes (north star) | no | Needs S-01 |
-| S-02 | browse-tbr-list | Browse the TBR list | no | Needs S-01 |
+| S-05 | mood-trope-recommendation | Pick next book by mood-tropes (north star) | yes | Next on Stream A (north star); S-01 done |
+| S-02 | browse-tbr-list | Browse the TBR list | yes | Parallel with S-05 / S-06; S-01 done |
 | S-03 | edit-delete-book | Edit and delete a book | no | Needs S-02 |
 | S-04 | search-filter-tbr | Search and filter the TBR | no | Needs S-02 |
 
@@ -208,3 +208,4 @@ What's already in place in the codebase as of 2026-06-14 (auto-researched + user
 ## Done
 
 - **F-01: (foundation) a `books` table carrying title, author, trope tags, optional description, and an owner reference, persisted in Supabase Postgres with Row-Level Security enforcing owner-only access.** — Archived 2026-08-01 → `context/archive/2026-07-04-tbr-data-and-isolation/`. Lesson: —.
+- **S-01: user can add a book with title, author, one or more free-text trope tags, and an optional description, and see it saved to their private TBR.** — Archived 2026-08-08 → `context/archive/2026-08-02-add-book-to-tbr/`. Lesson: —.
