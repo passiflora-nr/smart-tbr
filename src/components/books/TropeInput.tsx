@@ -85,6 +85,8 @@ export function TropeInput({
     onErrorChange?.(undefined);
   }
 
+  const errorId = `${id}-error`;
+
   return (
     <div>
       <label htmlFor={id} className="mb-1 block text-sm text-blue-100/80">
@@ -133,11 +135,13 @@ export function TropeInput({
             onBlur={commitPendingText}
             placeholder={tags.length === 0 ? "Type a trope and press Enter" : "Add another trope"}
             className="min-w-[120px] flex-1 bg-transparent py-0.5 text-white placeholder-white/40 focus:outline-none"
+            aria-invalid={Boolean(error)}
+            aria-describedby={error ? errorId : undefined}
           />
         </div>
       </div>
       {error ? (
-        <p className="mt-1 flex items-center gap-1 text-xs text-red-300">
+        <p id={errorId} role="alert" className="mt-1 flex items-center gap-1 text-xs text-red-300">
           <CircleAlert className="size-3" />
           {error}
         </p>

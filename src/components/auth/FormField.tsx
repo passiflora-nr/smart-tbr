@@ -42,6 +42,8 @@ export function FormField({
     inputBase,
     error ? "border-red-400/60 focus:ring-red-400" : "border-white/20 focus:ring-purple-400",
   );
+  const errorId = `${id}-error`;
+  const describedBy = error ? errorId : undefined;
 
   return (
     <div>
@@ -63,6 +65,8 @@ export function FormField({
             }}
             placeholder={placeholder}
             className={fieldClassName}
+            aria-invalid={Boolean(error)}
+            aria-describedby={describedBy}
           />
         ) : (
           <input
@@ -76,12 +80,14 @@ export function FormField({
             }}
             placeholder={placeholder}
             className={fieldClassName}
+            aria-invalid={Boolean(error)}
+            aria-describedby={describedBy}
           />
         )}
         {endContent}
       </div>
       {error ? (
-        <p className="mt-1 flex items-center gap-1 text-xs text-red-300">
+        <p id={errorId} role="alert" className="mt-1 flex items-center gap-1 text-xs text-red-300">
           <CircleAlert className="size-3" />
           {error}
         </p>

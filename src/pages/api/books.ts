@@ -33,10 +33,15 @@ export const POST: APIRoute = async (context) => {
 
   const result = bookSchema.safeParse(body);
   if (!result.success) {
+    const fieldErrors = z.flattenError(result.error).fieldErrors;
     return jsonResponse(
       {
         error: "Validation failed",
-        fieldErrors: z.flattenError(result.error).fieldErrors,
+        // The client renders one message per field; capping keeps a per-element
+        // failure from producing one message per submitted trope.
+        fieldErrors: Object.fromEntries(
+          Object.entries(fieldErrors).map(([field, messages]) => [field, messages.slice(0, 1)]),
+        ),
       },
       400,
     );
@@ -53,6 +58,7 @@ export const POST: APIRoute = async (context) => {
     .limit(1);
 
   if (lookupError) {
+    console.error("books duplicate lookup failed", lookupError);
     return jsonResponse({ error: "Failed to save book" }, 500);
   }
 
@@ -71,6 +77,7 @@ export const POST: APIRoute = async (context) => {
     .single();
 
   if (insertError) {
+    console.error("books insert failed", insertError);
     return jsonResponse({ error: "Failed to save book" }, 500);
   }
 

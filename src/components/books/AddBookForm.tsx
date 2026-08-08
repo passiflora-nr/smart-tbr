@@ -22,12 +22,17 @@ interface FieldErrors {
   description?: string;
 }
 
-function buildMergedTropes(tags: string[], pendingText: string): string[] {
+// Mirrors TropeInput's commit rules so pressing Save accepts exactly what
+// pressing Enter would have accepted.
+function mergePendingTrope(tags: string[], pendingText: string): { tropes: string[]; error?: string } {
   const trimmed = pendingText.trim();
-  if (!trimmed) return tags;
+  if (!trimmed) return { tropes: tags };
   const candidate = tags.includes(trimmed) ? tags : [...tags, trimmed];
   const result = tropeListSchema.safeParse(candidate);
-  return result.success ? result.data : candidate;
+  if (!result.success) {
+    return { tropes: tags, error: result.error.issues[0].message };
+  }
+  return { tropes: result.data };
 }
 
 function mapFieldErrors(fieldErrors: Record<string, string[] | undefined>): FieldErrors {
@@ -64,7 +69,14 @@ export default function AddBookForm() {
     setServerError(null);
     setSessionExpired(false);
 
-    const mergedTropes = buildMergedTropes(tags, pendingTropeText);
+    const merged = mergePendingTrope(tags, pendingTropeText);
+    if (merged.error !== undefined) {
+      const tropeError = merged.error;
+      setErrors((prev) => ({ ...prev, tropes: tropeError }));
+      return;
+    }
+
+    const mergedTropes = merged.tropes;
     setTags(mergedTropes);
     if (pendingTropeText.trim()) {
       setPendingTropeText("");
@@ -92,6 +104,9 @@ export default function AddBookForm() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
+        // Without this a hung request leaves useFormStatus pending forever,
+        // and the only way out is a refresh that clears the session list.
+        signal: AbortSignal.timeout(15000),
       });
     } catch {
       setServerError("Could not reach the server. Check your connection and try again.");
