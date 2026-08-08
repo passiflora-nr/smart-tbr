@@ -531,13 +531,13 @@ No schema migration. The `books` table, its constraints, indexes, RLS policies, 
 
 #### Automated
 
-- [x] 4.1 `supabase/tests/rls.sql` runs clean against the local stack
-- [x] 4.2 CI passes on the branch (`npm ci`, `npx astro sync`, `npm run lint`, `npm run build`)
+- [x] 4.1 `supabase/tests/rls.sql` runs clean against the local stack — ef11aae
+- [x] 4.2 CI passes on the branch (`npm ci`, `npx astro sync`, `npm run lint`, `npm run build`) — ef11aae
 
 
 
 #### Manual
 
-- [x] 4.3 Three consecutive realistic books each take under 30 seconds of input
-- [x] 4.4 A body containing a foreign `user_id` cannot create a row owned by another account
-- [x] 4.5 The feature works on at least two of the four mainstream desktop browsers (per the PRD browser NFR)
+- [x] 4.3 Three consecutive realistic books each take under 30 seconds of input — ef11aae
+- [x] 4.4 A body containing a foreign `user_id` cannot create a row owned by another account — ef11aae
+- [x] 4.5 The feature works on at least two of the four mainstream desktop browsers (per the PRD browser NFR) — ef11aae
