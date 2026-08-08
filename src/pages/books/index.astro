@@ -1,0 +1,96 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import BookList from "@/components/books/BookList.astro";
+import type { Tables } from "@/lib/database.types";
+import { createClient } from "@/lib/supabase";
+
+type BookRow = Pick<Tables<"books">, "id" | "title" | "author" | "tropes" | "description">;
+
+const user = Astro.locals.user;
+
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+
+let state: "failed" | "empty" | "populated";
+let books: BookRow[] = [];
+
+if (!user) {
+  // Middleware redirects unauthenticated /books requests before this page runs.
+  state = "failed";
+} else if (!supabase) {
+  state = "failed";
+} else {
+  const { data, error } = await supabase
+    .from("books")
+    .select("id, title, author, tropes, description")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false })
+    .order("title", { ascending: true })
+    .order("id", { ascending: true });
+
+  if (error) {
+    console.error("books list query failed", error);
+    state = "failed";
+  } else if (data.length === 0) {
+    state = "empty";
+  } else {
+    state = "populated";
+    books = data;
+  }
+}
+---
+
+<Layout title="Your TBR">
+  <div class="bg-cosmic flex min-h-screen items-start justify-center p-4 pt-12">
+    <div class="w-full max-w-2xl rounded-2xl border border-white/10 bg-white/10 p-8 text-white backdrop-blur-xl">
+      {
+        state === "failed" ? (
+          <div>
+            <h1 class="mb-4 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent">
+              Your TBR
+            </h1>
+            <p class="flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-sm text-red-300">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="size-4 shrink-0"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" x2="12" y1="8" y2="12" />
+                <line x1="12" x2="12.01" y1="16" y2="16" />
+              </svg>
+              Couldn&apos;t load your list. Try reloading the page.
+            </p>
+          </div>
+        ) : state === "empty" ? (
+          <div>
+            <h1 class="mb-4 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent">
+              Your TBR
+            </h1>
+            <p class="mb-6 text-blue-100/80">Your TBR is empty — add your first book to get started.</p>
+            <a
+              href="/books/new"
+              class="inline-block rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
+            >
+              Add your first book
+            </a>
+          </div>
+        ) : (
+          <div>
+            <h1 class="mb-6 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent">
+              Your TBR ({books.length})
+            </h1>
+            <BookList books={books} />
+          </div>
+        )
+      }
+    </div>
+  </div>
+</Layout>
