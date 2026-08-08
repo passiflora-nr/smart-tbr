@@ -31,15 +31,19 @@ The database half of this feature is already built and proven; everything above 
 - No test framework anywhere in the repo (`AGENTS.md`); verification is lint + build + manual + the committed SQL isolation script.
 - `eslint.config.js` runs `strictTypeChecked` + `stylisticTypeChecked` with `react-compiler/react-compiler: error` and `no-console: warn`.
 
+
+
 ### Key Discoveries:
 
 - **The DB already rejects everything FR-004 forbids** (`supabase/migrations/20260705084406_create_books.sql:14-21`), so application validation is about fast, field-level user feedback — not about being the last line of defense.
-- **`tropes` is a `text[]` column, not a join table** (`database.types.ts:37-69` types it `string[]`), so the API's job is to turn the chip input's array into a Postgres array — no second write, no transaction.
-- **`useFormStatus()` only reports pending for React form actions**, not for a `fetch` inside an `onSubmit` that called `preventDefault()`. Reusing `SubmitButton` unchanged therefore dictates how the form submits (see Critical Implementation Details).
-- **RLS makes `user_id` spoofing structurally impossible** — the insert policy's `with check ((select auth.uid()) = user_id)` rejects any row whose owner isn't the session user, so the server never needs to trust a client-supplied owner.
+- `tropes` **is a** `text[]` **column, not a join table** (`database.types.ts:37-69` types it `string[]`), so the API's job is to turn the chip input's array into a Postgres array — no second write, no transaction.
+- `useFormStatus()` **only reports pending for React form actions**, not for a `fetch` inside an `onSubmit` that called `preventDefault()`. Reusing `SubmitButton` unchanged therefore dictates how the form submits (see Critical Implementation Details).
+- **RLS makes** `user_id` **spoofing structurally impossible** — the insert policy's `with check ((select auth.uid()) = user_id)` rejects any row whose owner isn't the session user, so the server never needs to trust a client-supplied owner.
 - **Two roadmap slices depend on choices made here**: S-05 reads the distinct trope vocabulary from these rows, so trope hygiene at write time is what makes the later mood picker coherent.
 - **zod is at 4.4.3**, where error customization uses `{ error: "..." }` (v3's `required_error` / `invalid_type_error` are removed) and errors are read via top-level `z.flattenError()` / `z.treeifyError()` rather than `error.flatten()`. It has no dependencies and runs on workerd.
-- **`context/foundation/lessons.md`** forbids monolithic batch work in a single Workers request. A one-row insert is trivially within budget, and this plan deliberately does not add a bulk importer.
+- `context/foundation/lessons.md` forbids monolithic batch work in a single Workers request. A one-row insert is trivially within budget, and this plan deliberately does not add a bulk importer.
+
+
 
 ## Desired End State
 
@@ -61,6 +65,8 @@ Verified by: the phase-level automated checks below (lint, build, `astro sync`, 
 - **No test framework** — this slice does not wire Vitest/Playwright into CI.
 - **No changes to auth, sign-out, or account deletion** (S-06).
 
+
+
 ## Implementation Approach
 
 One shared zod schema is the contract. It lives in `src/lib/book-schema.ts`, is imported by both the API route and the React island, and owns every rule: required title and author, at least one trope, length caps, the trope cleanup transform (trim, drop empties, de-duplicate exact repeats, preserve wording and case), and normalizing a blank description to `null`.
@@ -71,7 +77,7 @@ The UI is composed from the components that already exist. `FormField` gains an 
 
 ## Critical Implementation Details
 
-**Timing & lifecycle — how the form submits determines whether `SubmitButton` works.** `useFormStatus()` reads pending state from a React form action; it stays `false` forever if the form instead uses `onSubmit` + `preventDefault()` + `fetch`. Submit via the React 19 `action` prop (`<form action={handleSave}>` with an async handler) so `SubmitButton` can be reused unchanged and no second loading-state mechanism is introduced.
+**Timing & lifecycle — how the form submits determines whether** `SubmitButton` **works.** `useFormStatus()` reads pending state from a React form action; it stays `false` forever if the form instead uses `onSubmit` + `preventDefault()` + `fetch`. Submit via the React 19 `action` prop (`<form action={handleSave}>` with an async handler) so `SubmitButton` can be reused unchanged and no second loading-state mechanism is introduced.
 
 **Timing & lifecycle — Enter inside the trope input must not submit the form.** A text input inside a form submits it on Enter by default, so the chip input's Enter and comma handlers must call `preventDefault()` before committing a tag. Related trap: text still sitting uncommitted in the trope field when the user hits Save would silently vanish and trigger a spurious "at least one trope" error. `AddBookForm` owns both the committed tags and pending trope text. On blur, commit the pending text to the controlled tags; as the first step of the save handler, synchronously clean and merge the pending text into a local tags array, update the controlled tag state from that same array, and validate the local merged payload rather than reading state immediately after a setter.
 
@@ -79,11 +85,15 @@ The UI is composed from the components that already exist. `FormField` gains an 
 
 ## Phase 1: Validation contract and insert API
 
+
+
 ### Overview
 
 Establish the shared schema and the first JSON endpoint. At the end of this phase the write path is complete and testable with `curl`, with no UI.
 
 ### Changes Required:
+
+
 
 #### 1. Add the validation dependency
 
@@ -124,6 +134,8 @@ export const tropeListSchema = z
   );
 ```
 
+
+
 #### 3. Books insert endpoint
 
 **File**: `src/pages/api/books.ts` (new)
@@ -138,6 +150,8 @@ Respond with an explicit `new Response(JSON.stringify(body), { status, headers: 
 
 ### Success Criteria:
 
+
+
 #### Automated Verification:
 
 - `npx astro sync` completes clean
@@ -146,6 +160,8 @@ Respond with an explicit `new Response(JSON.stringify(body), { status, headers: 
 - Unauthenticated `POST /api/books` with a valid body returns 401 with a JSON error body (against `npm run dev`)
 - `POST /api/books` with an empty title and no tropes returns 400 with `fieldErrors` naming both fields
 - `POST /api/books` with a non-JSON body returns 400, not a 500 or an unhandled exception
+
+
 
 #### Manual Verification:
 
@@ -156,13 +172,19 @@ Respond with an explicit `new Response(JSON.stringify(body), { status, headers: 
 
 ---
 
+
+
 ## Phase 2: Trope chip input
+
+
 
 ### Overview
 
 Build the keyboard-driven tag component in isolation. It is the highest-risk UI in this slice — it has no existing component to copy, it is what the ≤30s guardrail hinges on, and S-05's mood picker will likely reuse it.
 
 ### Changes Required:
+
+
 
 #### 1. Trope chip input component
 
@@ -176,10 +198,14 @@ Exposing a way for the parent to focus the field (or reading focus from the pare
 
 ### Success Criteria:
 
+
+
 #### Automated Verification:
 
 - Type-aware lint passes, including `react-compiler/react-compiler`: `npm run lint`
 - Production build passes: `npm run build`
+
+
 
 #### Manual Verification:
 
@@ -194,13 +220,19 @@ Exposing a way for the parent to focus the field (or reading focus from the pare
 
 ---
 
+
+
 ## Phase 3: Add-book page, form, and session list
+
+
 
 ### Overview
 
 Compose the entry surface: a protected `/books/new` route hosting the form island, with the running list of books saved this session below it and a way in from the dashboard.
 
 ### Changes Required:
+
+
 
 #### 1. Multiline support in the shared field component
 
@@ -254,12 +286,16 @@ The heading and the empty state must both state that this lists books **added in
 
 ### Success Criteria:
 
+
+
 #### Automated Verification:
 
 - `npx astro sync` completes clean
 - Type-aware lint passes: `npm run lint`
 - Production build passes: `npm run build`
 - Unauthenticated `GET /books/new` redirects to `/auth/signin` (302), confirming the `PROTECTED_ROUTES` entry
+
+
 
 #### Manual Verification:
 
@@ -277,13 +313,19 @@ The heading and the empty state must both state that this lists books **added in
 
 ---
 
+
+
 ## Phase 4: Guardrail verification
+
+
 
 ### Overview
 
 Prove the two PRD guardrails this slice can break — the ≤30s entry budget and per-user isolation on the new write path — and get CI green. No feature code; findings that fail the budget come back as adjustments to Phase 3.
 
 ### Changes Required:
+
+
 
 #### 1. Timed entry check
 
@@ -311,10 +353,14 @@ Prove the two PRD guardrails this slice can break — the ≤30s entry budget an
 
 ### Success Criteria:
 
+
+
 #### Automated Verification:
 
 - `supabase/tests/rls.sql` runs clean against the local stack
 - CI passes on the branch (`npm ci`, `npx astro sync`, `npm run lint`, `npm run build`)
+
+
 
 #### Manual Verification:
 
@@ -326,6 +372,8 @@ Prove the two PRD guardrails this slice can break — the ≤30s entry budget an
 
 ---
 
+
+
 ## Testing Strategy
 
 No test framework is wired up in this repo (`AGENTS.md`), and this slice deliberately does not add one. Verification is therefore three-legged:
@@ -333,6 +381,8 @@ No test framework is wired up in this repo (`AGENTS.md`), and this slice deliber
 ### Static and build verification:
 
 - `npx astro sync`, `npm run lint` (type-aware, `strictTypeChecked` + `react-compiler`), `npm run build` — run after every phase, and enforced by CI.
+
+
 
 ### API-level checks (curl against `npm run dev`):
 
@@ -356,6 +406,8 @@ Confirm the first response is 401 JSON, the second is 400 rather than 500, and t
 
 - `supabase/tests/rls.sql` against the local stack, re-run in Phase 4 now that a writer exists.
 
+
+
 ### Manual testing steps:
 
 1. Sign in, go to `/books/new` from the dashboard.
@@ -367,6 +419,8 @@ Confirm the first response is 401 JSON, the second is 400 rather than 500, and t
 7. Stop the dev server and submit; confirm an error is shown and nothing typed is lost.
 8. Sign out and visit `/books/new`; confirm redirect to sign-in.
 9. Time three consecutive realistic entries against the 30-second budget.
+
+
 
 ## Performance Considerations
 
@@ -392,69 +446,95 @@ No schema migration. The `books` table, its constraints, indexes, RLS policies, 
 - Island hydration pattern: `src/pages/auth/signin.astro:16`
 - Workers batch-work constraint: `context/foundation/lessons.md:12-17`
 
+
+
 ## Progress
 
-> Convention: `- [ ]` pending, `- [x]` done. Append ` — <commit sha>` when a step lands. Do not rename step titles.
+> Convention: `- [ ]` pending, `- [x]` done. Append  `— <commit sha>` when a step lands. Do not rename step titles.
+
+
 
 ### Phase 1: Validation contract and insert API
 
+
+
 #### Automated
 
-- [x] 1.1 `npx astro sync` completes clean
-- [x] 1.2 Type-aware lint passes: `npm run lint`
-- [x] 1.3 Production build passes: `npm run build`
-- [x] 1.4 Unauthenticated `POST /api/books` with a valid body returns 401 with a JSON error body (against `npm run dev`)
-- [x] 1.5 `POST /api/books` with an empty title and no tropes returns 400 with `fieldErrors` naming both fields
-- [x] 1.6 `POST /api/books` with a non-JSON body returns 400, not a 500 or an unhandled exception
+- [x] 1.1 `npx astro sync` completes clean — c22b888
+- [x] 1.2 Type-aware lint passes: `npm run lint` — c22b888
+- [x] 1.3 Production build passes: `npm run build` — c22b888
+- [x] 1.4 Unauthenticated `POST /api/books` with a valid body returns 401 with a JSON error body (against `npm run dev`) — c22b888
+- [x] 1.5 `POST /api/books` with an empty title and no tropes returns 400 with `fieldErrors` naming both fields — c22b888
+- [x] 1.6 `POST /api/books` with a non-JSON body returns 400, not a 500 or an unhandled exception — c22b888
+
+
 
 #### Manual
 
-- [x] 1.7 A signed-in insert (browser devtools fetch, or curl with the session cookie) creates exactly one row in Supabase Studio with the correct `tropes` array, `description` null when omitted, and `user_id` matching the signed-in user
-- [x] 1.8 Submitting a book whose title and author already exist returns 201 with `duplicate: true`
+- [x] 1.7 A signed-in insert (browser devtools fetch, or curl with the session cookie) creates exactly one row in Supabase Studio with the correct `tropes` array, `description` null when omitted, and `user_id` matching the signed-in user — c22b888
+- [x] 1.8 Submitting a book whose title and author already exist returns 201 with `duplicate: true` — c22b888
+
+
 
 ### Phase 2: Trope chip input
 
+
+
 #### Automated
 
-- [ ] 2.1 Type-aware lint passes, including `react-compiler/react-compiler`: `npm run lint`
-- [ ] 2.2 Production build passes: `npm run build`
+- [x] 2.1 Type-aware lint passes, including `react-compiler/react-compiler`: `npm run lint`
+- [x] 2.2 Production build passes: `npm run build`
+
+
 
 #### Manual
 
-- [ ] 2.3 Typing a trope and pressing Enter creates a chip and clears the field, without submitting the form
-- [ ] 2.4 Typing a comma commits the tag the same way
-- [ ] 2.5 Backspace on an empty field removes the last chip
-- [ ] 2.6 Clicking a chip's remove control deletes that chip only
-- [ ] 2.7 Blurring with uncommitted text commits it rather than discarding it
-- [ ] 2.8 Re-entering an existing tag verbatim does not create a second chip; a different-case variant does create its own chip (per the decision to preserve wording)
+- [x] 2.3 Typing a trope and pressing Enter creates a chip and clears the field, without submitting the form
+- [x] 2.4 Typing a comma commits the tag the same way
+- [x] 2.5 Backspace on an empty field removes the last chip
+- [x] 2.6 Clicking a chip's remove control deletes that chip only
+- [x] 2.7 Blurring with uncommitted text commits it rather than discarding it
+- [x] 2.8 Re-entering an existing tag verbatim does not create a second chip; a different-case variant does create its own chip (per the decision to preserve wording)
+
+
 
 ### Phase 3: Add-book page, form, and session list
 
+
+
 #### Automated
 
-- [ ] 3.1 `npx astro sync` completes clean
-- [ ] 3.2 Type-aware lint passes: `npm run lint`
-- [ ] 3.3 Production build passes: `npm run build`
-- [ ] 3.4 Unauthenticated `GET /books/new` redirects to `/auth/signin` (302), confirming the `PROTECTED_ROUTES` entry
+- [x] 3.1 `npx astro sync` completes clean
+- [x] 3.2 Type-aware lint passes: `npm run lint`
+- [x] 3.3 Production build passes: `npm run build`
+- [x] 3.4 Unauthenticated `GET /books/new` redirects to `/auth/signin` (302), confirming the `PROTECTED_ROUTES` entry
+
+
 
 #### Manual
 
-- [ ] 3.5 A book with title, author, two tropes, and no description saves; the fields clear and focus lands back on the title input
-- [ ] 3.6 The saved book appears at the top of the session list with the tropes as stored
-- [ ] 3.7 A second book can be entered immediately with no page reload, and both appear in the list
-- [ ] 3.8 The description is saved when provided and stored as null when left blank
-- [ ] 3.9 Submitting with an empty title, empty author, or no tropes shows field-level errors and does not POST
-- [ ] 3.10 Saving a duplicate title and author shows the non-blocking duplicate notice and still saves
-- [ ] 3.11 A failed save (e.g. dev server stopped) shows an error and preserves everything typed
-- [ ] 3.12 The dashboard link reaches the page, and the page's back-link reaches the dashboard
-- [ ] 3.13 After saving two books, refreshing the page empties the session list — and the heading and empty-state wording make clear that nothing was lost (the books are still in Supabase Studio)
+- [x] 3.5 A book with title, author, two tropes, and no description saves; the fields clear and focus lands back on the title input
+- [x] 3.6 The saved book appears at the top of the session list with the tropes as stored
+- [x] 3.7 A second book can be entered immediately with no page reload, and both appear in the list
+- [x] 3.8 The description is saved when provided and stored as null when left blank
+- [x] 3.9 Submitting with an empty title, empty author, or no tropes shows field-level errors and does not POST
+- [x] 3.10 Saving a duplicate title and author shows the non-blocking duplicate notice and still saves
+- [x] 3.11 A failed save (e.g. dev server stopped) shows an error and preserves everything typed
+- [x] 3.12 The dashboard link reaches the page, and the page's back-link reaches the dashboard
+- [x] 3.13 After saving two books, refreshing the page empties the session list — and the heading and empty-state wording make clear that nothing was lost (the books are still in Supabase Studio)
+
+
 
 ### Phase 4: Guardrail verification
 
+
+
 #### Automated
 
-- [ ] 4.1 `supabase/tests/rls.sql` runs clean against the local stack
+- [x] 4.1 `supabase/tests/rls.sql` runs clean against the local stack
 - [ ] 4.2 CI passes on the branch (`npm ci`, `npx astro sync`, `npm run lint`, `npm run build`)
+
+
 
 #### Manual
 
