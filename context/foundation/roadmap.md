@@ -36,8 +36,9 @@ SmartTBR collapses a 100+ book "to be read" backlog that today lives scattered a
 | S-02 | browse-tbr-list | browse their full TBR as a list | S-01 ✓ | FR-005 | **ready** |
 | S-03 | edit-delete-book | edit or delete any book in their TBR | S-02 | FR-006, FR-007 | proposed |
 | S-04 | search-filter-tbr | narrow the TBR by title/author substring and/or trope filter | S-02 | FR-012 | proposed |
+| S-07 | ui-theme-cafe-romance | see the whole app in the "Café Romance" palette instead of the starter's cosmic theme | S-02, S-03, S-04, S-05, S-06 | - (UX polish) | optional |
 
-> **Status:** `done` = archived · `ready` = prerequisites met, start with `/10x-plan <change-id>` · `proposed` = blocked on prerequisites. A ✓ in Prerequisites marks a satisfied dependency.
+> **Status:** `done` = archived · `ready` = prerequisites met, start with `/10x-plan <change-id>` · `proposed` = blocked on prerequisites · `optional` = not required by any PRD success criterion; pick up only if time remains after the functional slices. A ✓ in Prerequisites marks a satisfied dependency.
 
 ## Streams
 
@@ -48,6 +49,7 @@ Navigation aid - groups items that share a Prerequisites chain. Canonical orderi
 | A | Validation spine | `F-01` -> `S-01` -> `S-05` | The north-star path; sequenced first per `main_goal: speed`. |
 | B | TBR management | `S-02` -> `S-03` / `S-04` | Joins Stream A at `S-01`; `S-03` and `S-04` are parallel after `S-02`. |
 | C | Account lifecycle | `S-06` | Depends on `F-01` + present auth; parallel with Stream B. |
+| D | Presentation | `S-07` | Optional; runs last because it restyles every surface Streams A-C build. |
 
 ## Dependency graph (illustration)
 
@@ -72,13 +74,23 @@ flowchart TB
     S06["S-06 · Account lifecycle"]
   end
 
+  subgraph D["Stream D · Presentation"]
+    S07["S-07 · Café Romance theme<br/>(optional)"]
+  end
+
   F01 --> S01
   F01 --> S06
   S01 --> S05
   S01 --> S02
   S02 --> S03
   S02 --> S04
+  S03 -.-> S07
+  S04 -.-> S07
+  S05 -.-> S07
+  S06 -.-> S07
 ```
+
+> Dashed edges into `S-07` are soft: it restyles the surfaces those slices create, but nothing breaks if it is never built.
 
 ## Baseline
 
@@ -179,6 +191,19 @@ What's already in place in the codebase as of 2026-06-14 (auto-researched + user
 - **Unknowns:** Whether cascade delete is enforced via Postgres FK `on delete cascade` vs the auth-user deletion hook - Owner: TBD (resolve in /10x-plan). Block: no.
 - **Status:** ready
 
+### S-07: Café Romance UI theme (optional)
+
+- **Outcome:** user sees every surface - landing, auth, dashboard, add-book, browse, search/filter, mood-trope - in the "Café Romance" palette (warm linen background, espresso text, dusty-rose primary, blush/oat trope pills), with the starter's cosmic/purple-glass chrome gone.
+- **Change ID:** ui-theme-cafe-romance
+- **PRD refs:** - (no PRD requirement; UX fit for the 25-35 Bookstagram romance-reader audience)
+- **Prerequisites:** S-02, S-03, S-04, S-05, S-06 (restyle once, after every user-facing surface exists)
+- **Parallel with:** -
+- **Blockers:** -
+- **Unknowns:** -
+- **Sequencing:** Deliberately the **last** slice in the roadmap. Do not apply it early or in pieces while functional slices are still landing - a half-restyled app costs more to finish than an unstyled one.
+- **Risk:** Pure polish - drop it if the timeline runs out; no slice depends on it. Not a token-swap job: the current pages hardcode cosmic Tailwind classes (`bg-cosmic`, `bg-white/10 backdrop-blur`, `text-blue-100/*`, gradient headings) instead of the semantic shadcn tokens, so the work is a per-page rewrite plus a token pass, and every slice built before it adds surface to rewrite. Palette spec lives in `context/changes/ui-theme-cafe-romance/change.md`.
+- **Status:** optional
+
 ## Backlog Handoff
 
 | Roadmap ID | Change ID | Suggested issue title | Ready for /10x-plan | Notes |
@@ -190,6 +215,7 @@ What's already in place in the codebase as of 2026-06-14 (auto-researched + user
 | S-02 | browse-tbr-list | Browse the TBR list | yes | Parallel with S-05 / S-06; S-01 done |
 | S-03 | edit-delete-book | Edit and delete a book | no | Needs S-02 |
 | S-04 | search-filter-tbr | Search and filter the TBR | no | Needs S-02 |
+| S-07 | ui-theme-cafe-romance | Apply the Café Romance UI theme across the app | no | Optional stretch; needs all user-facing slices |
 
 ## Open Roadmap Questions
 
@@ -204,6 +230,7 @@ What's already in place in the codebase as of 2026-06-14 (auto-researched + user
 - **Ranking within results, read/archived state, offline-first, data export** - Why parked: PRD Non-Goals; v2+ concerns.
 - **Trope autocomplete (per-user)** - Why parked: PRD Non-Goal in v1; v2+ candidate triggered by lived fragmentation pain.
 - **Global curated trope vocabulary / canonical normalization** - Why parked: permanent PRD Non-Goal; user wording IS the data.
+- **Dark mode ("Velvet Evening" palette) and a light/dark toggle** - Why parked: S-07 ships the light Café Romance theme only; a second theme doubles the surface to verify for no validation gain.
 
 ## Done
 
