@@ -45,9 +45,25 @@ if (!user) {
       {
         state === "failed" ? (
           <div>
-            <h1 class="mb-4 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent">
-              Your TBR
-            </h1>
+            <div class="mb-6 flex items-center justify-between gap-4">
+              <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent">
+                Your TBR
+              </h1>
+              <div class="flex shrink-0 gap-2">
+                <a
+                  href="/books/new"
+                  class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
+                >
+                  Add a book
+                </a>
+                <a
+                  href="/dashboard"
+                  class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
+                >
+                  Back to dashboard
+                </a>
+              </div>
+            </div>
             <p class="flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-sm text-red-300">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -71,9 +87,25 @@ if (!user) {
           </div>
         ) : state === "empty" ? (
           <div>
-            <h1 class="mb-4 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent">
-              Your TBR
-            </h1>
+            <div class="mb-6 flex items-center justify-between gap-4">
+              <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent">
+                Your TBR
+              </h1>
+              <div class="flex shrink-0 gap-2">
+                <a
+                  href="/books/new"
+                  class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
+                >
+                  Add a book
+                </a>
+                <a
+                  href="/dashboard"
+                  class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
+                >
+                  Back to dashboard
+                </a>
+              </div>
+            </div>
             <p class="mb-6 text-blue-100/80">Your TBR is empty — add your first book to get started.</p>
             <a
               href="/books/new"
@@ -84,9 +116,25 @@ if (!user) {
           </div>
         ) : (
           <div>
-            <h1 class="mb-6 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent">
-              Your TBR ({books.length})
-            </h1>
+            <div class="mb-6 flex items-center justify-between gap-4">
+              <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent">
+                Your TBR ({books.length})
+              </h1>
+              <div class="flex shrink-0 gap-2">
+                <a
+                  href="/books/new"
+                  class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
+                >
+                  Add a book
+                </a>
+                <a
+                  href="/dashboard"
+                  class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
+                >
+                  Back to dashboard
+                </a>
+              </div>
+            </div>
             <BookList books={books} />
           </div>
         )

@@ -295,10 +295,9 @@ The first must be a 302 to `/auth/signin`. The second must print a non-zero coun
 
 ### Populated TBR fixture (local only)
 
-Load it, and reset back to the committed fixtures when finished:
+User C's 25-book dataset lives in `supabase/seed.sql` (merged from the former `supabase/fixtures/populated-tbr.sql`). It loads automatically on every `db reset`. Reset back to committed fixtures with:
 
 ```sh
-psql "$LOCAL_DB_URL" -v ON_ERROR_STOP=1 -f supabase/fixtures/populated-tbr.sql
 npx supabase db reset
 ```
 
@@ -349,7 +348,7 @@ Run it on top of the populated fixture for the Phase 3 scale check, which brings
 
 ### Manual testing steps:
 
-1. Load the populated fixture, sign in as `user-c@example.test`, and open `/books` from the dashboard; confirm all 25 books render with tropes and that the count reads 25.
+1. Sign in as `user-c@example.test`, and open `/books` from the dashboard; confirm all 25 books render with tropes and that the count reads 25.
 2. Check rows 7, 15, and 25; confirm each renders cleanly without a description and that row 25 closes the list tidily.
 3. Check row 18; confirm its long description clamps to two lines rather than dominating the page.
 4. Refresh twice; confirm the order does not change, that row 1 leads and row 25 trails, and that "Carry On" sits above "Winter's Orbit".
@@ -422,17 +421,17 @@ No schema migration. The `books` table, its constraints, indexes, RLS policies, 
 
 #### Automated
 
-- [ ] 2.1 `npx astro sync` completes clean
-- [ ] 2.2 Type-aware lint passes: `npm run lint`
-- [ ] 2.3 Production build passes: `npm run build`
+- [x] 2.1 `npx astro sync` completes clean
+- [x] 2.2 Type-aware lint passes: `npm run lint`
+- [x] 2.3 Production build passes: `npm run build`
 
 #### Manual
 
-- [ ] 2.4 Dashboard → TBR list works, and the list → dashboard link returns
-- [ ] 2.5 TBR list → "Add a book" reaches `/books/new`
-- [ ] 2.6 Add-book page → TBR list works, and a book saved moments earlier is present in that list
-- [ ] 2.7 The header links are present and functional on the empty state and on the load-failure state, not just the populated one
-- [ ] 2.8 The add-book page's "Added this session" list still reads as distinct from the TBR list — no copy on either page suggests they are the same collection
+- [x] 2.4 Dashboard → TBR list works, and the list → dashboard link returns
+- [x] 2.5 TBR list → "Add a book" reaches `/books/new`
+- [x] 2.6 Add-book page → TBR list works, and a book saved moments earlier is present in that list
+- [x] 2.7 The header links are present and functional on the empty state and on the load-failure state, not just the populated one
+- [x] 2.8 The add-book page's "Added this session" list still reads as distinct from the TBR list — no copy on either page suggests they are the same collection
 
 ### Phase 3: Isolation and scale verification
 
