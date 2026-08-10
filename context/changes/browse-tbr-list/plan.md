@@ -421,17 +421,17 @@ No schema migration. The `books` table, its constraints, indexes, RLS policies, 
 
 #### Automated
 
-- [x] 2.1 `npx astro sync` completes clean
-- [x] 2.2 Type-aware lint passes: `npm run lint`
-- [x] 2.3 Production build passes: `npm run build`
+- [x] 2.1 `npx astro sync` completes clean — df77f6c
+- [x] 2.2 Type-aware lint passes: `npm run lint` — df77f6c
+- [x] 2.3 Production build passes: `npm run build` — df77f6c
 
 #### Manual
 
-- [x] 2.4 Dashboard → TBR list works, and the list → dashboard link returns
-- [x] 2.5 TBR list → "Add a book" reaches `/books/new`
-- [x] 2.6 Add-book page → TBR list works, and a book saved moments earlier is present in that list
-- [x] 2.7 The header links are present and functional on the empty state and on the load-failure state, not just the populated one
-- [x] 2.8 The add-book page's "Added this session" list still reads as distinct from the TBR list — no copy on either page suggests they are the same collection
+- [x] 2.4 Dashboard → TBR list works, and the list → dashboard link returns — df77f6c
+- [x] 2.5 TBR list → "Add a book" reaches `/books/new` — df77f6c
+- [x] 2.6 Add-book page → TBR list works, and a book saved moments earlier is present in that list — df77f6c
+- [x] 2.7 The header links are present and functional on the empty state and on the load-failure state, not just the populated one — df77f6c
+- [x] 2.8 The add-book page's "Added this session" list still reads as distinct from the TBR list — no copy on either page suggests they are the same collection — df77f6c
 
 ### Phase 3: Isolation and scale verification
 
