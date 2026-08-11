@@ -437,11 +437,11 @@ No schema migration. The `books` table, its constraints, indexes, RLS policies, 
 
 #### Automated
 
-- [x] 3.1 `supabase/tests/rls.sql` runs clean against the local stack
-- [x] 3.2 CI passes on the branch (`npm ci`, `npx astro sync`, `npm run lint`, `npm run build`)
+- [x] 3.1 `supabase/tests/rls.sql` runs clean against the local stack — f08eeca
+- [x] 3.2 CI passes on the branch (`npm ci`, `npx astro sync`, `npm run lint`, `npm run build`) — f08eeca
 
 #### Manual
 
-- [x] 3.3 Each of the three accounts sees only its own books, and neither deliberate title collision surfaces a row from another account
-- [x] 3.4 With 145 rows for user C, the page renders every row with a correct count and no perceptible delay
-- [x] 3.5 The page works on at least two of the four mainstream desktop browsers (per the PRD browser NFR)
+- [x] 3.3 Each of the three accounts sees only its own books, and neither deliberate title collision surfaces a row from another account — f08eeca
+- [x] 3.4 With 145 rows for user C, the page renders every row with a correct count and no perceptible delay — f08eeca
+- [x] 3.5 The page works on at least two of the four mainstream desktop browsers (per the PRD browser NFR) — f08eeca
