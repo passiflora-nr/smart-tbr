@@ -14,8 +14,7 @@ let state: "failed" | "empty" | "populated";
 let books: BookListRow[] = [];
 
 if (!user) {
-  // Middleware redirects unauthenticated /books requests before this page runs.
-  state = "failed";
+  return Astro.redirect("/auth/signin");
 } else if (!supabase) {
   state = "failed";
 } else {
