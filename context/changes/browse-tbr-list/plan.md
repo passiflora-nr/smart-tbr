@@ -76,7 +76,7 @@ Navigation is four hand-rolled links in the existing per-page style, giving the 
 
 **State sequencing — branch on the error before the row count.** Supabase returns `data: null` together with a populated `error`, so a `data?.length` check reached first collapses "we could not read your TBR" into "you have no books". Resolve the state in frontmatter in this order: a returned query `error` (or, defensively, a `null` client if control reaches the page) means the failure branch; otherwise an empty array means the empty branch; otherwise the list. Because middleware authenticates before protected-page frontmatter runs, an unset client or full Supabase outage cannot be rendered as an authenticated page; test the query-error path instead. The empty and failure branches must not share copy, and the failure copy must not contain any phrasing that implies a book count.
 
-**Timing & lifecycle — the ordering needs tiebreakers to be stable.** All rows inserted by one transaction share a single `now()`, which is exactly the case for the six-book seed fixtures (`supabase/seed.sql:62-112`). Order by `created_at` descending, then by `title` ascending, and finally by unique `id` ascending, so repeated renders and manual verification steps produce the same sequence even for duplicate titles.
+**Timing & lifecycle — the ordering needs tiebreakers to be stable.** All rows inserted by one transaction share a single `now()`, which is exactly the case for the six-book seed fixtures (`supabase/seed.sql:62-112`). Order by `created_at` descending, then by title ascending with **numeric-aware** comparison (`localeCompare` `{ numeric: true }` in `src/lib/sort-books-for-browse.ts`), and finally by unique `id` ascending, so repeated renders and manual verification steps produce the same sequence even for duplicate titles and numbered titles like `Scale Test 9` vs `Scale Test 10`.
 
 **User experience spec — the empty state is a dead end unless it points somewhere.** The zero-book branch must carry the primary call to action into `/books/new`, and its wording must describe the persisted TBR rather than echoing the add-book page's session list. Do not label anything on this page "added this session".
 
@@ -128,7 +128,7 @@ The threshold is a character count (~180, approximately two rendered lines at th
 
 **Contract**: Astro page at route `/books`, already gated by the `"/books"` prefix in `PROTECTED_ROUTES`. In frontmatter: obtain the client via `createClient(Astro.request.headers, Astro.cookies)`; read `Astro.locals.user`. Because middleware gates this path, a missing user is unreachable in practice, but `locals.user` is typed `User | null` — treat the null case as a redirect to `/auth/signin` rather than a cast, so the page has no non-null assertion.
 
-The query is one call selecting exactly `id, title, author, tropes, description`, filtered with `.eq("user_id", user.id)`, ordered by `created_at` descending, then `title` ascending, then `id` ascending. The explicit owner filter is defence in depth alongside the RLS select policy and keeps `books_user_id_idx` in play; the narrowed column list keeps `user_id` and the timestamps out of the render layer. Do not use `.single()` or `.maybeSingle()` — zero rows is a valid result.
+The query is one call selecting exactly `id, title, author, tropes, description, created_at`, filtered with `.eq("user_id", user.id)`. Sorting runs in frontmatter via `sortBooksForBrowse()` — newest first, natural numeric title order when timestamps tie, then `id`. The explicit owner filter is defence in depth alongside the RLS select policy and keeps `books_user_id_idx` in play; `created_at` is selected only for sort and is not passed to the list component.
 
 Derive one of three states in frontmatter, error-first (see Critical Implementation Details), and render accordingly inside the shared `Layout` using the `bg-cosmic` wrapper and glass card from `dashboard.astro:8-9`, but with two critical CSS adjustments: use `items-start pt-12` (or similar top padding) on the flex container instead of `items-center` so the long list remains scrollable without top-overflow, and remove `text-center` from the card so the book list items align left naturally:
 
@@ -437,11 +437,11 @@ No schema migration. The `books` table, its constraints, indexes, RLS policies, 
 
 #### Automated
 
-- [ ] 3.1 `supabase/tests/rls.sql` runs clean against the local stack
-- [ ] 3.2 CI passes on the branch (`npm ci`, `npx astro sync`, `npm run lint`, `npm run build`)
+- [x] 3.1 `supabase/tests/rls.sql` runs clean against the local stack
+- [x] 3.2 CI passes on the branch (`npm ci`, `npx astro sync`, `npm run lint`, `npm run build`)
 
 #### Manual
 
-- [ ] 3.3 Each of the three accounts sees only its own books, and neither deliberate title collision surfaces a row from another account
-- [ ] 3.4 With 145 rows for user C, the page renders every row with a correct count and no perceptible delay
-- [ ] 3.5 The page works on at least two of the four mainstream desktop browsers (per the PRD browser NFR)
+- [x] 3.3 Each of the three accounts sees only its own books, and neither deliberate title collision surfaces a row from another account
+- [x] 3.4 With 145 rows for user C, the page renders every row with a correct count and no perceptible delay
+- [x] 3.5 The page works on at least two of the four mainstream desktop browsers (per the PRD browser NFR)
