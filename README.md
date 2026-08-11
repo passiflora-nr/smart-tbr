@@ -2,7 +2,7 @@
 
 SmartTBR is a web app for heavy readers who keep a large “To Be Read” backlog and prefer to choose the **next book by trope and mood** rather than digging through scattered lists (Instagram saves, wishlists, notes). Product goals and MVP scope live in [`context/foundation/prd.md`](./context/foundation/prd.md).
 
-**Current codebase:** authentication and route protection match the MVP needs; the `/dashboard` area is still a lightweight signed-in placeholder while TBR CRUD and trope-driven recommendations are implemented.
+**Current codebase:** authentication, route protection, add-book, and browse-TBR flows are in place; mood-trope recommendation is next on the validation spine.
 
 Repository conventions for contributors and tooling are summarized in [`AGENTS.md`](./AGENTS.md).
 
@@ -142,11 +142,13 @@ Supabase often requires verified email before sign-in. To skip confirmation in d
 
 | Route                 | Purpose                                                                                             |
 | --------------------- | --------------------------------------------------------------------------------------------------- |
-| `/`                   | Marketing / entry (adjust copy in [`src/components/Welcome.astro`](./src/components/Welcome.astro)) |
-| `/auth/signin`        | Sign in                                                                                             |
+| `/`                   | Landing — SmartTBR marketing when signed out; TBR CTAs when signed in ([`Welcome.astro`](./src/components/Welcome.astro)) |
+| `/auth/signin`        | Sign in (redirects to `/dashboard` on success)                                                      |
 | `/auth/signup`        | Sign up                                                                                             |
 | `/auth/confirm-email` | Post-signup inbox reminder                                                                          |
-| `/dashboard`          | Authenticated shell (starter placeholder UI)                                                        |
+| `/dashboard`          | Authenticated hub (links to TBR and add-book)                                                       |
+| `/books`              | Browse full TBR (protected)                                                                         |
+| `/books/new`          | Add a book (protected)                                                                              |
 
 Protected paths are centralized in **`PROTECTED_ROUTES`** in [`src/middleware.ts`](./src/middleware.ts); add paths there only.
 

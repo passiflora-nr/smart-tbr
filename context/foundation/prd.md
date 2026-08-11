@@ -153,7 +153,7 @@ The user encounters the rule by opening the trope-selection screen at the moment
 
 Email + password authentication. Each account is private and isolated — every user has exactly one TBR, and they only ever see their own. Flat user model: no roles, no sharing, no admin separation.
 
-Sign-up creates a fresh, empty TBR account. Sign-in returns the user to their own TBR. Sign-out returns them to the public landing / sign-in page. An unauthenticated visitor hitting any TBR-related route is redirected to sign-in.
+Sign-up creates a fresh, empty TBR account. Sign-in returns the user to the dashboard (their authenticated home), from which they can reach their TBR. Sign-out returns them to the public landing / sign-in page. An unauthenticated visitor hitting any TBR-related route is redirected to sign-in.
 
 ## Non-Goals
 
