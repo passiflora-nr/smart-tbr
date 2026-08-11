@@ -1,7 +1,7 @@
 ---
 change_id: browse-tbr-list
 title: Browse the TBR list
-status: implemented
+status: impl_reviewed
 created: 2026-08-08
 updated: 2026-08-11
 archived_at: null
