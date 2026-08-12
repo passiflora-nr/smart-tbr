@@ -494,48 +494,48 @@ No `wrangler.jsonc` change: `run_worker_first: ["/api/*"]` already deep-matches 
 
 #### Automated
 
-- [x] 1.1 `npx astro sync` completes clean
-- [x] 1.2 Type-aware lint passes: `npm run lint`
-- [x] 1.3 Production build passes: `npm run build`
-- [x] 1.4 `PUT /api/books/<own-book-id>` with a valid body returns 200 and a `book` reflecting the new values
-- [x] 1.5 A second `PUT` of the same values returns 200 with `duplicate: false` — proving the self-match exclusion works
-- [x] 1.6 `PUT` with a title that matches a *different* book of the same user returns 200 with `duplicate: true`
-- [x] 1.7 `PUT /api/books/<other-users-book-id>` returns 404 and leaves that row unchanged in the database
-- [x] 1.8 `PUT /api/books/<well-formed-but-unused-uuid>` returns 404
-- [x] 1.9 `PUT /api/books/not-a-uuid` returns 404, not 500
-- [x] 1.10 `PUT` with an empty title, zero tropes, or a 2001-character description returns 400 with one message per offending field
-- [x] 1.11 `PUT` with no session cookie returns 401
-- [x] 1.12 `supabase/tests/rls.sql` still passes
+- [x] 1.1 `npx astro sync` completes clean — a0be6a7
+- [x] 1.2 Type-aware lint passes: `npm run lint` — a0be6a7
+- [x] 1.3 Production build passes: `npm run build` — a0be6a7
+- [x] 1.4 `PUT /api/books/<own-book-id>` with a valid body returns 200 and a `book` reflecting the new values — a0be6a7
+- [x] 1.5 A second `PUT` of the same values returns 200 with `duplicate: false` — proving the self-match exclusion works — a0be6a7
+- [x] 1.6 `PUT` with a title that matches a *different* book of the same user returns 200 with `duplicate: true` — a0be6a7
+- [x] 1.7 `PUT /api/books/<other-users-book-id>` returns 404 and leaves that row unchanged in the database — a0be6a7
+- [x] 1.8 `PUT /api/books/<well-formed-but-unused-uuid>` returns 404 — a0be6a7
+- [x] 1.9 `PUT /api/books/not-a-uuid` returns 404, not 500 — a0be6a7
+- [x] 1.10 `PUT` with an empty title, zero tropes, or a 2001-character description returns 400 with one message per offending field — a0be6a7
+- [x] 1.11 `PUT` with no session cookie returns 401 — a0be6a7
+- [x] 1.12 `supabase/tests/rls.sql` still passes — a0be6a7
 
 #### Manual
 
-- [x] 1.13 The add-book form still saves, still shows its duplicate notice, and still reports field and session errors after the type rename
+- [x] 1.13 The add-book form still saves, still shows its duplicate notice, and still reports field and session errors after the type rename — a0be6a7
 
 ### Phase 2: Edit, end to end
 
 #### Automated
 
-- [ ] 2.1 `npx astro sync` completes clean
-- [ ] 2.2 Type-aware lint passes: `npm run lint`
-- [ ] 2.3 Production build passes: `npm run build`
-- [ ] 2.4 Unauthenticated `GET /books/<id>/edit` redirects to `/auth/signin` (302)
-- [ ] 2.5 Signed-in `GET /books/<own-book-id>/edit` returns 200 and the served HTML already contains the book's current title and author, proving the prefill is server-rendered
-- [ ] 2.6 `GET /books/<other-users-book-id>/edit` redirects to `/books?error=not_found`
-- [ ] 2.7 `GET /books/not-a-uuid/edit` redirects to `/books?error=not_found` rather than erroring
+- [x] 2.1 `npx astro sync` completes clean
+- [x] 2.2 Type-aware lint passes: `npm run lint`
+- [x] 2.3 Production build passes: `npm run build`
+- [x] 2.4 Unauthenticated `GET /books/<id>/edit` redirects to `/auth/signin` (302)
+- [x] 2.5 Signed-in `GET /books/<own-book-id>/edit` returns 200 and the served HTML already contains the book's current title and author, proving the prefill is server-rendered
+- [x] 2.6 `GET /books/<other-users-book-id>/edit` redirects to `/books?error=not_found`
+- [x] 2.7 `GET /books/not-a-uuid/edit` redirects to `/books?error=not_found` rather than erroring
 
 #### Manual
 
-- [ ] 2.8 Every row on `/books` shows an Edit link that opens that book's form with all four fields prefilled, including trope chips and a null description rendering as an empty field
-- [ ] 2.9 Changing the title and saving returns to `/books` scrolled to that row, briefly highlighted, showing the new title
-- [ ] 2.10 The edited row stays in its original list position and the heading count is unchanged
-- [ ] 2.11 Editing tropes — adding, removing via the chip's ✕, and removing via backspace — persists exactly what the chips showed
-- [ ] 2.12 Trope text left uncommitted in the input when Save is pressed is included rather than silently dropped
-- [ ] 2.13 Clearing the description saves it as empty, and the row's description disappears from the list
-- [ ] 2.14 Submitting an empty title, or removing every trope, shows the same inline field messages the add-book form shows, and does not navigate
-- [ ] 2.15 A failed save leaves all typed values in the form
-- [ ] 2.16 Editing a book to exactly match another book's title and author still saves, returns to that row on `/books`, and shows a notice that another saved book has the same title and author
+- [x] 2.8 Every row on `/books` shows an Edit link that opens that book's form with all four fields prefilled, including trope chips and a null description rendering as an empty field
+- [x] 2.9 Changing the title and saving returns to `/books` scrolled to that row, briefly highlighted, showing the new title
+- [x] 2.10 The edited row stays in its original list position and the heading count is unchanged
+- [x] 2.11 Editing tropes — adding, removing via the chip's ✕, and removing via backspace — persists exactly what the chips showed
+- [x] 2.12 Trope text left uncommitted in the input when Save is pressed is included rather than silently dropped
+- [x] 2.13 Clearing the description saves it as empty, and the row's description disappears from the list
+- [x] 2.14 Submitting an empty title, or removing every trope, shows the same inline field messages the add-book form shows, and does not navigate
+- [x] 2.15 A failed save leaves all typed values in the form
+- [x] 2.16 Editing a book to exactly match another book's title and author still saves, returns to that row on `/books`, and shows a notice that another saved book has the same title and author
 - [ ] 2.17 Opening an edit page, deleting that book in a second tab, then saving shows the "no longer in your TBR" message with a working link back
-- [ ] 2.18 Signed in as user A, manually visiting a user C book's edit URL lands on `/books` with the message and never shows user C's data
+- [x] 2.18 Signed in as user A, manually visiting a user C book's edit URL lands on `/books` with the message and never shows user C's data
 
 ### Phase 3: Delete
 

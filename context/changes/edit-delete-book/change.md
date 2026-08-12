@@ -3,7 +3,7 @@ change_id: edit-delete-book
 title: Edit and delete a book from the TBR
 status: implementing
 created: 2026-08-11
-updated: 2026-08-11
+updated: 2026-08-12
 archived_at: null
 ---
 

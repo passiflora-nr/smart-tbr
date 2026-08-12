@@ -122,3 +122,18 @@
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes book-row-emphasis {
+  0% {
+    border-color: rgb(192 132 252 / 0.6);
+    box-shadow: 0 0 0 2px rgb(192 132 252 / 0.25);
+  }
+  100% {
+    border-color: rgb(255 255 255 / 0.1);
+    box-shadow: none;
+  }
+}
+
+.book-row:target {
+  animation: book-row-emphasis 2s ease-out forwards;
+}
