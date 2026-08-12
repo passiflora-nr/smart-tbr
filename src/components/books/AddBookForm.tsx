@@ -8,8 +8,8 @@ import { TropeInput } from "@/components/books/TropeInput";
 import { SavedBooksList } from "@/components/books/SavedBooksList";
 import {
   bookSchema,
-  isCreateBookError,
-  isCreateBookSuccess,
+  isBookMutationError,
+  isBookMutationSuccess,
   tropeListSchema,
   type BookPayload,
 } from "@/lib/book-schema";
@@ -122,7 +122,7 @@ export default function AddBookForm() {
     }
 
     if (response.status === 201) {
-      if (!isCreateBookSuccess(body)) {
+      if (!isBookMutationSuccess(body)) {
         setServerError("Unexpected server response. Please try again.");
         return;
       }
@@ -143,7 +143,7 @@ export default function AddBookForm() {
     }
 
     if (response.status === 400) {
-      if (!isCreateBookError(body)) {
+      if (!isBookMutationError(body)) {
         setServerError("Unexpected server response. Please try again.");
         return;
       }
@@ -160,7 +160,7 @@ export default function AddBookForm() {
       return;
     }
 
-    if (isCreateBookError(body)) {
+    if (isBookMutationError(body)) {
       setServerError(body.error);
       return;
     }

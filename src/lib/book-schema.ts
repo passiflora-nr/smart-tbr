@@ -57,12 +57,14 @@ export const bookSchema = z.object({
 export type BookInput = z.input<typeof bookSchema>;
 export type BookPayload = z.output<typeof bookSchema>;
 
-export interface CreateBookSuccess {
+export const bookIdSchema = z.uuid();
+
+export interface BookMutationSuccess {
   book: Tables<"books">;
   duplicate: boolean;
 }
 
-export interface CreateBookError {
+export interface BookMutationError {
   error: string;
   fieldErrors?: Record<string, string[]>;
 }
@@ -83,13 +85,13 @@ function isBookRow(value: unknown): value is Tables<"books"> {
   );
 }
 
-export function isCreateBookSuccess(value: unknown): value is CreateBookSuccess {
+export function isBookMutationSuccess(value: unknown): value is BookMutationSuccess {
   if (typeof value !== "object" || value === null) return false;
   const body = value as Record<string, unknown>;
   return isBookRow(body.book) && typeof body.duplicate === "boolean";
 }
 
-export function isCreateBookError(value: unknown): value is CreateBookError {
+export function isBookMutationError(value: unknown): value is BookMutationError {
   if (typeof value !== "object" || value === null) return false;
   const body = value as Record<string, unknown>;
   if (typeof body.error !== "string") return false;
