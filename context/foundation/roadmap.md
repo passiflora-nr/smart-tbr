@@ -34,9 +34,9 @@ SmartTBR collapses a 100+ book "to be read" backlog that today lives scattered a
 | S-06 | account-lifecycle | rely on gated routes and self-delete their account + all data | F-01 ✓ | FR-003, FR-013, FR-001, FR-002, Access Control | **ready** |
 | S-05 | mood-trope-recommendation | pick 1-3 mood tropes and get up to 3 matching books from their own TBR | F-01 ✓, S-01 ✓ | US-01, FR-008, FR-009, FR-010, NFR: <=2s | **ready** |
 | S-02 | browse-tbr-list | browse their full TBR as a list | S-01 ✓ | FR-005 | done |
-| S-03 | edit-delete-book | edit or delete any book in their TBR | S-02 | FR-006, FR-007 | proposed |
-| S-04 | search-filter-tbr | narrow the TBR by title/author substring and/or trope filter | S-02 | FR-012 | proposed |
-| S-07 | ui-theme-cafe-romance | see the whole app in the "Café Romance" palette instead of the starter's cosmic theme | S-02, S-03, S-04, S-05, S-06 | - (UX polish) | optional |
+| S-03 | edit-delete-book | edit or delete any book in their TBR | S-02 ✓ | FR-006, FR-007 | **ready** |
+| S-04 | search-filter-tbr | narrow the TBR by title/author substring and/or trope filter | S-02 ✓ | FR-012 | **ready** |
+| S-07 | ui-theme-cafe-romance | see the whole app in the "Café Romance" palette instead of the starter's cosmic theme | S-02 ✓, S-03, S-04, S-05, S-06 | - (UX polish) | optional |
 
 > **Status:** `done` = archived · `ready` = prerequisites met, start with `/10x-plan <change-id>` · `proposed` = blocked on prerequisites · `optional` = not required by any PRD success criterion; pick up only if time remains after the functional slices. A ✓ in Prerequisites marks a satisfied dependency.
 
@@ -65,7 +65,7 @@ flowchart TB
   end
 
   subgraph B["Stream B · TBR management"]
-    S02["S-02 · Browse TBR"]
+    S02["S-02 · Browse TBR<br/>(done)"]
     S03["S-03 · Edit / delete"]
     S04["S-04 · Search / filter"]
   end
@@ -166,7 +166,7 @@ What's already in place in the codebase as of 2026-06-14 (auto-researched + user
 - **Blockers:** -
 - **Unknowns:** -
 - **Risk:** Hard delete (no archived state per FR-007); edits to trope tags shift future recommendations, which is acceptable for v1.
-- **Status:** proposed
+- **Status:** ready
 
 ### S-04: Search and filter the TBR
 
@@ -178,7 +178,7 @@ What's already in place in the codebase as of 2026-06-14 (auto-researched + user
 - **Blockers:** -
 - **Unknowns:** -
 - **Risk:** Makes a 100+ book list usable; required for the migration experience but not for the north-star ritual, so sequenced after the spine.
-- **Status:** proposed
+- **Status:** ready
 
 ### S-06: Account lifecycle - gating and self-serve deletion
 
@@ -212,10 +212,10 @@ What's already in place in the codebase as of 2026-06-14 (auto-researched + user
 | S-01 | add-book-to-tbr | Add a book to the TBR | done | Archived 2026-08-08 |
 | S-06 | account-lifecycle | Account gating + self-serve deletion | yes | Parallel with Stream B; F-01 done |
 | S-05 | mood-trope-recommendation | Pick next book by mood-tropes (north star) | yes | Next on Stream A (north star); S-01 done |
-| S-02 | browse-tbr-list | Browse the TBR list | yes | Parallel with S-05 / S-06; S-01 done |
-| S-03 | edit-delete-book | Edit and delete a book | no | Needs S-02 |
-| S-04 | search-filter-tbr | Search and filter the TBR | no | Needs S-02 |
-| S-07 | ui-theme-cafe-romance | Apply the Café Romance UI theme across the app | no | Optional stretch; needs all user-facing slices |
+| S-02 | browse-tbr-list | Browse the TBR list | done | Archived 2026-08-11 |
+| S-03 | edit-delete-book | Edit and delete a book | yes | Parallel with S-04; S-02 done |
+| S-04 | search-filter-tbr | Search and filter the TBR | yes | Parallel with S-03; S-02 done |
+| S-07 | ui-theme-cafe-romance | Apply the Café Romance UI theme across the app | no | Optional stretch; needs S-03, S-04, S-05, S-06 |
 
 ## Open Roadmap Questions
 
