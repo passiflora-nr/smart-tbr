@@ -515,54 +515,54 @@ No `wrangler.jsonc` change: `run_worker_first: ["/api/*"]` already deep-matches 
 
 #### Automated
 
-- [x] 2.1 `npx astro sync` completes clean
-- [x] 2.2 Type-aware lint passes: `npm run lint`
-- [x] 2.3 Production build passes: `npm run build`
-- [x] 2.4 Unauthenticated `GET /books/<id>/edit` redirects to `/auth/signin` (302)
-- [x] 2.5 Signed-in `GET /books/<own-book-id>/edit` returns 200 and the served HTML already contains the book's current title and author, proving the prefill is server-rendered
-- [x] 2.6 `GET /books/<other-users-book-id>/edit` redirects to `/books?error=not_found`
-- [x] 2.7 `GET /books/not-a-uuid/edit` redirects to `/books?error=not_found` rather than erroring
+- [x] 2.1 `npx astro sync` completes clean — dc71c8a
+- [x] 2.2 Type-aware lint passes: `npm run lint` — dc71c8a
+- [x] 2.3 Production build passes: `npm run build` — dc71c8a
+- [x] 2.4 Unauthenticated `GET /books/<id>/edit` redirects to `/auth/signin` (302) — dc71c8a
+- [x] 2.5 Signed-in `GET /books/<own-book-id>/edit` returns 200 and the served HTML already contains the book's current title and author, proving the prefill is server-rendered — dc71c8a
+- [x] 2.6 `GET /books/<other-users-book-id>/edit` redirects to `/books?error=not_found` — dc71c8a
+- [x] 2.7 `GET /books/not-a-uuid/edit` redirects to `/books?error=not_found` rather than erroring — dc71c8a
 
 #### Manual
 
-- [x] 2.8 Every row on `/books` shows an Edit link that opens that book's form with all four fields prefilled, including trope chips and a null description rendering as an empty field
-- [x] 2.9 Changing the title and saving returns to `/books` scrolled to that row, briefly highlighted, showing the new title
-- [x] 2.10 The edited row stays in its original list position and the heading count is unchanged
-- [x] 2.11 Editing tropes — adding, removing via the chip's ✕, and removing via backspace — persists exactly what the chips showed
-- [x] 2.12 Trope text left uncommitted in the input when Save is pressed is included rather than silently dropped
-- [x] 2.13 Clearing the description saves it as empty, and the row's description disappears from the list
-- [x] 2.14 Submitting an empty title, or removing every trope, shows the same inline field messages the add-book form shows, and does not navigate
-- [x] 2.15 A failed save leaves all typed values in the form
-- [x] 2.16 Editing a book to exactly match another book's title and author still saves, returns to that row on `/books`, and shows a notice that another saved book has the same title and author
+- [x] 2.8 Every row on `/books` shows an Edit link that opens that book's form with all four fields prefilled, including trope chips and a null description rendering as an empty field — dc71c8a
+- [x] 2.9 Changing the title and saving returns to `/books` scrolled to that row, briefly highlighted, showing the new title — dc71c8a
+- [x] 2.10 The edited row stays in its original list position and the heading count is unchanged — dc71c8a
+- [x] 2.11 Editing tropes — adding, removing via the chip's ✕, and removing via backspace — persists exactly what the chips showed — dc71c8a
+- [x] 2.12 Trope text left uncommitted in the input when Save is pressed is included rather than silently dropped — dc71c8a
+- [x] 2.13 Clearing the description saves it as empty, and the row's description disappears from the list — dc71c8a
+- [x] 2.14 Submitting an empty title, or removing every trope, shows the same inline field messages the add-book form shows, and does not navigate — dc71c8a
+- [x] 2.15 A failed save leaves all typed values in the form — dc71c8a
+- [x] 2.16 Editing a book to exactly match another book's title and author still saves, returns to that row on `/books`, and shows a notice that another saved book has the same title and author — dc71c8a
 - [ ] 2.17 Opening an edit page, deleting that book in a second tab, then saving shows the "no longer in your TBR" message with a working link back
-- [x] 2.18 Signed in as user A, manually visiting a user C book's edit URL lands on `/books` with the message and never shows user C's data
+- [x] 2.18 Signed in as user A, manually visiting a user C book's edit URL lands on `/books` with the message and never shows user C's data — dc71c8a
 
 ### Phase 3: Delete
 
 #### Automated
 
-- [ ] 3.1 `npx astro sync` completes clean
-- [ ] 3.2 Type-aware lint passes: `npm run lint`
-- [ ] 3.3 Production build passes: `npm run build`
-- [ ] 3.4 `POST /api/books/<own-book-id>/delete` returns a 302 to `/books` and the row is gone from the database
-- [ ] 3.5 `POST /api/books/<other-users-book-id>/delete` returns a 302 to `/books?error=not_found` and that row still exists in the database
-- [ ] 3.6 `POST /api/books/<well-formed-but-unused-uuid>/delete` returns a 302 to `/books?error=not_found`
-- [ ] 3.7 `POST /api/books/not-a-uuid/delete` returns a 302 to `/books?error=not_found` rather than a 500
-- [ ] 3.8 `POST` to the delete route with no session cookie returns a 302 to `/auth/signin` and deletes nothing
-- [ ] 3.9 The served `/books` HTML contains no `<script>` tag for a delete island, confirming the page is still zero-JavaScript
+- [x] 3.1 `npx astro sync` completes clean
+- [x] 3.2 Type-aware lint passes: `npm run lint`
+- [x] 3.3 Production build passes: `npm run build`
+- [x] 3.4 `POST /api/books/<own-book-id>/delete` returns a 302 to `/books` and the row is gone from the database
+- [x] 3.5 `POST /api/books/<other-users-book-id>/delete` returns a 302 to `/books?error=not_found` and that row still exists in the database
+- [x] 3.6 `POST /api/books/<well-formed-but-unused-uuid>/delete` returns a 302 to `/books?error=not_found`
+- [x] 3.7 `POST /api/books/not-a-uuid/delete` returns a 302 to `/books?error=not_found` rather than a 500
+- [x] 3.8 `POST` to the delete route with no session cookie returns a 302 to `/auth/signin` and deletes nothing
+- [x] 3.9 The served `/books` HTML contains no `<script>` tag for a delete island, confirming the page is still zero-JavaScript
 
 #### Manual
 
-- [ ] 3.10 Clicking Delete on a row opens a confirmation in place and deletes nothing on its own
-- [ ] 3.11 Cancelling closes the confirmation and leaves the book present
-- [ ] 3.12 Confirming removes the book, returns to `/books`, and the heading count drops by exactly one
-- [ ] 3.13 Deleting with JavaScript disabled in the browser works identically
-- [ ] 3.14 Deleting the last remaining book (as user D, after adding one) shows the empty state and its "Add your first book" link
-- [ ] 3.15 The delete control on the edit page removes the book and returns to `/books`
-- [ ] 3.16 Two rows' confirmations can be opened at once without either one submitting the other
-- [ ] 3.17 Collapsed delete controls do not visibly change row height compared to before this phase
-- [ ] 3.18 Deleting a book that a second tab already deleted shows the not-found message rather than an error page
-- [ ] 3.19 The duplicate books S-01 warned about can be cleaned up: add the same book twice from `/books/new`, then delete one from the list
+- [x] 3.10 Clicking Delete on a row opens a confirmation in place and deletes nothing on its own
+- [x] 3.11 Cancelling closes the confirmation and leaves the book present
+- [x] 3.12 Confirming removes the book, returns to `/books`, and the heading count drops by exactly one
+- [x] 3.13 Deleting with JavaScript disabled in the browser works identically
+- [x] 3.14 Deleting the last remaining book (as user D, after adding one) shows the empty state and its "Add your first book" link
+- [x] 3.15 The delete control on the edit page removes the book and returns to `/books`
+- [x] 3.16 Two rows' confirmations can be opened at once without either one submitting the other
+- [x] 3.17 Collapsed delete controls do not visibly change row height compared to before this phase
+- [x] 3.18 Deleting a book that a second tab already deleted shows the not-found message rather than an error page
+- [x] 3.19 The duplicate books S-01 warned about can be cleaned up: add the same book twice from `/books/new`, then delete one from the list
 
 ### Phase 4: Isolation, scale, and CI
 

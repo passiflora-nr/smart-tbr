@@ -1,6 +1,7 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import BookList from "@/components/books/BookList.astro";
+import DeleteBookModal from "@/components/books/DeleteBookModal.astro";
 import SignOutButton from "@/components/auth/SignOutButton.astro";
 import type { BookListRow } from "@/lib/sort-books-for-browse";
 import { sortBooksForBrowse } from "@/lib/sort-books-for-browse";
@@ -144,5 +145,6 @@ const headingText = state === "populated" ? `Your TBR (${books.length})` : "Your
         )
       }
     </div>
+    {state === "populated" ? books.map((book) => <DeleteBookModal id={book.id} title={book.title} />) : null}
   </div>
 </Layout>

@@ -137,3 +137,34 @@
 .book-row:target {
   animation: book-row-emphasis 2s ease-out forwards;
 }
+
+.delete-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.delete-modal:target {
+  display: flex;
+}
+
+.delete-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgb(0 0 0 / 0.65);
+}
+
+.delete-modal-panel {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 28rem);
+  border-radius: 1rem;
+  border: 1px solid rgb(239 68 68 / 0.35);
+  background: rgb(69 10 10 / 0.95);
+  padding: 1.5rem;
+  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.5);
+}

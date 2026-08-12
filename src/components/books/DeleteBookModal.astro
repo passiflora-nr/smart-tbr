@@ -1,0 +1,46 @@
+---
+interface Props {
+  id: string;
+  title: string;
+  genericConfirm?: boolean;
+}
+
+const { id, title, genericConfirm = false } = Astro.props;
+const modalId = `delete-${id}`;
+---
+
+<div id={modalId} class="delete-modal" role="dialog" aria-modal="true" aria-labelledby={`${modalId}-heading`}>
+  <a href="#_" class="delete-modal-backdrop" aria-label="Cancel deletion">
+    <span class="sr-only">Cancel deletion</span>
+  </a>
+  <div class="delete-modal-panel">
+    <h2 id={`${modalId}-heading`} class="text-lg font-semibold text-white">Delete book?</h2>
+    {
+      genericConfirm ? (
+        <p class="mt-2 text-sm text-red-200">Permanently delete this book?</p>
+      ) : (
+        <p class="mt-2 text-sm text-red-200">
+          Permanently delete <span class="font-medium break-words text-red-100">{title}</span>?
+        </p>
+      )
+    }
+    <p class="mt-1 text-sm text-red-200">This cannot be undone.</p>
+    <div class="mt-4 flex flex-wrap justify-end gap-2">
+      <a
+        href="#_"
+        class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm text-white transition-colors hover:bg-white/20"
+      >
+        Cancel
+      </a>
+      <form method="POST" action={`/api/books/${id}/delete`}>
+        <button
+          type="submit"
+          aria-label={`Permanently delete ${title}`}
+          class="rounded-lg border border-red-500/40 bg-red-900/40 px-4 py-2 text-sm text-red-100 transition-colors hover:bg-red-900/60"
+        >
+          Delete permanently
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
