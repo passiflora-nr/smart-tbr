@@ -1,22 +1,82 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import BookList from "@/components/books/BookList.astro";
+import DeleteBookModal from "@/components/books/DeleteBookModal.astro";
 import SignOutButton from "@/components/auth/SignOutButton.astro";
 import type { BookListRow } from "@/lib/sort-books-for-browse";
+import { bookIdSchema } from "@/lib/book-schema";
 import { sortBooksForBrowse } from "@/lib/sort-books-for-browse";
 import { createClient } from "@/lib/supabase";
 
+const REDIRECT_ERRORS: Record<string, string> = {
+  not_found: "That book is not in your TBR.",
+  load_failed: "Could not load that book. Return to your TBR and try again.",
+  delete_failed: "Could not delete that book. Try again.",
+};
+
+const REDIRECT_NOTICES: Record<string, string> = {
+  duplicate: "Another saved book already has the same title and author.",
+  deleted: "Book deleted.",
+};
+
+const FLASH_ERROR_COOKIE = "books_flash_error";
+const FLASH_NOTICE_COOKIE = "books_flash_notice";
+
 const user = Astro.locals.user;
+
+if (!user) {
+  return Astro.redirect("/auth/signin");
+}
+
+const errorParam = Astro.url.searchParams.get("error");
+const noticeParam = Astro.url.searchParams.get("notice");
+const highlight = Astro.url.searchParams.get("highlight");
+
+if (errorParam && Object.hasOwn(REDIRECT_ERRORS, errorParam)) {
+  Astro.cookies.set(FLASH_ERROR_COOKIE, errorParam, {
+    path: "/books",
+    maxAge: 30,
+    sameSite: "lax",
+    httpOnly: true,
+  });
+  return Astro.redirect("/books");
+}
+
+if (noticeParam && Object.hasOwn(REDIRECT_NOTICES, noticeParam)) {
+  Astro.cookies.set(FLASH_NOTICE_COOKIE, noticeParam, {
+    path: "/books",
+    maxAge: 30,
+    sameSite: "lax",
+    httpOnly: true,
+  });
+  const highlightResult = bookIdSchema.safeParse(highlight);
+  const dest = highlightResult.success ? `/books#book-${highlightResult.data}` : "/books";
+  return Astro.redirect(dest);
+}
+
+const flashErrorCode = Astro.cookies.get(FLASH_ERROR_COOKIE)?.value;
+const flashNoticeCode = Astro.cookies.get(FLASH_NOTICE_COOKIE)?.value;
+
+if (flashErrorCode) {
+  Astro.cookies.delete(FLASH_ERROR_COOKIE, { path: "/books" });
+}
+if (flashNoticeCode) {
+  Astro.cookies.delete(FLASH_NOTICE_COOKIE, { path: "/books" });
+}
+
+const redirectError =
+  flashErrorCode && Object.hasOwn(REDIRECT_ERRORS, flashErrorCode) ? REDIRECT_ERRORS[flashErrorCode] : null;
+const redirectNotice =
+  !redirectError && flashNoticeCode && Object.hasOwn(REDIRECT_NOTICES, flashNoticeCode)
+    ? REDIRECT_NOTICES[flashNoticeCode]
+    : null;
 
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 
 let state: "failed" | "empty" | "populated";
 let books: BookListRow[] = [];
 
-if (!user) {
-  // Middleware redirects unauthenticated /books requests before this page runs.
-  state = "failed";
-} else if (!supabase) {
+if (!supabase) {
   state = "failed";
 } else {
   const { data, error } = await supabase
@@ -34,77 +94,87 @@ if (!user) {
     books = sortBooksForBrowse(data);
   }
 }
+
+const headingText = state === "populated" ? `Your TBR (${books.length})` : "Your TBR";
 ---
 
 <Layout title="Your TBR">
   <div class="bg-cosmic flex min-h-screen items-start justify-center p-4 pt-12">
     <div class="w-full max-w-2xl rounded-2xl border border-white/10 bg-white/10 p-8 text-white backdrop-blur-xl">
       {
+        redirectError ? (
+          <p class="mb-4 flex w-full items-center justify-center gap-2 rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-center text-sm text-red-300">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="size-4 shrink-0"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" x2="12" y1="8" y2="12" />
+              <line x1="12" x2="12.01" y1="16" y2="16" />
+            </svg>
+            {redirectError}
+          </p>
+        ) : redirectNotice ? (
+          <p class="mb-4 w-full rounded-lg border border-amber-500/30 bg-amber-900/20 px-3 py-2 text-center text-sm text-amber-200">
+            {redirectNotice}
+          </p>
+        ) : null
+      }
+
+      <div class="mb-6 flex items-center justify-between gap-4">
+        <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent">
+          {headingText}
+        </h1>
+        <div class="flex shrink-0 flex-wrap justify-end gap-2">
+          <a
+            href="/books/new"
+            class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
+          >
+            Add a book
+          </a>
+          <a
+            href="/dashboard"
+            class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
+          >
+            Back to dashboard
+          </a>
+          <SignOutButton />
+        </div>
+      </div>
+
+      {
         state === "failed" ? (
-          <div>
-            <div class="mb-6 flex items-center justify-between gap-4">
-              <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent">
-                Your TBR
-              </h1>
-              <div class="flex shrink-0 flex-wrap justify-end gap-2">
-                <a
-                  href="/books/new"
-                  class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
-                >
-                  Add a book
-                </a>
-                <a
-                  href="/dashboard"
-                  class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
-                >
-                  Back to dashboard
-                </a>
-                <SignOutButton />
-              </div>
-            </div>
-            <p class="flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-sm text-red-300">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="size-4 shrink-0"
-                aria-hidden="true"
-              >
-                <circle cx="12" cy="12" r="10" />
-                <line x1="12" x2="12" y1="8" y2="12" />
-                <line x1="12" x2="12.01" y1="16" y2="16" />
-              </svg>
-              Couldn&apos;t load your list. Try reloading the page.
-            </p>
-          </div>
+          <p class="flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-sm text-red-300">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="size-4 shrink-0"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" x2="12" y1="8" y2="12" />
+              <line x1="12" x2="12.01" y1="16" y2="16" />
+            </svg>
+            Couldn&apos;t load your list. Try reloading the page.
+          </p>
         ) : state === "empty" ? (
           <div>
-            <div class="mb-6 flex items-center justify-between gap-4">
-              <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent">
-                Your TBR
-              </h1>
-              <div class="flex shrink-0 flex-wrap justify-end gap-2">
-                <a
-                  href="/books/new"
-                  class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
-                >
-                  Add a book
-                </a>
-                <a
-                  href="/dashboard"
-                  class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
-                >
-                  Back to dashboard
-                </a>
-                <SignOutButton />
-              </div>
-            </div>
             <p class="mb-6 text-blue-100/80">Your TBR is empty — add your first book to get started.</p>
             <a
               href="/books/new"
@@ -114,31 +184,14 @@ if (!user) {
             </a>
           </div>
         ) : (
-          <div>
-            <div class="mb-6 flex items-center justify-between gap-4">
-              <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent">
-                Your TBR ({books.length})
-              </h1>
-              <div class="flex shrink-0 flex-wrap justify-end gap-2">
-                <a
-                  href="/books/new"
-                  class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
-                >
-                  Add a book
-                </a>
-                <a
-                  href="/dashboard"
-                  class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
-                >
-                  Back to dashboard
-                </a>
-                <SignOutButton />
-              </div>
-            </div>
-            <BookList books={books} />
-          </div>
+          <BookList books={books} />
         )
       }
     </div>
+    {
+      state === "populated"
+        ? books.map((book) => <DeleteBookModal id={book.id} title={book.title} dismissHref={`#book-${book.id}`} />)
+        : null
+    }
   </div>
 </Layout>

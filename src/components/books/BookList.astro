@@ -1,4 +1,5 @@
 ---
+import DeleteBookTrigger from "@/components/books/DeleteBookTrigger.astro";
 import type { Tables } from "@/lib/database.types";
 
 // Server rendering cannot measure whether text overflows two rendered lines, so
@@ -16,9 +17,23 @@ const { books } = Astro.props;
 <ul class="space-y-4">
   {
     books.map((book) => (
-      <li class="rounded-lg border border-white/10 bg-white/5 p-4">
-        <p class="font-medium text-white">{book.title}</p>
-        <p class="text-sm text-blue-100/70">{book.author}</p>
+      <li id={`book-${book.id}`} class="book-row rounded-lg border border-white/10 bg-white/5 p-4">
+        <div class="flex items-start justify-between gap-2">
+          <div class="min-w-0 flex-1">
+            <p class="truncate font-medium text-white">{book.title}</p>
+            <p class="text-sm text-blue-100/70">{book.author}</p>
+          </div>
+          <div class="flex shrink-0 flex-wrap items-start justify-end gap-2">
+            <a
+              href={`/books/${book.id}/edit`}
+              aria-label={`Edit ${book.title}`}
+              class="rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-sm transition-colors hover:bg-white/20"
+            >
+              Edit
+            </a>
+            <DeleteBookTrigger id={book.id} title={book.title} />
+          </div>
+        </div>
         {book.description ? (
           book.description.length > DESCRIPTION_CLAMP_CHARS ? (
             <details class="group mt-1">

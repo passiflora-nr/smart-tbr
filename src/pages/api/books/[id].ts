@@ -1,9 +1,9 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
-import { bookSchema, jsonResponse } from "@/lib/book-schema";
+import { bookIdSchema, bookSchema, jsonResponse } from "@/lib/book-schema";
 import { createClient } from "@/lib/supabase";
 
-export const POST: APIRoute = async (context) => {
+export const PUT: APIRoute = async (context) => {
   const supabase = createClient(context.request.headers, context.cookies);
   if (!supabase) {
     return jsonResponse({ error: "Service unavailable" }, 503);
@@ -16,6 +16,12 @@ export const POST: APIRoute = async (context) => {
   if (authError || !user) {
     return jsonResponse({ error: "Unauthorized" }, 401);
   }
+
+  const idResult = bookIdSchema.safeParse(context.params.id);
+  if (!idResult.success) {
+    return jsonResponse({ error: "Book not found" }, 404);
+  }
+  const id = idResult.data;
 
   let body: unknown;
   try {
@@ -48,6 +54,7 @@ export const POST: APIRoute = async (context) => {
     .eq("user_id", user.id)
     .eq("title", title)
     .eq("author", author)
+    .neq("id", id)
     .limit(1);
 
   if (lookupError) {
@@ -57,22 +64,22 @@ export const POST: APIRoute = async (context) => {
 
   const duplicate = existing.length > 0;
 
-  const { data: book, error: insertError } = await supabase
+  const { data: book, error: updateError } = await supabase
     .from("books")
-    .insert({
-      title,
-      author,
-      tropes,
-      description,
-      user_id: user.id,
-    })
+    .update({ title, author, tropes, description })
+    .eq("id", id)
+    .eq("user_id", user.id)
     .select()
-    .single();
+    .maybeSingle();
 
-  if (insertError) {
-    console.error("books insert failed", insertError);
+  if (updateError) {
+    console.error("books update failed", updateError);
     return jsonResponse({ error: "Failed to save book" }, 500);
   }
 
-  return jsonResponse({ book, duplicate }, 201);
+  if (!book) {
+    return jsonResponse({ error: "Book not found" }, 404);
+  }
+
+  return jsonResponse({ book, duplicate }, 200);
 };

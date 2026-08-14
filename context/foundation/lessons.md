@@ -43,3 +43,10 @@
 - **Problem**: A change to a test file or a file the test depends on can silently break the test; without rerunning, the breakage ships undetected.
 - **Rule**: When changing any test file or any file the tests depend on, rerun the affected tests to confirm they still pass before considering the change done.
 - **Applies to**: implement, impl-review
+
+## Prefer native HTML over React islands on per-row list surfaces
+
+- **Context**: Any slice touching `src/pages/books/index.astro` or `src/components/books/BookList.astro` — the un-paginated TBR list, which renders one element per book the user owns (verified at 145 rows). Most immediately S-04 (`search-filter-tbr`).
+- **Problem**: The browse list is deliberately server-rendered with zero client-side JavaScript; its interactivity uses native HTML — `<details>` for the description disclosure and the delete confirm, anchors for navigation, form post + redirect for the delete itself. Adding a React island to that page costs hydration setup proportional to row count, and it degrades silently: lint, build, and CI all stay green, and the page looks and behaves identically to anyone testing with JavaScript enabled.
+- **Rule**: Before adding a React island to a page that renders one element per user-owned row, try the native HTML equivalent first — `<details>` for disclosure, anchors for navigation, form post + redirect for mutation, URL query params for filtering and sorting. If an island is genuinely required (as it is for the trope chip input), state that in the plan and record the trade-off; never let a list page become JavaScript-dependent by default. Verify by loading the page with JavaScript disabled.
+- **Applies to**: plan, plan-review, implement, impl-review

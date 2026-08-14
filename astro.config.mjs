@@ -14,6 +14,11 @@ export default defineConfig({
     plugins: [tailwindcss()],
   },
   adapter: cloudflare(),
+  // Pinned, not defaulted: POST /api/books/[id]/delete is a cookie-authenticated
+  // hard delete driven by a plain HTML form, so it is forgeable from another site
+  // the moment this is off. Turning it off to unblock a webhook route would be a
+  // silent security regression — exempt that route another way instead.
+  security: { checkOrigin: true },
   env: {
     schema: {
       SUPABASE_URL: envField.string({ context: "server", access: "secret", optional: true }),

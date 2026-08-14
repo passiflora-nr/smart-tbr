@@ -58,7 +58,7 @@ Verified by: the phase-level automated checks below (`astro sync`, lint, build, 
 - **No React island on this page** and no client-side JavaScript for the list. Rendering is entirely server-side.
 - **No shared card component between this page and `SavedBooksList`**, and no refactor of `SavedBooksList` — S-03 will add edit and delete controls to the browse card only, so forcing them to share now means unpicking it later.
 - **No nav bar, header, or `Layout.astro` change.** Links are added per page in the existing ad-hoc style.
-- **No schema migration, no new index, and no change to `supabase/seed.sql`, `supabase/tests/rls.sql`, or `supabase/config.toml`.** The table, its indexes, policies, and grants all ship from F-01 and are untouched. The 25-book test dataset lands in a new opt-in fixture file that nothing loads automatically.
+- **No schema migration and no new index.** The table, its indexes, policies, and grants all ship from F-01 and are untouched. `supabase/tests/rls.sql` and `supabase/config.toml` are unchanged. **`supabase/seed.sql` was amended during implementation** (see change.md): User C’s 25-book browse fixture was merged in from the former opt-in `supabase/fixtures/populated-tbr.sql`, User D was added for empty-state testing, and auth token columns were set to `''` so local GoTrue sign-in works. The standalone fixture file was removed; seed still loads only via `db.seed.sql_paths` → `./seed.sql`.
 - **No mood-trope recommendation** (S-05) and no reading of the distinct trope vocabulary.
 - **No new dependency** and no shadcn primitive installation.
 - **No test framework** — this slice does not wire Vitest or Playwright into CI.
@@ -365,7 +365,7 @@ The read path is a single owner-index-filtered select per page load, returning ~
 
 ## Migration Notes
 
-No schema migration. The `books` table, its constraints, indexes, RLS policies, and grants all ship from F-01 and are untouched; `supabase/seed.sql`, `supabase/tests/rls.sql`, and `supabase/config.toml` are all unchanged. The new `supabase/fixtures/populated-tbr.sql` is a local development aid only — it creates an `auth.users` row and must never be run against the hosted project, which is why it stays out of `db.seed.sql_paths` and out of any deploy step. Nothing needs applying to production beyond the normal `npm run build` + `npx wrangler deploy`, so there is no database rollback to plan — reverting is a Worker rollback. No `wrangler.jsonc` change either: `assets.run_worker_first` covers `/api/*` and this slice adds a page route, not an API route.
+No schema migration. The `books` table, its constraints, indexes, RLS policies, and grants all ship from F-01 and are untouched; `supabase/tests/rls.sql` and `supabase/config.toml` are unchanged. **`supabase/seed.sql` was intentionally amended** during Phase 2 manual verification: User C’s 25-book dataset (formerly planned as opt-in `supabase/fixtures/populated-tbr.sql`) was merged into the committed seed so every `db reset` loads a browsable fixture; User D was added as an empty-TBR account; auth token columns on manual `auth.users` inserts were set to `''`. The standalone fixture file was deleted and must never be reintroduced as a production apply path. Nothing needs applying to production beyond the normal `npm run build` + `npx wrangler deploy`, so there is no database rollback to plan — reverting is a Worker rollback. No `wrangler.jsonc` change either: `assets.run_worker_first` covers `/api/*` and this slice adds a page route, not an API route.
 
 ## References
 

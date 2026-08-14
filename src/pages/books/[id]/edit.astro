@@ -1,0 +1,99 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import DeleteBookModal from "@/components/books/DeleteBookModal.astro";
+import DeleteBookTrigger from "@/components/books/DeleteBookTrigger.astro";
+import EditBookForm from "@/components/books/EditBookForm";
+import SignOutButton from "@/components/auth/SignOutButton.astro";
+import { bookIdSchema } from "@/lib/book-schema";
+import { createClient } from "@/lib/supabase";
+
+// data-unsaved-guard and data-edit-delete-controls below are read by
+// EditBookForm's document listeners; see the attribute contract table in
+// context/changes/edit-delete-book/plan.md (Phase 2, change #5).
+
+const user = Astro.locals.user;
+
+if (!user) {
+  return Astro.redirect("/auth/signin");
+}
+
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+
+if (!supabase) {
+  return Astro.redirect("/books?error=load_failed");
+}
+
+const idResult = bookIdSchema.safeParse(Astro.params.id);
+
+if (!idResult.success) {
+  return Astro.redirect("/books?error=not_found");
+}
+
+const id = idResult.data;
+
+const { data: book, error } = await supabase
+  .from("books")
+  .select("id, title, author, tropes, description")
+  .eq("id", id)
+  .eq("user_id", user.id)
+  .maybeSingle();
+
+if (error) {
+  console.error("book edit load failed", error);
+  return Astro.redirect("/books?error=load_failed");
+}
+
+if (!book) {
+  return Astro.redirect("/books?error=not_found");
+}
+---
+
+<Layout title={`Edit ${book.title}`}>
+  <div class="bg-cosmic flex min-h-screen items-center justify-center p-4">
+    <div class="w-full max-w-2xl rounded-2xl border border-white/10 bg-white/10 p-8 text-white backdrop-blur-xl">
+      <div class="mb-6 flex items-center justify-between gap-4">
+        <h1
+          class="min-w-0 flex-1 truncate bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent"
+        >
+          Edit {book.title}
+        </h1>
+        <div class="flex shrink-0 flex-wrap justify-end gap-2">
+          <a
+            href="/books"
+            data-unsaved-guard
+            class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
+          >
+            View your TBR
+          </a>
+          <a
+            href="/dashboard"
+            data-unsaved-guard
+            class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
+          >
+            Back to dashboard
+          </a>
+          <SignOutButton guardUnsavedLeave />
+        </div>
+      </div>
+      <EditBookForm
+        client:load
+        id={book.id}
+        title={book.title}
+        author={book.author}
+        tropes={book.tropes}
+        description={book.description}
+      />
+      <div id={`delete-controls-${book.id}`} data-edit-delete-controls class="mt-8 border-t border-white/10 pt-6">
+        <p class="mb-3 text-sm text-blue-100/60">Remove this book from your TBR permanently.</p>
+        <DeleteBookTrigger id={book.id} title={book.title} size="form" />
+      </div>
+    </div>
+    <DeleteBookModal
+      id={book.id}
+      title={book.title}
+      genericConfirm
+      editDeleteControls
+      dismissHref={`#delete-controls-${book.id}`}
+    />
+  </div>
+</Layout>
