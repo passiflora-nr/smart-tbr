@@ -3,13 +3,21 @@ interface Props {
   id: string;
   title: string;
   genericConfirm?: boolean;
+  editDeleteControls?: boolean;
 }
 
-const { id, title, genericConfirm = false } = Astro.props;
+const { id, title, genericConfirm = false, editDeleteControls = false } = Astro.props;
 const modalId = `delete-${id}`;
 ---
 
-<div id={modalId} class="delete-modal" role="dialog" aria-modal="true" aria-labelledby={`${modalId}-heading`}>
+<div
+  id={modalId}
+  class="delete-modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby={`${modalId}-heading`}
+  {...editDeleteControls ? { "data-edit-delete-controls": true } : {}}
+>
   <a href="#_" class="delete-modal-backdrop" aria-label="Cancel deletion">
     <span class="sr-only">Cancel deletion</span>
   </a>

@@ -4,6 +4,7 @@ import BookList from "@/components/books/BookList.astro";
 import DeleteBookModal from "@/components/books/DeleteBookModal.astro";
 import SignOutButton from "@/components/auth/SignOutButton.astro";
 import type { BookListRow } from "@/lib/sort-books-for-browse";
+import { bookIdSchema } from "@/lib/book-schema";
 import { sortBooksForBrowse } from "@/lib/sort-books-for-browse";
 import { createClient } from "@/lib/supabase";
 
@@ -17,16 +18,61 @@ const REDIRECT_NOTICES: Record<string, string> = {
   duplicate: "Another saved book already has the same title and author.",
 };
 
+const FLASH_ERROR_COOKIE = "books_flash_error";
+const FLASH_NOTICE_COOKIE = "books_flash_notice";
+
 const user = Astro.locals.user;
+
+if (!user) {
+  return Astro.redirect("/auth/signin");
+}
+
+const errorParam = Astro.url.searchParams.get("error");
+const noticeParam = Astro.url.searchParams.get("notice");
+const highlight = Astro.url.searchParams.get("highlight");
+
+if (errorParam && errorParam in REDIRECT_ERRORS) {
+  Astro.cookies.set(FLASH_ERROR_COOKIE, errorParam, {
+    path: "/books",
+    maxAge: 30,
+    sameSite: "lax",
+    httpOnly: true,
+  });
+  return Astro.redirect("/books");
+}
+
+if (noticeParam && noticeParam in REDIRECT_NOTICES) {
+  Astro.cookies.set(FLASH_NOTICE_COOKIE, noticeParam, {
+    path: "/books",
+    maxAge: 30,
+    sameSite: "lax",
+    httpOnly: true,
+  });
+  const highlightResult = bookIdSchema.safeParse(highlight);
+  const dest = highlightResult.success ? `/books#book-${highlightResult.data}` : "/books";
+  return Astro.redirect(dest);
+}
+
+const flashErrorCode = Astro.cookies.get(FLASH_ERROR_COOKIE)?.value;
+const flashNoticeCode = Astro.cookies.get(FLASH_NOTICE_COOKIE)?.value;
+
+if (flashErrorCode) {
+  Astro.cookies.delete(FLASH_ERROR_COOKIE, { path: "/books" });
+}
+if (flashNoticeCode) {
+  Astro.cookies.delete(FLASH_NOTICE_COOKIE, { path: "/books" });
+}
+
+const redirectError = flashErrorCode && flashErrorCode in REDIRECT_ERRORS ? REDIRECT_ERRORS[flashErrorCode] : null;
+const redirectNotice =
+  !redirectError && flashNoticeCode && flashNoticeCode in REDIRECT_NOTICES ? REDIRECT_NOTICES[flashNoticeCode] : null;
 
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 
 let state: "failed" | "empty" | "populated";
 let books: BookListRow[] = [];
 
-if (!user) {
-  return Astro.redirect("/auth/signin");
-} else if (!supabase) {
+if (!supabase) {
   state = "failed";
 } else {
   const { data, error } = await supabase
@@ -45,13 +91,6 @@ if (!user) {
   }
 }
 
-const errorCode = Astro.url.searchParams.get("error");
-const noticeCode = Astro.url.searchParams.get("notice");
-
-const redirectError = errorCode && errorCode in REDIRECT_ERRORS ? REDIRECT_ERRORS[errorCode] : null;
-const redirectNotice =
-  !redirectError && noticeCode && noticeCode in REDIRECT_NOTICES ? REDIRECT_NOTICES[noticeCode] : null;
-
 const headingText = state === "populated" ? `Your TBR (${books.length})` : "Your TBR";
 ---
 
@@ -60,7 +99,7 @@ const headingText = state === "populated" ? `Your TBR (${books.length})` : "Your
     <div class="w-full max-w-2xl rounded-2xl border border-white/10 bg-white/10 p-8 text-white backdrop-blur-xl">
       {
         redirectError ? (
-          <p class="mb-4 flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-sm text-red-300">
+          <p class="mb-4 flex w-full items-center justify-center gap-2 rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-center text-sm text-red-300">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
@@ -81,7 +120,7 @@ const headingText = state === "populated" ? `Your TBR (${books.length})` : "Your
             {redirectError}
           </p>
         ) : redirectNotice ? (
-          <p class="mb-4 rounded-lg border border-amber-500/30 bg-amber-900/20 px-3 py-2 text-sm text-amber-200">
+          <p class="mb-4 w-full rounded-lg border border-amber-500/30 bg-amber-900/20 px-3 py-2 text-center text-sm text-amber-200">
             {redirectNotice}
           </p>
         ) : null

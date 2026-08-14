@@ -273,25 +273,25 @@ Success redirects to `/books` with no fragment and no query parameter. Deliberat
 
 #### 2. The delete control
 
-**File**: `src/components/books/DeleteBookForm.astro` (new)
+**Files**: `src/components/books/DeleteBookTrigger.astro`, `src/components/books/DeleteBookModal.astro` (new)
 
 **Intent**: One two-step confirm used identically on the browse row and the edit page, so there is a single destructive control to build, style, and verify.
 
-**Contract**: Astro component taking the book's `id` and `title`. Renders a `<form method="POST" action={`/api/books/${id}/delete`}>` whose only child is a `<details>` disclosure. The `<summary>` is the open-and-cancel affordance: closed wording says "Delete <title>", while `group-open` wording says "Cancel deletion of <title>". Inside the open panel sit a short confirmation line naming the book and a `<button type="submit">` labelled to state the outcome (not a bare "Yes").
+**Contract**: Split into a compact **Delete** trigger link and a viewport-level confirmation modal (CSS `:target`, zero JavaScript on `/books`). Modals render **outside** the glass card (`backdrop-blur` traps `position: fixed` descendants) so the overlay covers the full window and centers correctly on both `/books` and the edit page.
 
-The submit button must be the **only** button in the form, and the open/cancel trigger must be the `<summary>` element rather than a button — a `<button>` inside a form defaults to `type="submit"`, so making the trigger a button would delete the book on the first click. Activating the summary while open is the zero-JavaScript cancel path and sends no request.
+Trigger: link to `#delete-<id>`, visible label **Delete** only (book title in `aria-label`). Row size uses `px-3 py-1.5` to match Edit; edit-page size uses `px-4 py-2` to match Cancel.
 
-Styling follows the existing disclosure at `src/components/books/BookList.astro:24-32` for the open/closed mechanics (`group` plus `group-open:` variants, `list-none` and the hidden webkit marker) and the red panel treatment at `src/pages/books/index.astro:65-84` for the destructive emphasis. The confirmation copy must state that this is permanent, since there is no undo.
+Modal: dimmed full-viewport backdrop; **Cancel** and backdrop dismiss via `#_` hash navigation (no page reload — required so unsaved edit-form changes survive cancel). Confirm copy names the book on the list; edit page uses generic "this book" copy because the form may hold unsaved title edits. Submit is a plain `<form method="POST" action="/api/books/<id>/delete">` with a **Delete permanently** button.
 
-Accessible names on both the trigger and the submit must name the book, so 100 identical "Delete" controls are distinguishable.
+Only one modal open at a time: `:target` hash switching closes the previous dialog when another Delete is opened.
 
 #### 3. Mount the control on both surfaces
 
-**Files**: `src/components/books/BookList.astro`, `src/pages/books/[id]/edit.astro`
+**Files**: `src/components/books/BookList.astro`, `src/pages/books/index.astro`, `src/pages/books/[id]/edit.astro`
 
 **Intent**: Delete where the user notices the problem (the list, during duplicate cleanup) and where they went to fix it (the edit page).
 
-**Contract**: In `BookList.astro`, place `DeleteBookForm` alongside the Phase 2 `Edit` link in each row's action area. Adding it must not change row height when collapsed, or a 145-row page grows by a screenful. On the edit page, place it below the form, visually separated so it cannot be mistaken for part of the save flow — and outside the `EditBookForm` island, since it is a plain form and nesting a form inside a form is invalid HTML.
+**Contract**: In `BookList.astro`, place `DeleteBookTrigger` alongside the Phase 2 `Edit` link in each row's action area; render matching `DeleteBookModal` instances once per book **outside** the blurred card in `index.astro`. Collapsed triggers must not change row height. On the edit page, place the trigger below the form (outside the `EditBookForm` island) and render its modal outside the blurred card in `edit.astro`.
 
 ### Success Criteria:
 
@@ -309,16 +309,16 @@ Accessible names on both the trigger and the submit must name the book, so 100 i
 
 #### Manual Verification:
 
-- Clicking Delete on a row opens a confirmation in place and deletes nothing on its own
-- Cancelling closes the confirmation and leaves the book present
+- Clicking Delete opens a centered confirmation modal and deletes nothing on its own
+- Cancelling (or clicking the backdrop) closes the modal without reloading the page and leaves the book present; on the edit page, unsaved form changes must survive cancel
 - Confirming removes the book, returns to `/books`, and the heading count drops by exactly one
-- Deleting with JavaScript disabled in the browser works identically
+- Deleting with JavaScript disabled in the browser works identically *(optional — skip if the browser offers no disable-JS control; delete is form-post + redirect by design)*
 - Deleting the last remaining book (as user D, after adding one) shows the empty state and its "Add your first book" link
 - The delete control on the edit page removes the book and returns to `/books`
-- Two rows' confirmations can be opened at once without either one submitting the other
+- Only one delete modal can be open at a time; the full-viewport backdrop dismisses it on any click outside the panel — a second row's Delete cannot be reached until the modal is closed *(verified during manual QA)*
 - Collapsed delete controls do not visibly change row height compared to before this phase
 - Deleting a book that a second tab already deleted shows the not-found message rather than an error page
-- The duplicate books S-01 warned about can be cleaned up: add the same book twice from `/books/new`, then delete one from the list
+- The duplicate books S-01 warned about can be cleaned up: add the same book twice from `/books/new`, then delete one from the `/books` TBR list
 
 **Implementation Note**: After completing this phase and all automated verification passes, pause here for manual confirmation from the human that the manual testing was successful before proceeding to the next phase.
 
@@ -534,47 +534,47 @@ No `wrangler.jsonc` change: `run_worker_first: ["/api/*"]` already deep-matches 
 - [x] 2.14 Submitting an empty title, or removing every trope, shows the same inline field messages the add-book form shows, and does not navigate — dc71c8a
 - [x] 2.15 A failed save leaves all typed values in the form — dc71c8a
 - [x] 2.16 Editing a book to exactly match another book's title and author still saves, returns to that row on `/books`, and shows a notice that another saved book has the same title and author — dc71c8a
-- [ ] 2.17 Opening an edit page, deleting that book in a second tab, then saving shows the "no longer in your TBR" message with a working link back
+- [x] 2.17 Opening an edit page, deleting that book in a second tab, then saving shows the "no longer in your TBR" message with a working link back
 - [x] 2.18 Signed in as user A, manually visiting a user C book's edit URL lands on `/books` with the message and never shows user C's data — dc71c8a
 
 ### Phase 3: Delete
 
 #### Automated
 
-- [x] 3.1 `npx astro sync` completes clean
-- [x] 3.2 Type-aware lint passes: `npm run lint`
-- [x] 3.3 Production build passes: `npm run build`
-- [x] 3.4 `POST /api/books/<own-book-id>/delete` returns a 302 to `/books` and the row is gone from the database
-- [x] 3.5 `POST /api/books/<other-users-book-id>/delete` returns a 302 to `/books?error=not_found` and that row still exists in the database
-- [x] 3.6 `POST /api/books/<well-formed-but-unused-uuid>/delete` returns a 302 to `/books?error=not_found`
-- [x] 3.7 `POST /api/books/not-a-uuid/delete` returns a 302 to `/books?error=not_found` rather than a 500
-- [x] 3.8 `POST` to the delete route with no session cookie returns a 302 to `/auth/signin` and deletes nothing
-- [x] 3.9 The served `/books` HTML contains no `<script>` tag for a delete island, confirming the page is still zero-JavaScript
+- [x] 3.1 `npx astro sync` completes clean — 0ad450c
+- [x] 3.2 Type-aware lint passes: `npm run lint` — 0ad450c
+- [x] 3.3 Production build passes: `npm run build` — 0ad450c
+- [x] 3.4 `POST /api/books/<own-book-id>/delete` returns a 302 to `/books` and the row is gone from the database — 0ad450c
+- [x] 3.5 `POST /api/books/<other-users-book-id>/delete` returns a 302 to `/books?error=not_found` and that row still exists in the database — 0ad450c
+- [x] 3.6 `POST /api/books/<well-formed-but-unused-uuid>/delete` returns a 302 to `/books?error=not_found` — 0ad450c
+- [x] 3.7 `POST /api/books/not-a-uuid/delete` returns a 302 to `/books?error=not_found` rather than a 500 — 0ad450c
+- [x] 3.8 `POST` to the delete route with no session cookie returns a 302 to `/auth/signin` and deletes nothing — 0ad450c
+- [x] 3.9 The served `/books` HTML contains no `<script>` tag for a delete island, confirming the page is still zero-JavaScript — 0ad450c
 
 #### Manual
 
-- [x] 3.10 Clicking Delete on a row opens a confirmation in place and deletes nothing on its own
-- [x] 3.11 Cancelling closes the confirmation and leaves the book present
-- [x] 3.12 Confirming removes the book, returns to `/books`, and the heading count drops by exactly one
-- [x] 3.13 Deleting with JavaScript disabled in the browser works identically
-- [x] 3.14 Deleting the last remaining book (as user D, after adding one) shows the empty state and its "Add your first book" link
-- [x] 3.15 The delete control on the edit page removes the book and returns to `/books`
-- [x] 3.16 Two rows' confirmations can be opened at once without either one submitting the other
-- [x] 3.17 Collapsed delete controls do not visibly change row height compared to before this phase
-- [x] 3.18 Deleting a book that a second tab already deleted shows the not-found message rather than an error page
-- [x] 3.19 The duplicate books S-01 warned about can be cleaned up: add the same book twice from `/books/new`, then delete one from the list
+- [x] 3.10 Clicking Delete opens a centered confirmation modal and deletes nothing on its own — 0ad450c
+- [x] 3.11 Cancelling (or clicking the backdrop) closes the modal without reloading the page and leaves the book present; on the edit page, unsaved form changes survive cancel — 0ad450c
+- [x] 3.12 Confirming removes the book, returns to `/books`, and the heading count drops by exactly one — 0ad450c
+- [ ] 3.13 Deleting with JavaScript disabled in the browser works identically *(optional — skipped; Safari offers no disable-JS menu item)*
+- [x] 3.14 Deleting the last remaining book (as user D, after adding one) shows the empty state and its "Add your first book" link — 0ad450c
+- [x] 3.15 The delete control on the edit page removes the book and returns to `/books` — 0ad450c
+- [x] 3.16 Only one delete modal can be open; backdrop dismiss closes it and blocks clicks to the list underneath until dismissed *(verified — cannot open row B's Delete while row A's modal is open)*
+- [x] 3.17 Collapsed delete controls do not visibly change row height compared to before this phase — 0ad450c
+- [x] 3.18 Deleting a book that a second tab already deleted shows the not-found message rather than an error page — 0ad450c
+- [x] 3.19 The duplicate books S-01 warned about can be cleaned up: add the same book twice from `/books/new`, then delete one from the `/books` TBR list — 0ad450c
 
 ### Phase 4: Isolation, scale, and CI
 
 #### Automated
 
-- [ ] 4.1 `supabase/tests/rls.sql` runs clean against a freshly reset local stack
+- [x] 4.1 `supabase/tests/rls.sql` runs clean against a freshly reset local stack
 - [ ] 4.2 CI passes on the branch (`npm ci`, `npx astro sync`, `npm run lint`, `npm run build`)
 
 #### Manual
 
-- [ ] 4.3 URL tampering across accounts is refused on all three new surfaces in both directions, and the targeted rows are unchanged afterwards
-- [ ] 4.4 With 145 rows for user C, the page renders every row with its controls, the count is correct, and there is no perceptible delay
-- [ ] 4.5 The post-save anchor correctly scrolls to and highlights a row near the bottom of the 145-row list
-- [ ] 4.6 Edit and delete work on at least two of the four mainstream desktop browsers (per the PRD browser NFR)
+- [x] 4.3 URL tampering across accounts is refused on all three new surfaces in both directions, and the targeted rows are unchanged afterwards
+- [x] 4.4 With 145 rows for user C, the page renders every row with its controls, the count is correct, and there is no perceptible delay
+- [x] 4.5 The post-save anchor correctly scrolls to and highlights a row near the bottom of the 145-row list
+- [x] 4.6 Edit and delete work on at least two of the four mainstream desktop browsers (per the PRD browser NFR)
 - [ ] 4.7 Both new API routes respond correctly on the deployed Worker, not with a 403

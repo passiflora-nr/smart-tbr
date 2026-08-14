@@ -79,11 +79,11 @@ if (!book) {
         tropes={book.tropes}
         description={book.description}
       />
-      <div class="mt-8 border-t border-white/10 pt-6">
+      <div data-edit-delete-controls class="mt-8 border-t border-white/10 pt-6">
         <p class="mb-3 text-sm text-blue-100/60">Remove this book from your TBR permanently.</p>
         <DeleteBookTrigger id={book.id} title={book.title} size="form" />
       </div>
     </div>
-    <DeleteBookModal id={book.id} title={book.title} genericConfirm />
+    <DeleteBookModal id={book.id} title={book.title} genericConfirm editDeleteControls />
   </div>
 </Layout>

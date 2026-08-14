@@ -94,6 +94,11 @@ export default function EditBookForm({
   ]);
 
   useEffect(() => {
+    if (notFound) {
+      allowLeaveRef.current = true;
+      return;
+    }
+
     if (!isDirty) {
       allowLeaveRef.current = false;
       return;
@@ -136,7 +141,14 @@ export default function EditBookForm({
       document.removeEventListener("click", handleGuardedClick, true);
       document.removeEventListener("submit", handleGuardedSubmit, true);
     };
-  }, [isDirty]);
+  }, [isDirty, notFound]);
+
+  useEffect(() => {
+    if (!notFound) return;
+    document.querySelectorAll("[data-edit-delete-controls]").forEach((element) => {
+      element.setAttribute("hidden", "");
+    });
+  }, [notFound]);
 
   function clearFieldError(field: keyof FieldErrors) {
     if (errors[field]) {
@@ -207,7 +219,7 @@ export default function EditBookForm({
       allowLeaveRef.current = true;
 
       if (body.duplicate) {
-        window.location.href = `/books?notice=duplicate#book-${id}`;
+        window.location.href = `/books?notice=duplicate&highlight=${id}#book-${id}`;
       } else {
         window.location.href = `/books#book-${id}`;
       }
@@ -247,11 +259,8 @@ export default function EditBookForm({
 
   if (notFound) {
     return (
-      <p className="flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-sm text-red-300">
-        This book is no longer in your TBR.{" "}
-        <a href="/books" className="text-purple-300 underline hover:text-purple-200">
-          Back to your TBR
-        </a>
+      <p className="w-full rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-center text-sm text-red-300">
+        This book is no longer in your TBR.
       </p>
     );
   }
