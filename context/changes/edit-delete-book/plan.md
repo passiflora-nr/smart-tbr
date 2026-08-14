@@ -596,7 +596,7 @@ No `wrangler.jsonc` change: `run_worker_first: ["/api/*"]` already deep-matches 
 #### Automated
 
 - [x] 4.1 `supabase/tests/rls.sql` runs clean against a freshly reset local stack — cbd98c7
-- [ ] 4.2 CI passes on the branch (`npm ci`, `npx astro sync`, `npm run lint`, `npm run build`)
+- [x] 4.2 CI passes on the branch (`npm ci`, `npx astro sync`, `npm run lint`, `npm run build`) — cfe582a
 
 #### Manual
 
