@@ -604,4 +604,4 @@ No `wrangler.jsonc` change: `run_worker_first: ["/api/*"]` already deep-matches 
 - [x] 4.4 With 145 rows for user C, the page renders every row with its controls, the count is correct, and there is no perceptible delay — cbd98c7
 - [x] 4.5 The post-save anchor correctly scrolls to and highlights a row near the bottom of the 145-row list — cbd98c7
 - [x] 4.6 Edit and delete work on at least two of the four mainstream desktop browsers (per the PRD browser NFR) — cbd98c7
-- [ ] 4.7 Both new API routes respond correctly on the deployed Worker, not with a 403
+- [x] 4.7 Both new API routes respond correctly on the deployed Worker, not with a 403
