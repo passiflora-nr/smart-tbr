@@ -1,14 +1,7 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
-import { bookIdSchema, bookSchema, type BookMutationError, type BookMutationSuccess } from "@/lib/book-schema";
+import { bookIdSchema, bookSchema, jsonResponse } from "@/lib/book-schema";
 import { createClient } from "@/lib/supabase";
-
-function jsonResponse(body: BookMutationSuccess | BookMutationError, status: number): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
-}
 
 export const PUT: APIRoute = async (context) => {
   const supabase = createClient(context.request.headers, context.cookies);
@@ -43,6 +36,8 @@ export const PUT: APIRoute = async (context) => {
     return jsonResponse(
       {
         error: "Validation failed",
+        // The client renders one message per field; capping keeps a per-element
+        // failure from producing one message per submitted trope.
         fieldErrors: Object.fromEntries(
           Object.entries(fieldErrors).map(([field, messages]) => [field, messages.slice(0, 1)]),
         ),

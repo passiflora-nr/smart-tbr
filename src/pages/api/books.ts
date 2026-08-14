@@ -1,14 +1,7 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
-import { bookSchema, type BookMutationError, type BookMutationSuccess } from "@/lib/book-schema";
+import { bookSchema, jsonResponse } from "@/lib/book-schema";
 import { createClient } from "@/lib/supabase";
-
-function jsonResponse(body: BookMutationSuccess | BookMutationError, status: number): Response {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
-}
 
 export const POST: APIRoute = async (context) => {
   const supabase = createClient(context.request.headers, context.cookies);

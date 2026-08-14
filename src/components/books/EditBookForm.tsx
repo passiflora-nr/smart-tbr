@@ -30,12 +30,18 @@ interface EditBookFormProps {
 
 const UNSAVED_LEAVE_MESSAGE = "You have unsaved changes. Leave without saving?";
 
-// Mirrors TropeInput's commit rules so pressing Save accepts exactly what
-// pressing Enter would have accepted.
+// Both attributes are set in src/pages/books/[id]/edit.astro (and, for the
+// sign-out form, by SignOutButton's guardUnsavedLeave prop). Nothing type-checks
+// the pairing, so renaming either string here silently disables the guard.
+const LEAVE_GUARD_ATTRIBUTE = "data-unsaved-guard";
+const DELETE_CONTROLS_ATTRIBUTE = "data-edit-delete-controls";
+
 function arraysEqual(a: string[], b: string[]): boolean {
   return a.length === b.length && a.every((value, index) => value === b[index]);
 }
 
+// Mirrors TropeInput's commit rules so pressing Save accepts exactly what
+// pressing Enter would have accepted.
 function mergePendingTrope(tags: string[], pendingText: string): { tropes: string[]; error?: string } {
   const trimmed = pendingText.trim();
   if (!trimmed) return { tropes: tags };
@@ -106,9 +112,10 @@ export default function EditBookForm({
 
     const handleGuardedClick = (event: MouseEvent) => {
       if (allowLeaveRef.current) return;
+      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
       if (!(event.target instanceof Element)) return;
 
-      const link = event.target.closest("a[data-unsaved-guard]");
+      const link = event.target.closest(`a[${LEAVE_GUARD_ATTRIBUTE}]`);
       if (!(link instanceof HTMLAnchorElement)) return;
 
       event.preventDefault();
@@ -123,7 +130,7 @@ export default function EditBookForm({
     const handleGuardedSubmit = (event: Event) => {
       if (allowLeaveRef.current) return;
       if (!(event.target instanceof HTMLFormElement)) return;
-      if (!event.target.hasAttribute("data-unsaved-guard")) return;
+      if (!event.target.hasAttribute(LEAVE_GUARD_ATTRIBUTE)) return;
 
       event.preventDefault();
       event.stopImmediatePropagation();
@@ -145,7 +152,7 @@ export default function EditBookForm({
 
   useEffect(() => {
     if (!notFound) return;
-    document.querySelectorAll("[data-edit-delete-controls]").forEach((element) => {
+    document.querySelectorAll(`[${DELETE_CONTROLS_ATTRIBUTE}]`).forEach((element) => {
       element.setAttribute("hidden", "");
     });
   }, [notFound]);
@@ -330,7 +337,7 @@ export default function EditBookForm({
       {sessionExpired ? (
         <p className="flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-sm text-red-300">
           Your session has ended.{" "}
-          <a href="/auth/signin" className="text-purple-300 underline hover:text-purple-200">
+          <a href="/auth/signin" data-unsaved-guard className="text-purple-300 underline hover:text-purple-200">
             Sign in
           </a>{" "}
           to continue.

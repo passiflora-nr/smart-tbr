@@ -44,12 +44,12 @@ The database is already fully provisioned for this slice. Everything above it is
 - **HTML forms cannot issue a `DELETE`.** Forms support only `GET` and `POST`, so the zero-JavaScript delete has to be a `POST` to a dedicated sub-route rather than a `DELETE` verb. This is why delete and update do not share one endpoint file.
 - **`supabase/tests/rls.sql:115-118` raises unless user A owns exactly six books.** Manual delete testing against user A or user B therefore breaks the committed isolation proof until `npx supabase db reset`. Destructive manual testing belongs on user C and user D.
 - **An edit does not move the row.** `sortBooksForBrowse` reads `created_at`, which an update leaves untouched — only `updated_at` is bumped by the trigger. The user returns to the row where they left it, even if they retitled the book. This is what makes the post-save anchor worth building.
-- **The two-step confirm can be zero-JavaScript because `BookList.astro` already proved the pattern.** S-02's amendment used `<details>` / `<summary>` with `group-open:` variants for "Show more"; the same element wrapped around a form gives a confirm step with no island.
+- **The two-step confirm can be zero-JavaScript.** S-02's amendment already proved CSS-only interactivity on this exact component with a `<details>` / `<summary>` disclosure for "Show more". *(Phase 3 QA settled on a different CSS-only mechanism — a `:target` modal — because a `<details>` panel expanding inside a row shifts every row below it and cannot be centred over the page. See Phase 3 change #2.)*
 - `context/foundation/lessons.md:12-17` forbids monolithic batch work in a single Workers request. Every request this slice adds touches exactly one row.
 
 ## Desired End State
 
-A signed-in user browsing `/books` sees an **Edit** link and a **Delete** control on every row. Choosing Edit opens a page with the book's current title, author, trope chips, and description already filled in; saving returns them to `/books` scrolled to that book, briefly highlighted, showing the new values. If the edit makes the book a title-and-author twin of another book they own, they are told so but the save still succeeds. Choosing Delete expands a small "Yes, delete / Cancel" confirmation in place; confirming reloads the list without that book and with the count decremented, and deleting the last book leaves them on the empty state with its "Add your first book" call to action. The same delete control is available on the edit page. A book that no longer exists — or that belongs to someone else, with no distinction drawn between the two — sends the user back to `/books` with a plain message rather than an error page. No page in this flow requires JavaScript except the edit form itself, and one user can never read, change, or delete another user's book through any of it.
+A signed-in user browsing `/books` sees an **Edit** link and a **Delete** control on every row. Choosing Edit opens a page with the book's current title, author, trope chips, and description already filled in; saving returns them to `/books` scrolled to that book, briefly highlighted, showing the new values. If the edit makes the book a title-and-author twin of another book they own, they are told so but the save still succeeds. Choosing Delete opens a centred "Delete permanently / Cancel" confirmation over the page; confirming reloads the list without that book and with the count decremented, and deleting the last book leaves them on the empty state with its "Add your first book" call to action. The same delete control is available on the edit page. A book that no longer exists — or that belongs to someone else, with no distinction drawn between the two — sends the user back to `/books` with a plain message rather than an error page. No page in this flow requires JavaScript except the edit form itself, and one user can never read, change, or delete another user's book through any of it.
 
 Verified by: the phase-level automated checks below (`astro sync`, lint, build, `curl` against every endpoint status path), a re-run of `supabase/tests/rls.sql`, URL-tampering attempts across all four local accounts, and a render check with controls on every row at 145 rows.
 
@@ -64,7 +64,7 @@ Verified by: the phase-level automated checks below (`astro sync`, lint, build, 
 - **No schema migration, no new index, and no change to RLS policies or grants.** All of it ships from F-01.
 - **No change to `supabase/seed.sql`, `supabase/config.toml`, or the fixture accounts.** `supabase/tests/rls.sql` gains no new cases either — it already covers cross-account update and delete.
 - **No `PATCH` / partial-update contract.** Update is full-replace `PUT`.
-- **No JavaScript added to `/books`.** The Edit affordance is an anchor, the delete confirm is a native `<details>`, and the delete itself is a form post.
+- **No JavaScript added to `/books`.** The Edit affordance is an anchor, the delete confirm is a CSS `:target` modal, and the delete itself is a form post.
 - **No shadcn primitive installation** (no dialog, alert-dialog, toast) and no new dependency.
 - **No search, filter, or sort controls** — FR-012 is S-04.
 - **No Café Romance restyle** — S-07. New markup matches the existing cosmic-glass language.
@@ -81,13 +81,13 @@ Three new server routes and one new island, layered so each is verifiable before
 
 `POST /api/books/[id]/delete` is the zero-JavaScript delete, following the `SignOutButton` → `signout.ts` pattern exactly: a plain form posts to it, it deletes, and it redirects. Because the response is a navigation rather than JSON, failure states travel as `?error=` query parameters in the `signin.ts` style rather than as status codes (`error=not_found`, `error=load_failed`, or `error=delete_failed` — see Phase 2 code table), and the redirect back to `/books` is itself the page reload that refreshes the count and reveals the empty state.
 
-The browse list gains three things and no script: a stable `id` anchor per row so the post-save fragment can find it, an `Edit` anchor, and a `DeleteBookForm.astro` whose `<details>` wraps the confirm step.
+The browse list gains three things and no script: a stable `id` anchor per row so the post-save fragment can find it, an `Edit` anchor, and a `DeleteBookTrigger.astro` link that opens a `DeleteBookModal.astro` confirmation through CSS `:target`.
 
 ## Critical Implementation Details
 
 **State sequencing — validate the id before it reaches Postgres, and branch on rows rather than on `error`.** Both endpoints and the edit page take an id straight from the URL. Parse it with zod's `z.uuid()` first and return the not-found path immediately if it fails, otherwise a malformed id produces a `22P02` database error and a 500 where the contract promises a 404. Then, because RLS answers a cross-account mutation with silence rather than an error, chain `.select()` onto both the update and the delete and treat an empty result — not a populated `error` — as the not-found signal. A handler that only checks `error` will report a cross-account delete as a success.
 
-**Timing & lifecycle — `<details>` must wrap the form, and the trigger must be a `<summary>`.** In the delete control the outer element is the `<form>`, the `<details>`/`<summary>` sits inside it, and the "Delete" affordance is the `<summary>` itself. If the trigger is a `<button>` instead, it defaults to `type="submit"` and merely opening the confirmation deletes the book. Only the "Yes, delete" control carries `type="submit"`. The same `<summary>` is also the cancel control: its visible and accessible wording switches from "Delete <title>" while closed to "Cancel deletion of <title>" while open, using `group-open` variants. Activating it again closes the disclosure without submitting.
+**Timing & lifecycle — the control that opens the confirmation must never be able to submit it.** The "Delete" affordance is an anchor to `#delete-<id>`, and the only `<form>` in the flow lives inside the modal panel. If the trigger were a `<button>` placed in that form it would default to `type="submit"`, and merely opening the confirmation would delete the book. Only the "Delete permanently" control carries `type="submit"`. Cancel and the backdrop are anchors to `#_`, a fragment matching no element, so dismissing closes the modal without reloading the page or moving the scroll position — which is what lets unsaved edit-form changes survive a cancel.
 
 **User experience spec — the post-save highlight is pure CSS and has three separate requirements.** Each `<li>` in `BookList.astro` must carry `id={`book-${book.id}`}`, the redirect must include the `#book-<id>` fragment, and the targeted row must run a finite highlight animation defined in `src/styles/global.css`. All three are needed; miss any one and the user lands at the top of a 100-row list with no idea which row they changed. The animation runs once and returns the row to its normal style even though the fragment remains in the URL. Browsers scroll to the fragment natively, so no scroll code is written.
 
@@ -178,8 +178,18 @@ Build the surface the endpoint exists for: an entry point on each row, a prefill
 | `error` | `load_failed` | Client `null` or query error on the edit page | Book could not be loaded; return to TBR and try again — must not imply the book was removed |
 | `error` | `delete_failed` | Client `null` or delete mutation error (Phase 3) | Delete could not be completed; try again |
 | `notice` | `duplicate` | Edit save succeeded with `duplicate: true` | Another saved book already has the same title and author |
+| `notice` | `deleted` | Delete succeeded (added during impl review) | The book was deleted — so a repeat submit of the same delete no longer reads as a failure |
 
 If both `error` and `notice` are present, the error takes precedence.
+
+**Amendment (Phase 4 QA): codes travel through a flash cookie, not straight into the render.** The contract above is unchanged in everything it promises — fixed copy only, unrecognised codes render nothing, one hoisted slot above the heading in all three states, error beats notice — but the mechanism gained a hop. A recognised code is written to a short-lived cookie (`books_flash_error` / `books_flash_notice`: httpOnly, `sameSite: "lax"`, `maxAge: 30`, `path: "/books"`) and the page immediately redirects to a clean `/books`; the next request reads the cookie, deletes it, and renders from it. This keeps the message out of the URL, so reloading after reading it does not show it again.
+
+Two consequences of the hop:
+
+- **A `highlight=<uuid>` parameter joins the code on the duplicate-save redirect.** The server cannot see the `#book-<id>` fragment, so `EditBookForm` sends the id as a query parameter and the page re-attaches the fragment to its redirect target after validating it with `bookIdSchema` — the validation is what keeps an unvalidated parameter out of the `Location` header.
+- **The cookie is scoped to `/books` but only consumed by `index.astro`.** A code set while the user navigates to `/books/new` or an edit page therefore survives up to 30 seconds and can surface on a later, unrelated visit to the list. Accepted for MVP; the window is short and the copy is generic.
+
+Membership checks against the code tables must use `Object.hasOwn`, not the `in` operator — `in` walks the prototype chain, so `?error=toString` would otherwise pass the allowlist and render `[object Undefined]` in the error banner.
 
 #### 2. Row anchors, highlight, and the Edit link
 
@@ -203,7 +213,7 @@ The component's `Props` type is unchanged: `id` is already part of the row shape
 
 Copies three behaviours from `AddBookForm.tsx` verbatim, because they are correctness fixes rather than styling: `mergePendingTrope` (lines 27-36), so trope text still sitting uncommitted in the input is not silently dropped on save; the `AbortSignal.timeout(15000)` on the fetch (line 109); and the response handling ladder at lines 124-168, adapted to a 200 success and with 404 added as its own branch.
 
-Diverges from `AddBookForm` in four ways. It targets `PUT /api/books/${id}`. On success it navigates to `/books#book-${id}` rather than resetting the fields — there is no reset-and-refocus and no session list. When `duplicate` is true, it navigates to `/books?notice=duplicate#book-${id}` instead, preserving the anchored return while telling the user that another saved book already has the same title and author. On 404 it shows a message stating the book is no longer in the TBR, with a link back to `/books`, and does not offer a retry.
+Diverges from `AddBookForm` in four ways. It targets `PUT /api/books/${id}`. On success it navigates to `/books#book-${id}` rather than resetting the fields — there is no reset-and-refocus and no session list. When `duplicate` is true, it navigates to `/books?notice=duplicate#book-${id}` instead, preserving the anchored return while telling the user that another saved book already has the same title and author. On 404 it shows a message stating the book is no longer in the TBR and does not offer a retry. *(Amended during Phase 4 QA: the message carries no link of its own — the page header's "View your TBR" link is the way back, and the unsaved-changes guard stands down once the not-found state is set, so that link navigates without a confirm prompt. A second link inches away was redundant.)*
 
 A failed save must leave every typed value intact, as S-01 established.
 
@@ -220,6 +230,23 @@ On an invalid id, or when the owner-scoped `.eq("id", id).eq("user_id", user.id)
 On success, render `EditBookForm` with `client:load` inside the shared `Layout`, in the same cosmic-glass card and header-row shape as `src/pages/books/new.astro:7-32`, with links to `/books` and `/dashboard` and a `SignOutButton`. The heading should name the book being edited so the page is self-evidently scoped to one row.
 
 Note the route-file layout: `src/pages/books/[id]/edit.astro` coexists with the static `src/pages/books/new.astro` and `src/pages/books/index.astro` without collision.
+
+#### 5. Unsaved-changes guard (addendum — added during Phase 4 QA, not in the original plan)
+
+**Files**: `src/components/books/EditBookForm.tsx`, `src/pages/books/[id]/edit.astro`, `src/components/auth/SignOutButton.astro`, `src/components/books/DeleteBookModal.astro`
+
+**Intent**: Stop a user from silently losing typed edits by navigating away from the edit page. Unlike the add form, the edit form starts pre-populated, so an accidental "Back to dashboard" click discards work the user cannot recover.
+
+**Contract**: `EditBookForm` derives `isDirty` by comparing current field state against the props it was mounted with (including uncommitted trope text), and while dirty installs capture-phase `click` and `submit` listeners on `document`. A click on `a[data-unsaved-guard]` or a submit of `form[data-unsaved-guard]` is intercepted and re-issued only if `window.confirm` is accepted. The guard stands down once a save succeeds or the book turns out to be gone.
+
+**Cross-file attribute contract** — these strings couple Astro markup to the island and are not type-checked, so renaming one breaks the behaviour silently with lint and build green:
+
+| Attribute | Set by | Read by | Meaning |
+| --- | --- | --- | --- |
+| `data-unsaved-guard` | `edit.astro` (both header links), `SignOutButton.astro` (via the `guardUnsavedLeave` prop), `EditBookForm`'s own Cancel link | `EditBookForm`'s document listeners | Confirm before this navigation leaves the page |
+| `data-edit-delete-controls` | `edit.astro` (the delete-controls wrapper and the modal) | `EditBookForm`'s not-found effect | Hide once the book is known to be gone |
+
+`SignOutButton`'s prop defaults to `false`, so `/books`, `/books/new`, and `/dashboard` render byte-identical markup and the shared component is unaffected elsewhere. The guard is deliberately in-page only: tab close, the Back button, and URL editing are not covered, and neither is the delete form, since deleting the book discards the edits anyway.
 
 ### Success Criteria:
 
@@ -269,7 +296,7 @@ Add the destructive path, with a confirmation step, without putting any JavaScri
 
 Sequence: client `null` → redirect to `/books?error=delete_failed`; no authenticated user → redirect to `/auth/signin`; `bookIdSchema` rejects the param → redirect to `/books?error=not_found`. Then `.delete()` filtered by `.eq("id", id).eq("user_id", user.id)` with `.select()`; a returned `error` is logged with `console.error` and redirects to `/books?error=delete_failed`; an empty result — the RLS-silence case, covering both "already gone" and "not yours" — redirects to `/books?error=not_found`.
 
-Success redirects to `/books` with no fragment and no query parameter. Deliberately *not* anchored to a neighbouring row: the deleted row is gone, and the honest signal is the shorter list and the lower count.
+Success redirects to `/books` with no fragment. Deliberately *not* anchored to a neighbouring row: the deleted row is gone, and the honest signal is the shorter list and the lower count. *(Amended during impl review: the redirect carries `?notice=deleted`. Silence alone made a repeat submit — a double-clicked confirm, a modal open in two tabs, or a delete from both surfaces — land in the zero-row branch and report "That book is not in your TBR." after an operation that had actually succeeded.)*
 
 #### 2. The delete control
 
@@ -300,7 +327,7 @@ Only one modal open at a time: `:target` hash switching closes the previous dial
 - `npx astro sync` completes clean
 - Type-aware lint passes: `npm run lint`
 - Production build passes: `npm run build`
-- `POST /api/books/<own-book-id>/delete` returns a 302 to `/books` and the row is gone from the database
+- `POST /api/books/<own-book-id>/delete` returns a 302 to `/books?notice=deleted` and the row is gone from the database
 - `POST /api/books/<other-users-book-id>/delete` returns a 302 to `/books?error=not_found` and that row still exists in the database
 - `POST /api/books/<well-formed-but-unused-uuid>/delete` returns a 302 to `/books?error=not_found`
 - `POST /api/books/not-a-uuid/delete` returns a 302 to `/books?error=not_found` rather than a 500
@@ -454,7 +481,7 @@ Reuse the 120-row generator from S-02's plan (`context/changes/browse-tbr-list/p
 
 Every request this slice adds touches exactly one row, identified by primary key and filtered by the indexed `user_id` — trivially inside the Workers per-request CPU ceiling flagged in `context/foundation/lessons.md:12-17`. The update endpoint issues two queries (duplicate lookup, then update), matching what `POST /api/books` already does.
 
-The browse page's cost is unchanged in kind but grows in markup: 145 rows now each carry an anchor, a link, and a collapsed `<details>`. Because the confirm panel is a native disclosure rather than an island, this adds bytes but **no JavaScript, no hydration, and no per-row runtime cost** — which is the main reason the form-post design was chosen over an island. The Phase 4 scale check exists to confirm the added markup does not make the list harder to scan.
+The browse page's cost is unchanged in kind but grows in markup: 145 rows now each carry an anchor, a link, and a hidden confirmation modal (~1.2 KB of collapsed markup each, so roughly 175 KB of extra HTML that compresses well, since the blocks are near-identical). Because the confirm panel is CSS `:target` rather than an island, this adds bytes but **no JavaScript, no hydration, and no per-row runtime cost** — which is the main reason the form-post design was chosen over an island. The Phase 4 scale check exists to confirm the added markup does not make the list harder to scan.
 
 ## Migration Notes
 
@@ -478,7 +505,7 @@ No `wrangler.jsonc` change: `run_worker_first: ["/api/*"]` already deep-matches 
 - Form island conventions — React 19 `action`, pending trope merge, fetch timeout, response ladder: `src/components/books/AddBookForm.tsx:27-36,103-168`
 - Zero-JavaScript form-post-and-redirect precedent: `src/components/auth/SignOutButton.astro:5-12`, `src/pages/api/auth/signout.ts:4-10`
 - Redirect-with-`?error=` precedent: `src/pages/api/auth/signin.ts:11,16`
-- `<details>` disclosure pattern to reuse: `src/components/books/BookList.astro:24-32`
+- Zero-JavaScript disclosure precedent on this component (the description "Show more"): `src/components/books/BookList.astro:24-32`
 - Error panel styling: `src/pages/books/index.astro:65-84`, `src/components/auth/ServerError.tsx:11-14`
 - Page shell and header-row shape: `src/pages/books/new.astro:7-32`
 - Route gating (already covers `/books/:id/edit`): `src/middleware.ts:4`
@@ -534,7 +561,7 @@ No `wrangler.jsonc` change: `run_worker_first: ["/api/*"]` already deep-matches 
 - [x] 2.14 Submitting an empty title, or removing every trope, shows the same inline field messages the add-book form shows, and does not navigate — dc71c8a
 - [x] 2.15 A failed save leaves all typed values in the form — dc71c8a
 - [x] 2.16 Editing a book to exactly match another book's title and author still saves, returns to that row on `/books`, and shows a notice that another saved book has the same title and author — dc71c8a
-- [x] 2.17 Opening an edit page, deleting that book in a second tab, then saving shows the "no longer in your TBR" message with a working link back
+- [x] 2.17 Opening an edit page, deleting that book in a second tab, then saving shows the "no longer in your TBR" message, with the header's "View your TBR" link working as the way back — cbd98c7
 - [x] 2.18 Signed in as user A, manually visiting a user C book's edit URL lands on `/books` with the message and never shows user C's data — dc71c8a
 
 ### Phase 3: Delete
@@ -568,13 +595,13 @@ No `wrangler.jsonc` change: `run_worker_first: ["/api/*"]` already deep-matches 
 
 #### Automated
 
-- [x] 4.1 `supabase/tests/rls.sql` runs clean against a freshly reset local stack
+- [x] 4.1 `supabase/tests/rls.sql` runs clean against a freshly reset local stack — cbd98c7
 - [ ] 4.2 CI passes on the branch (`npm ci`, `npx astro sync`, `npm run lint`, `npm run build`)
 
 #### Manual
 
-- [x] 4.3 URL tampering across accounts is refused on all three new surfaces in both directions, and the targeted rows are unchanged afterwards
-- [x] 4.4 With 145 rows for user C, the page renders every row with its controls, the count is correct, and there is no perceptible delay
-- [x] 4.5 The post-save anchor correctly scrolls to and highlights a row near the bottom of the 145-row list
-- [x] 4.6 Edit and delete work on at least two of the four mainstream desktop browsers (per the PRD browser NFR)
+- [x] 4.3 URL tampering across accounts is refused on all three new surfaces in both directions, and the targeted rows are unchanged afterwards — cbd98c7
+- [x] 4.4 With 145 rows for user C, the page renders every row with its controls, the count is correct, and there is no perceptible delay — cbd98c7
+- [x] 4.5 The post-save anchor correctly scrolls to and highlights a row near the bottom of the 145-row list — cbd98c7
+- [x] 4.6 Edit and delete work on at least two of the four mainstream desktop browsers (per the PRD browser NFR) — cbd98c7
 - [ ] 4.7 Both new API routes respond correctly on the deployed Worker, not with a 403

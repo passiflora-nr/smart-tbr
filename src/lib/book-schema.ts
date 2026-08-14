@@ -69,6 +69,13 @@ export interface BookMutationError {
   fieldErrors?: Record<string, string[]>;
 }
 
+export function jsonResponse(body: BookMutationSuccess | BookMutationError, status: number): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
 function isBookRow(value: unknown): value is Tables<"books"> {
   if (typeof value !== "object" || value === null) return false;
   const row = value as Record<string, unknown>;

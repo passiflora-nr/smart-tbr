@@ -4,21 +4,30 @@ interface Props {
   title: string;
   genericConfirm?: boolean;
   editDeleteControls?: boolean;
+  /**
+   * Where Cancel and the backdrop navigate to dismiss the modal. Point it at a
+   * real element near the trigger: the panel is `display: none` the moment the
+   * fragment changes, so focus falls back to the document and a keyboard user
+   * would otherwise restart tabbing from the top of the page.
+   */
+  dismissHref: string;
 }
 
-const { id, title, genericConfirm = false, editDeleteControls = false } = Astro.props;
+const { id, title, genericConfirm = false, editDeleteControls = false, dismissHref } = Astro.props;
 const modalId = `delete-${id}`;
+
+// role="dialog" carries no aria-modal: this is a CSS-only modal, so nothing can
+// make the rest of the page inert, and claiming otherwise misleads assistive tech.
 ---
 
 <div
   id={modalId}
   class="delete-modal"
   role="dialog"
-  aria-modal="true"
   aria-labelledby={`${modalId}-heading`}
   {...editDeleteControls ? { "data-edit-delete-controls": true } : {}}
 >
-  <a href="#_" class="delete-modal-backdrop" aria-label="Cancel deletion">
+  <a href={dismissHref} class="delete-modal-backdrop" aria-label="Cancel deletion">
     <span class="sr-only">Cancel deletion</span>
   </a>
   <div class="delete-modal-panel">
@@ -35,7 +44,7 @@ const modalId = `delete-${id}`;
     <p class="mt-1 text-sm text-red-200">This cannot be undone.</p>
     <div class="mt-4 flex flex-wrap justify-end gap-2">
       <a
-        href="#_"
+        href={dismissHref}
         class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm text-white transition-colors hover:bg-white/20"
       >
         Cancel

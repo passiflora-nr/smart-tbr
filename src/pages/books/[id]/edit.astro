@@ -7,6 +7,10 @@ import SignOutButton from "@/components/auth/SignOutButton.astro";
 import { bookIdSchema } from "@/lib/book-schema";
 import { createClient } from "@/lib/supabase";
 
+// data-unsaved-guard and data-edit-delete-controls below are read by
+// EditBookForm's document listeners; see the attribute contract table in
+// context/changes/edit-delete-book/plan.md (Phase 2, change #5).
+
 const user = Astro.locals.user;
 
 if (!user) {
@@ -79,11 +83,17 @@ if (!book) {
         tropes={book.tropes}
         description={book.description}
       />
-      <div data-edit-delete-controls class="mt-8 border-t border-white/10 pt-6">
+      <div id={`delete-controls-${book.id}`} data-edit-delete-controls class="mt-8 border-t border-white/10 pt-6">
         <p class="mb-3 text-sm text-blue-100/60">Remove this book from your TBR permanently.</p>
         <DeleteBookTrigger id={book.id} title={book.title} size="form" />
       </div>
     </div>
-    <DeleteBookModal id={book.id} title={book.title} genericConfirm editDeleteControls />
+    <DeleteBookModal
+      id={book.id}
+      title={book.title}
+      genericConfirm
+      editDeleteControls
+      dismissHref={`#delete-controls-${book.id}`}
+    />
   </div>
 </Layout>

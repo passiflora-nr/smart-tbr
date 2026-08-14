@@ -28,6 +28,9 @@ pnpm-debug.log*
 # jetbrains setting folder
 .idea/
 
+# supabase studio scratch queries (local fixtures, never committed)
+supabase/snippets/
+
 # skills
 .cursor/**/skill-creator-anthropic*
 

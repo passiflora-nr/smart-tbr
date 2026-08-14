@@ -38,5 +38,5 @@ export const POST: APIRoute = async (context) => {
     return context.redirect("/books?error=not_found");
   }
 
-  return context.redirect("/books");
+  return context.redirect("/books?notice=deleted");
 };

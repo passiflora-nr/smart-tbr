@@ -152,6 +152,12 @@
   display: flex;
 }
 
+/* Outranks the rule above, so an already-open modal really closes when the edit
+   form marks its delete controls hidden after the book turns out to be gone. */
+.delete-modal[hidden]:target {
+  display: none;
+}
+
 .delete-modal-backdrop {
   position: fixed;
   inset: 0;
