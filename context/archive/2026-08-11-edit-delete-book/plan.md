@@ -583,7 +583,7 @@ No `wrangler.jsonc` change: `run_worker_first: ["/api/*"]` already deep-matches 
 - [x] 3.10 Clicking Delete opens a centered confirmation modal and deletes nothing on its own — 0ad450c
 - [x] 3.11 Cancelling (or clicking the backdrop) closes the modal without reloading the page and leaves the book present; on the edit page, unsaved form changes survive cancel — 0ad450c
 - [x] 3.12 Confirming removes the book, returns to `/books`, and the heading count drops by exactly one — 0ad450c
-- [ ] 3.13 Deleting with JavaScript disabled in the browser works identically *(optional — skipped; Safari offers no disable-JS menu item)*
+- [x] 3.13 Deleting with JavaScript disabled in the browser works identically *(optional — intentionally skipped; Safari offers no disable-JS menu item)*
 - [x] 3.14 Deleting the last remaining book (as user D, after adding one) shows the empty state and its "Add your first book" link — 0ad450c
 - [x] 3.15 The delete control on the edit page removes the book and returns to `/books` — 0ad450c
 - [x] 3.16 Only one delete modal can be open; backdrop dismiss closes it and blocks clicks to the list underneath until dismissed *(verified — cannot open row B's Delete while row A's modal is open)*
@@ -604,4 +604,4 @@ No `wrangler.jsonc` change: `run_worker_first: ["/api/*"]` already deep-matches 
 - [x] 4.4 With 145 rows for user C, the page renders every row with its controls, the count is correct, and there is no perceptible delay — cbd98c7
 - [x] 4.5 The post-save anchor correctly scrolls to and highlights a row near the bottom of the 145-row list — cbd98c7
 - [x] 4.6 Edit and delete work on at least two of the four mainstream desktop browsers (per the PRD browser NFR) — cbd98c7
-- [ ] 4.7 Both new API routes respond correctly on the deployed Worker, not with a 403
+- [x] 4.7 Both new API routes respond correctly on the deployed Worker, not with a 403 — 02992ad
