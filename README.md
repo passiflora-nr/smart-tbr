@@ -142,11 +142,11 @@ Supabase often requires verified email before sign-in. To skip confirmation in d
 
 | Route                 | Purpose                                                                                             |
 | --------------------- | --------------------------------------------------------------------------------------------------- |
-| `/`                   | Landing — SmartTBR marketing when signed out; TBR CTAs when signed in ([`Welcome.astro`](./src/components/Welcome.astro)) |
-| `/auth/signin`        | Sign in (redirects to `/dashboard` on success)                                                      |
+| `/`                   | Home — marketing when signed out; action hub (Pick by mood, TBR, add book) when signed in ([`Welcome.astro`](./src/components/Welcome.astro)) |
+| `/auth/signin`        | Sign in (redirects to `/` on success)                                                               |
 | `/auth/signup`        | Sign up                                                                                             |
 | `/auth/confirm-email` | Post-signup inbox reminder                                                                          |
-| `/dashboard`          | Authenticated hub (links to TBR, Pick by mood, and add-book)                                        |
+| `/dashboard`          | Redirects to `/` (legacy bookmark)                                                                  |
 | `/mood`               | Pick next read by 1–3 tropes from your TBR (protected)                                              |
 | `/books`              | Browse full TBR (protected)                                                                         |
 | `/books/new`          | Add a book (protected)                                                                              |
