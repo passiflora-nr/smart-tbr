@@ -451,18 +451,18 @@ None. No schema change, no migration, no data backfill, no configuration change.
 
 #### Automated
 
-- [x] 2.1 Astro types regenerate cleanly
-- [x] 2.2 Linting passes
-- [x] 2.3 Production build passes
+- [x] 2.1 Astro types regenerate cleanly — c8efc92
+- [x] 2.2 Linting passes — c8efc92
+- [x] 2.3 Production build passes — c8efc92
 
 #### Manual
 
-- [x] 2.4 Signed-out visitors are sent to sign in
-- [x] 2.5 Pick one trope and get matching books
-- [x] 2.6 No other account's books can appear
-- [x] 2.7 Ticking a fourth trope is refused, not silently trimmed
-- [x] 2.8 An empty TBR explains itself
-- [x] 2.9 A stale link shows the no-match message
+- [x] 2.4 Signed-out visitors are sent to sign in — c8efc92
+- [x] 2.5 Pick one trope and get matching books — c8efc92
+- [x] 2.6 No other account's books can appear — c8efc92
+- [x] 2.7 Ticking a fourth trope is refused, not silently trimmed — c8efc92
+- [x] 2.8 An empty TBR explains itself — c8efc92
+- [x] 2.9 A stale link shows the no-match message — c8efc92
 
 ### Phase 3: Showing more suggestions, and guardrail verification
 
