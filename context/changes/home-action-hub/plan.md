@@ -122,13 +122,13 @@ Update `/`, `/auth/signin`, and `/dashboard` rows to reflect the new flow. Keep 
 
 ### Automated
 
-- [x] 1.1 Astro sync
-- [x] 1.2 Lint
-- [x] 1.3 Build
+- [x] 1.1 Astro sync — 82e80ba
+- [x] 1.2 Lint — 82e80ba
+- [x] 1.3 Build — 82e80ba
 
 ### Manual
 
-- [ ] 1.1 Sign-in lands on home action hub
-- [ ] 1.2 Legacy dashboard bookmark redirects
-- [ ] 1.3 Book pages link Home
-- [ ] 1.4 Mood page links Home
+- [x] 1.1 Sign-in lands on home action hub — 82e80ba
+- [x] 1.2 Legacy dashboard bookmark redirects — 82e80ba
+- [x] 1.3 Book pages link Home — 82e80ba
+- [x] 1.4 Mood page links Home — 82e80ba
