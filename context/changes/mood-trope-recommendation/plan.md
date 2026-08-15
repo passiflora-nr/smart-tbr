@@ -439,13 +439,13 @@ None. No schema change, no migration, no data backfill, no configuration change.
 
 #### Automated
 
-- [ ] 1.1 Astro types regenerate cleanly
-- [ ] 1.2 Linting passes
-- [ ] 1.3 Production build passes
+- [x] 1.1 Astro types regenerate cleanly
+- [x] 1.2 Linting passes
+- [x] 1.3 Production build passes
 
 #### Manual
 
-- [ ] 1.4 TBR list still shows descriptions exactly as before
+- [x] 1.4 TBR list still shows descriptions exactly as before
 
 ### Phase 2: The `/mood` screen, end to end
 
