@@ -266,13 +266,13 @@ No database migration, no schema change, no new dependency. All URLs remain back
 
 #### Automated
 
-- [ ] 1.1 Astro types regenerate: `npx astro sync`
-- [ ] 1.2 Linting passes: `npm run lint`
-- [ ] 1.3 Production build succeeds: `npm run build`
+- [x] 1.1 Astro types regenerate: `npx astro sync`
+- [x] 1.2 Linting passes: `npm run lint`
+- [x] 1.3 Production build succeeds: `npm run build`
 
 #### Manual
 
-- [ ] 1.4 `book-filters.ts` imports nothing server-only, safe for use from a React island
+- [x] 1.4 `book-filters.ts` imports nothing server-only, safe for use from a React island
 
 ### Phase 2: Filter Bar and Page Wiring
 
