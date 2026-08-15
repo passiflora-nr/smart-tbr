@@ -18,7 +18,8 @@ if (!user) {
   return Astro.redirect("/auth/signin");
 }
 
-const filterQuery = serializeBookFilters(parseBookFilters(Astro.url.searchParams));
+const filters = parseBookFilters(Astro.url.searchParams);
+const filterQuery = serializeBookFilters(filters);
 
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 
@@ -49,8 +50,6 @@ if (error) {
 if (!book) {
   return Astro.redirect(buildBooksHref(filterQuery, { error: "not_found" }));
 }
-
-const filters = parseBookFilters(Astro.url.searchParams);
 ---
 
 <Layout title={`Edit ${book.title}`}>

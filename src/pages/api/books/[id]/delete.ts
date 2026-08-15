@@ -4,7 +4,7 @@ import { bookIdSchema } from "@/lib/book-schema";
 import { createClient } from "@/lib/supabase";
 
 export const POST: APIRoute = async (context) => {
-  const form = await context.request.formData();
+  const form = await context.request.formData().catch(() => new FormData());
   const filterParams = new URLSearchParams();
   const q = form.get("q");
   if (typeof q === "string") filterParams.set("q", q);

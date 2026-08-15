@@ -6,18 +6,27 @@ export interface BookFilters {
   tropes: string[];
 }
 
-const filterQSchema = z
-  .string()
-  .transform((value) => value.trim())
-  .pipe(z.string().max(300));
+const MAX_FILTER_Q_LENGTH = 300;
 
 /** Trim only — no per-trope max; overlong values stay so all-match returns zero matches. */
 const filterTropeSchema = z.string().transform((value) => value.trim());
 
+/** Books hold at most 25 tropes; 26+ in a filter provably matches nothing — cap bounds page amplification. */
+const MAX_FILTER_TROPES = 26;
+
+function truncateToCodePoints(value: string, max: number): string {
+  let result = "";
+  let count = 0;
+  for (const char of value) {
+    if (count >= max) break;
+    result += char;
+    count++;
+  }
+  return result;
+}
+
 function parseFilterQ(raw: string | null): string {
-  const result = filterQSchema.safeParse(raw ?? "");
-  if (result.success) return result.data;
-  return (raw ?? "").trim().slice(0, 300);
+  return truncateToCodePoints((raw ?? "").trim(), MAX_FILTER_Q_LENGTH);
 }
 
 function parseFilterTropes(params: URLSearchParams): string[] {
@@ -30,6 +39,7 @@ function parseFilterTropes(params: URLSearchParams): string[] {
     if (trimmed.length === 0 || seen.has(trimmed)) continue;
     seen.add(trimmed);
     tropes.push(trimmed);
+    if (tropes.length >= MAX_FILTER_TROPES) break;
   }
 
   return tropes;
@@ -113,7 +123,11 @@ export function buildBooksHref(
   if (options?.highlight) params.set("highlight", options.highlight);
 
   const query = params.toString();
-  const hash = options?.hash ? `#${options.hash}` : "";
+  const hash = options?.hash ? `#${encodeURIComponent(options.hash)}` : "";
 
   return query.length > 0 ? `/books?${query}${hash}` : `/books${hash}`;
+}
+
+export function buildEditHref(id: string, filterQuery: string): string {
+  return filterQuery.length > 0 ? `/books/${id}/edit?${filterQuery}` : `/books/${id}/edit`;
 }

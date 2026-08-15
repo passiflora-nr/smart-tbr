@@ -1,7 +1,7 @@
 ---
 change_id: search-filter-tbr
 title: Search filter tbr
-status: implemented
+status: impl_reviewed
 created: 2026-08-14
 updated: 2026-08-15
 archived_at: null
@@ -19,3 +19,4 @@ archived_at: null
   - **Search uses `type="text"`**, not `type="search"`. The browser's native search clear control only wipes the input locally and does not reload without `q` — filters appeared stuck. Replaced with a visible **× link** when `q` is active; it navigates via `buildBooksHref` and keeps trope selections.
   - **Clear filters always visible** in the filter bar: a link to `/books` when filters are active, a greyed-out `<span aria-disabled="true">` when none. Removed the duplicate link from the no-match message — one control in the bar is enough.
   - **Search placeholder** is `Search…`; the label above (`Search title or author`) carries the scope hint.
+- Implementation review 2026-08-15 (`reviews/impl-review.md`): APPROVED — no plan drift across all three phases, no security findings (open redirect, header injection, XSS, and row scoping all verified clean), automated verification re-run green. One warning: the delete route's new unguarded `formData()` read returns a 500 on a non-form body. Four observations, including that the cap-at-25 fix a parallel reviewer suggested for unbounded `trope` params is forbidden by the plan because dropping tropes would widen results.

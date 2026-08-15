@@ -42,7 +42,8 @@ const errorParam = Astro.url.searchParams.get("error");
 const noticeParam = Astro.url.searchParams.get("notice");
 const highlight = Astro.url.searchParams.get("highlight");
 
-const filterQuery = serializeBookFilters(parseBookFilters(Astro.url.searchParams));
+const filters: BookFilters = parseBookFilters(Astro.url.searchParams);
+const filterQuery = serializeBookFilters(filters);
 
 if (errorParam && Object.hasOwn(REDIRECT_ERRORS, errorParam)) {
   Astro.cookies.set(FLASH_ERROR_COOKIE, errorParam, {
@@ -86,8 +87,6 @@ const redirectNotice =
     : null;
 
 const supabase = createClient(Astro.request.headers, Astro.cookies);
-
-const filters: BookFilters = parseBookFilters(Astro.url.searchParams);
 
 let state: "failed" | "empty" | "no-match" | "populated";
 let books: BookListRow[] = [];

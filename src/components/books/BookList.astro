@@ -1,5 +1,6 @@
 ---
 import DeleteBookTrigger from "@/components/books/DeleteBookTrigger.astro";
+import { buildEditHref } from "@/lib/book-filters";
 import type { Tables } from "@/lib/database.types";
 
 // Server rendering cannot measure whether text overflows two rendered lines, so
@@ -26,7 +27,7 @@ const { books, filterQuery } = Astro.props;
           </div>
           <div class="flex shrink-0 flex-wrap items-start justify-end gap-2">
             <a
-              href={filterQuery.length > 0 ? `/books/${book.id}/edit?${filterQuery}` : `/books/${book.id}/edit`}
+              href={buildEditHref(book.id, filterQuery)}
               aria-label={`Edit ${book.title}`}
               class="rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-sm transition-colors hover:bg-white/20"
             >
