@@ -34,12 +34,16 @@ supabase/snippets/
 # skills
 .cursor/**/skill-creator-anthropic*
 
+# prompts
+.cursor/prompts/*
+
 # 10xdevs
 .cursor/**/10x-*
 .10x-cli-manifest.json
 
 # cursor
 .cursor/cli.json
+.cursor/permissions.json
 
 # test
 coverage/
