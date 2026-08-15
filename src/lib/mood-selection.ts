@@ -83,6 +83,35 @@ export function sortBooksForMood<T extends Pick<Tables<"books">, "id" | "title">
   });
 }
 
+export function parseMoodShowCount(params: URLSearchParams): number {
+  const raw = params.get("show");
+  if (raw === null || raw.trim() === "") {
+    return MOOD_STEP_SIZE;
+  }
+
+  const parsed = Number(raw);
+  if (!Number.isFinite(parsed) || !Number.isInteger(parsed) || parsed < MOOD_STEP_SIZE) {
+    return MOOD_STEP_SIZE;
+  }
+
+  return Math.ceil(parsed / MOOD_STEP_SIZE) * MOOD_STEP_SIZE;
+}
+
+export interface MoodMatchSlice<T> {
+  visible: T[];
+  total: number;
+  nextShow: number | null;
+}
+
+export function takeMoodMatches<T>(matches: T[], show: number): MoodMatchSlice<T> {
+  const total = matches.length;
+  const clampedShow = Math.min(show, total);
+  const visible = matches.slice(0, clampedShow);
+  const nextShow = clampedShow < total ? clampedShow + MOOD_STEP_SIZE : null;
+
+  return { visible, total, nextShow };
+}
+
 export function buildMoodHref(tropes: string[], show?: number): string {
   const params = new URLSearchParams();
 

@@ -6,9 +6,12 @@ import SignOutButton from "@/components/auth/SignOutButton.astro";
 import { collectTropeVocabulary } from "@/lib/book-filters";
 import {
   MOOD_STEP_SIZE,
+  buildMoodHref,
   matchesAnyTrope,
   parseMoodSelection,
+  parseMoodShowCount,
   sortBooksForMood,
+  takeMoodMatches,
   validateMoodSelection,
 } from "@/lib/mood-selection";
 import type { Tables } from "@/lib/database.types";
@@ -34,6 +37,10 @@ const supabase = createClient(Astro.request.headers, Astro.cookies);
 let state: MoodPageState;
 let tropeVocabulary: string[] = [];
 let results: MoodBookRow[] = [];
+let matchTotal = 0;
+let matchVisibleCount = 0;
+let nextShow: number | null = null;
+let resultTropes: string[] = [];
 let pickerError: string | undefined;
 
 if (!supabase) {
@@ -68,8 +75,15 @@ if (!supabase) {
       if (matches.length === 0) {
         state = "no-match";
       } else {
+        const showCount = parseMoodShowCount(Astro.url.searchParams);
+        const slice = takeMoodMatches(matches, showCount);
+
         state = "results";
-        results = matches.slice(0, MOOD_STEP_SIZE);
+        results = slice.visible;
+        matchTotal = slice.total;
+        matchVisibleCount = slice.visible.length;
+        nextShow = slice.nextShow;
+        resultTropes = validation.tropes;
       }
     }
   }
@@ -138,7 +152,28 @@ if (!supabase) {
             {state === "no-match" ? (
               <p class="text-blue-100/80">No matches — try different tropes.</p>
             ) : state === "results" ? (
-              <MoodResultList books={results} />
+              <div>
+                <p class="mb-4 text-sm text-blue-100/80">
+                  {matchVisibleCount < matchTotal
+                    ? `Showing ${matchVisibleCount} of ${matchTotal} matches`
+                    : matchTotal === 1
+                      ? "Showing 1 of 1 matches"
+                      : `Showing all ${matchTotal} matches`}
+                </p>
+                <MoodResultList books={results} />
+                {nextShow !== null ? (
+                  <p class="mt-4">
+                    <a
+                      href={buildMoodHref(resultTropes, nextShow)}
+                      class="text-sm text-blue-200 underline underline-offset-2 transition-colors hover:text-blue-100"
+                    >
+                      Show me 3 more
+                    </a>
+                  </p>
+                ) : matchTotal > MOOD_STEP_SIZE ? (
+                  <p class="mt-4 text-sm text-blue-100/60">No more matches for this mood.</p>
+                ) : null}
+              </div>
             ) : null}
           </div>
         )
