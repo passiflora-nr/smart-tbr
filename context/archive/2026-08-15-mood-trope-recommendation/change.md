@@ -1,10 +1,10 @@
 ---
 change_id: mood-trope-recommendation
 title: Pick next book by mood-tropes (S-05 north star)
-status: impl_reviewed
+status: archived
 created: 2026-08-15
 updated: 2026-08-15
-archived_at: null
+archived_at: 2026-08-15T16:19:19Z
 ---
 
 ## Notes

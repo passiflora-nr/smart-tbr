@@ -32,7 +32,7 @@ SmartTBR collapses a 100+ book "to be read" backlog that today lives scattered a
 | F-01 | tbr-data-and-isolation | (foundation) books + trope tags persisted with per-user RLS isolation | - | FR-011, Access Control, NFR: isolation | done |
 | S-01 | add-book-to-tbr | add a book (title, author, tropes, optional description) to their private TBR | F-01 ✓ | FR-004, NFR: <=30s entry | done |
 | S-06 | account-lifecycle | rely on gated routes and self-delete their account + all data | F-01 ✓ | FR-003, FR-013, FR-001, FR-002, Access Control | **ready** |
-| S-05 | mood-trope-recommendation | pick 1-3 mood tropes and get up to 3 matching books from their own TBR | F-01 ✓, S-01 ✓ | US-01, FR-008, FR-009, FR-010, NFR: <=2s | **ready** |
+| S-05 | mood-trope-recommendation | pick 1-3 mood tropes and get up to 3 matching books from their own TBR | F-01 ✓, S-01 ✓ | US-01, FR-008, FR-009, FR-010, NFR: <=2s | done |
 | S-02 | browse-tbr-list | browse their full TBR as a list | S-01 ✓ | FR-005 | done |
 | S-03 | edit-delete-book | edit or delete any book in their TBR | S-02 ✓ | FR-006, FR-007 | done |
 | S-04 | search-filter-tbr | narrow the TBR by title/author substring and/or trope filter | S-02 ✓ | FR-012 | done |
@@ -142,7 +142,7 @@ What's already in place in the codebase as of 2026-06-14 (auto-researched + user
 - **Blockers:** -
 - **Unknowns:** -
 - **Risk:** The validation milestone; tag-set intersection over ~100 books is O(N) and fits the Workers per-request budget (per `lessons.md`). Sequenced as early as a populated TBR allows.
-- **Status:** ready
+- **Status:** done
 
 ### S-02: Browse the TBR list
 
@@ -239,3 +239,4 @@ What's already in place in the codebase as of 2026-06-14 (auto-researched + user
 - **S-02: user can view their full TBR as a browsable list.** — Archived 2026-08-11 → `context/archive/2026-08-08-browse-tbr-list/`. Lesson: —.
 - **S-03: user can edit any field of a book or delete it from their TBR.** — Archived 2026-08-14 → `context/archive/2026-08-11-edit-delete-book/`. Lesson: —.
 - **S-04: user can narrow the TBR list by substring match on title/author and/or by selecting one or more trope tags from a filter widget.** — Archived 2026-08-15 → `context/archive/2026-08-14-search-filter-tbr/`. Lesson: —.
+- **S-05: user can open the trope-selection screen (populated from their own tropes), pick 1-3 mood tropes, and receive up to 3 matching books from their own TBR, each shown with title, author, and tropes - with empty states for no books / no tropes / no matches.** — Archived 2026-08-15 → `context/archive/2026-08-15-mood-trope-recommendation/`. Lesson: —.
