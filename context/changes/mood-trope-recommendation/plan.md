@@ -304,7 +304,7 @@ Because the visible set is always the leading slice of a stably-sorted list, exp
 
 **Intent**: Replace the fixed 3-item slice from Phase 2 with the expansion helper and tell the reader where they stand.
 
-**Contract**: Reads the visible count alongside the tropes, passes the sorted matches through `takeMoodMatches`, and renders the returned slice. Near the results, states how many of the total are on screen — "Showing 3 of 5 matches" — with wording that degrades sensibly when the total is 3 or fewer, in which case no count is needed. Renders a **Show me 3 more** link carrying the same tropes plus the next count while matches remain; once all are shown, replaces it with a line confirming there are no more for this mood. This is an anchor, not a button, so it works without JavaScript.
+**Contract**: Reads the visible count alongside the tropes, passes the sorted matches through `takeMoodMatches`, and renders the returned slice. Near the results, always states how many of the total are on screen — e.g. "Showing 3 of 5 matches", "Showing all 3 matches", or "Showing your 1 match" for a single match — with wording that degrades sensibly for small totals (addendum: count line is always visible, not suppressed when total ≤ 3). Renders a **Show me 3 more** link carrying the same tropes plus the next count while matches remain; once all are shown, replaces it with a line confirming there are no more for this mood. This is an anchor, not a button, so it works without JavaScript.
 
 There is deliberately no "show fewer" control: re-submitting the picker returns to three, which is the natural reset and is already on screen.
 
@@ -418,6 +418,20 @@ The deliberate choice of in-memory matching over a DB-side `.overlaps()` costs n
 ## Migration Notes
 
 None. No schema change, no migration, no data backfill, no configuration change. Every phase is revertible by reverting its commits — Phase 1 is a pure extraction, Phases 2 and 3 are additive apart from two link insertions and one middleware array entry.
+
+## Implementation addenda
+
+Recorded during implementation review (2026-08-15) for scope discovered during build or manual testing:
+
+1. **`EditBookForm.tsx` (Phase 2 commit, unplanned)** — During mood manual testing, Save with no changes appeared clickable but did nothing. Phase 2 also shipped: frozen `useState` baseline for `isDirty`, double-submit guard via form-action pending state, and Save disabled until the form is dirty. Re-verify on the edit screen before merge (Save greyed on load; enables on change; save succeeds; trope typing in the chip box enables Save).
+
+2. **`MoodPicker` submit marker** — The submit button carries `name="submitted" value="1"`. On an explicit empty submit, `mood.astro` shows "Pick at least one trope"; a first visit with no query params still shows the bare picker. `submitted` is not included in `buildMoodHref`, so expansion links stay clean.
+
+3. **TBR header layout (`books/index.astro`)** — The header wrapper changed from `flex items-center justify-between gap-4` to `flex flex-col gap-4` so the title and button group stack on narrow viewports when the "Pick by mood" link was added.
+
+4. **Match count line (Phase 3)** — The count line always renders above results (including totals ≤ 3). Single-match copy is "Showing your 1 match" (see Phase 3 page wiring contract).
+
+5. **TBR title wrapping (`BookList.astro`)** — Accepted during impl-review triage: titles use `break-words` instead of `truncate` so long titles remain fully visible on the management list.
 
 ## References
 

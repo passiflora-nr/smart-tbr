@@ -13,10 +13,8 @@ const { books } = Astro.props;
   {
     books.map((book) => (
       <li class="rounded-lg border border-white/10 bg-white/5 p-4">
-        <div class="min-w-0 flex-1">
-          <p class="truncate font-medium text-white">{book.title}</p>
-          <p class="text-sm text-blue-100/70">{book.author}</p>
-        </div>
+        <p class="font-medium break-words text-white">{book.title}</p>
+        <p class="text-sm text-blue-100/70">{book.author}</p>
         <BookDescription description={book.description} />
         <ul class="mt-2 flex flex-wrap gap-1.5">
           {book.tropes.map((trope) => (

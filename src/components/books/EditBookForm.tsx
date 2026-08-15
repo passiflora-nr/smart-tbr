@@ -3,6 +3,7 @@ import { z } from "zod";
 import { BookOpen, FileText, PenLine, User } from "lucide-react";
 import { FormField } from "@/components/auth/FormField";
 import { ServerError } from "@/components/auth/ServerError";
+import { SubmitButton } from "@/components/auth/SubmitButton";
 import { TropeInput } from "@/components/books/TropeInput";
 import {
   bookSchema,
@@ -80,7 +81,6 @@ export default function EditBookForm({
   const [serverError, setServerError] = useState<string | null>(null);
   const [sessionExpired, setSessionExpired] = useState(false);
   const [notFound, setNotFound] = useState(false);
-  const [saving, setSaving] = useState(false);
   const allowLeaveRef = useRef(false);
   const [baseline] = useState(() => ({
     title: initialTitle,
@@ -161,16 +161,15 @@ export default function EditBookForm({
   }
 
   async function handleSave() {
-    if (!isDirty || saving) return;
+    if (!isDirty) return;
 
-    setSaving(true);
     setServerError(null);
     setSessionExpired(false);
 
     try {
       await persistChanges();
     } finally {
-      setSaving(false);
+      // useFormStatus tracks pending; try/finally boundary satisfies react-compiler.
     }
   }
 
@@ -367,24 +366,9 @@ export default function EditBookForm({
           Cancel
         </a>
         <div className="min-w-0 flex-1">
-          <button
-            key={isDirty ? "dirty" : "clean"}
-            type="submit"
-            disabled={!isDirty || saving}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-500 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {saving ? (
-              <>
-                <span className="size-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                Saving...
-              </>
-            ) : (
-              <>
-                <PenLine className="size-4" />
-                Save changes
-              </>
-            )}
-          </button>
+          <SubmitButton pendingText="Saving..." icon={<PenLine className="size-4" />} disabled={!isDirty}>
+            Save changes
+          </SubmitButton>
         </div>
       </div>
     </form>

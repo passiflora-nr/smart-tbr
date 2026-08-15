@@ -18,7 +18,7 @@ const { books, filterQuery } = Astro.props;
       <li id={`book-${book.id}`} class="book-row rounded-lg border border-white/10 bg-white/5 p-4">
         <div class="flex items-start justify-between gap-2">
           <div class="min-w-0 flex-1">
-            <p class="truncate font-medium text-white">{book.title}</p>
+            <p class="font-medium break-words text-white">{book.title}</p>
             <p class="text-sm text-blue-100/70">{book.author}</p>
           </div>
           <div class="flex shrink-0 flex-wrap items-start justify-end gap-2">

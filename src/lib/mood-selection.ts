@@ -48,20 +48,17 @@ export function parseMoodSelection(params: URLSearchParams): MoodSelection {
 }
 
 export function validateMoodSelection(selection: MoodSelection): MoodSelectionValidation {
+  const result = moodSelectionSchema.safeParse(selection.tropes);
+
+  if (result.success) {
+    return { status: "ok", tropes: result.data };
+  }
+
   if (selection.tropes.length === 0) {
     return { status: "empty" };
   }
 
-  if (selection.tropes.length > MOOD_MAX_TROPES) {
-    return { status: "too-many", tropes: selection.tropes };
-  }
-
-  const result = moodSelectionSchema.safeParse(selection.tropes);
-  if (!result.success) {
-    return { status: "too-many", tropes: selection.tropes };
-  }
-
-  return { status: "ok", tropes: result.data };
+  return { status: "too-many", tropes: selection.tropes };
 }
 
 export function matchesAnyTrope(book: Pick<Tables<"books">, "tropes">, tropes: string[]): boolean {
