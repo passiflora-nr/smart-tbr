@@ -44,6 +44,15 @@ Astro v6 server-rendered app with React 19 islands, Tailwind v4, and Supabase Au
 
 No test framework is wired up. If you add one, wire it into `@.github/workflows/ci.yml` between `lint` and `build`.
 
+## Audience & manual testing
+
+The project owner verifies changes manually and is a **tester, not a developer**. When writing manual verification steps (in plans, PRs, or chat), follow `@context/foundation/manual-testing.md`:
+
+- **Write numbered steps** (setup → actions → expected result → pass criteria). Do not give manual tests as a single summary line.
+- **Use plain language** — page names, button labels, and what the user should see; avoid file paths, component names, and implementation jargon unless the tester needs them to know what to expect.
+
+Progress checklist titles in `plan.md` may stay short; the matching `#### Manual Verification:` block in the same phase must contain the full steps.
+
 ## Commit & Pull Request Guidelines
 
 History is single-commit; no convention is established yet — prefer Conventional Commits (`feat:`, `fix:`, `chore:`). **All changes land on `main` through PRs only** — branch from `main`, push the branch, open a PR; never commit or push directly to `main`. CI runs `npm ci → npx astro sync → npm run lint → npm run build` and must pass (`@.github/workflows/ci.yml`). Husky `pre-commit` runs lint-staged (see `@package.json`) — don't bypass with `--no-verify`.
