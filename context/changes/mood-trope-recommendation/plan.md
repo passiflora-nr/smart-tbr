@@ -468,14 +468,14 @@ None. No schema change, no migration, no data backfill, no configuration change.
 
 #### Automated
 
-- [x] 3.1 Astro types regenerate cleanly
-- [x] 3.2 Linting passes
-- [x] 3.3 Production build passes
+- [x] 3.1 Astro types regenerate cleanly — 096d534
+- [x] 3.2 Linting passes — 096d534
+- [x] 3.3 Production build passes — 096d534
 
 #### Manual
 
-- [x] 3.4 Ask for more suggestions without losing the first three
-- [x] 3.5 Repeating the same mood gives the same books
-- [x] 3.6 Picking a new mood goes back to three suggestions
-- [x] 3.7 Results arrive in under 2 seconds
-- [x] 3.8 The whole flow works with JavaScript turned off
+- [x] 3.4 Ask for more suggestions without losing the first three — 096d534
+- [x] 3.5 Repeating the same mood gives the same books — 096d534
+- [x] 3.6 Picking a new mood goes back to three suggestions — 096d534
+- [x] 3.7 Results arrive in under 2 seconds — 096d534
+- [x] 3.8 The whole flow works with JavaScript turned off — 096d534
