@@ -36,7 +36,7 @@ SmartTBR collapses a 100+ book "to be read" backlog that today lives scattered a
 | S-02 | browse-tbr-list | browse their full TBR as a list | S-01 ✓ | FR-005 | done |
 | S-03 | edit-delete-book | edit or delete any book in their TBR | S-02 ✓ | FR-006, FR-007 | done |
 | S-04 | search-filter-tbr | narrow the TBR by title/author substring and/or trope filter | S-02 ✓ | FR-012 | done |
-| S-07 | ui-theme-cafe-romance | see the whole app in the "Café Romance" palette instead of the starter's cosmic theme | S-02 ✓, S-03 ✓, S-04, S-05, S-06 | - (UX polish) | optional |
+| S-07 | ui-theme-cafe-romance | see the whole app in the "Café Romance" palette instead of the starter's cosmic theme | S-02 ✓, S-03 ✓, S-04 ✓, S-05, S-06 | - (UX polish) | optional |
 
 > **Status:** `done` = archived · `ready` = prerequisites met, start with `/10x-plan <change-id>` · `proposed` = blocked on prerequisites · `optional` = not required by any PRD success criterion; pick up only if time remains after the functional slices. A ✓ in Prerequisites marks a satisfied dependency.
 
@@ -47,7 +47,7 @@ Navigation aid - groups items that share a Prerequisites chain. Canonical orderi
 | Stream | Theme | Chain | Note |
 |---|---|---|---|
 | A | Validation spine | `F-01` -> `S-01` -> `S-05` | The north-star path; sequenced first per `main_goal: speed`. |
-| B | TBR management | `S-02` -> `S-03` / `S-04` | Joins Stream A at `S-01`; `S-03` and `S-04` are parallel after `S-02`. |
+| B | TBR management | `S-02` -> `S-03` / `S-04` | Joins Stream A at `S-01`; `S-03` and `S-04` are parallel after `S-02` (both done). |
 | C | Account lifecycle | `S-06` | Depends on `F-01` + present auth; parallel with Stream B. |
 | D | Presentation | `S-07` | Optional; runs last because it restyles every surface Streams A-C build. |
 
@@ -67,7 +67,7 @@ flowchart TB
   subgraph B["Stream B · TBR management"]
     S02["S-02 · Browse TBR<br/>(done)"]
     S03["S-03 · Edit / delete<br/>(done)"]
-    S04["S-04 · Search / filter"]
+    S04["S-04 · Search / filter<br/>(done)"]
   end
 
   subgraph C["Stream C · Account lifecycle"]
@@ -162,7 +162,7 @@ What's already in place in the codebase as of 2026-06-14 (auto-researched + user
 - **Change ID:** edit-delete-book
 - **PRD refs:** FR-006, FR-007
 - **Prerequisites:** S-02
-- **Parallel with:** S-04
+- **Parallel with:** S-04 (done)
 - **Blockers:** -
 - **Unknowns:** -
 - **Risk:** Hard delete (no archived state per FR-007); edits to trope tags shift future recommendations, which is acceptable for v1.
@@ -174,7 +174,7 @@ What's already in place in the codebase as of 2026-06-14 (auto-researched + user
 - **Change ID:** search-filter-tbr
 - **PRD refs:** FR-012
 - **Prerequisites:** S-02
-- **Parallel with:** S-03 (done) (done)
+- **Parallel with:** S-03 (done)
 - **Blockers:** -
 - **Unknowns:** -
 - **Risk:** Makes a 100+ book list usable; required for the migration experience but not for the north-star ritual, so sequenced after the spine.
@@ -196,7 +196,7 @@ What's already in place in the codebase as of 2026-06-14 (auto-researched + user
 - **Outcome:** user sees every surface - landing, auth, dashboard, add-book, browse, search/filter, mood-trope - in the "Café Romance" palette (warm linen background, espresso text, dusty-rose primary, blush/oat trope pills), with the starter's cosmic/purple-glass chrome gone.
 - **Change ID:** ui-theme-cafe-romance
 - **PRD refs:** - (no PRD requirement; UX fit for the 25-35 Bookstagram romance-reader audience)
-- **Prerequisites:** S-02 ✓, S-03 ✓, S-04, S-05, S-06 (restyle once, after every user-facing surface exists)
+- **Prerequisites:** S-02 ✓, S-03 ✓, S-04 ✓, S-05, S-06 (restyle once, after every user-facing surface exists)
 - **Parallel with:** -
 - **Blockers:** -
 - **Unknowns:** -
@@ -215,7 +215,7 @@ What's already in place in the codebase as of 2026-06-14 (auto-researched + user
 | S-02 | browse-tbr-list | Browse the TBR list | done | Archived 2026-08-11 |
 | S-03 | edit-delete-book | Edit and delete a book | done | Archived 2026-08-14 |
 | S-04 | search-filter-tbr | Search and filter the TBR | done | Archived 2026-08-15 |
-| S-07 | ui-theme-cafe-romance | Apply the Café Romance UI theme across the app | no | Optional stretch; S-03 done; still needs S-04, S-05, S-06 |
+| S-07 | ui-theme-cafe-romance | Apply the Café Romance UI theme across the app | no | Optional stretch; S-03 ✓, S-04 ✓; still needs S-05, S-06 |
 
 ## Open Roadmap Questions
 
