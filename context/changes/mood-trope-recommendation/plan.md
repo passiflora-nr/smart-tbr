@@ -439,30 +439,30 @@ None. No schema change, no migration, no data backfill, no configuration change.
 
 #### Automated
 
-- [x] 1.1 Astro types regenerate cleanly
-- [x] 1.2 Linting passes
-- [x] 1.3 Production build passes
+- [x] 1.1 Astro types regenerate cleanly — 3257214
+- [x] 1.2 Linting passes — 3257214
+- [x] 1.3 Production build passes — 3257214
 
 #### Manual
 
-- [x] 1.4 TBR list still shows descriptions exactly as before
+- [x] 1.4 TBR list still shows descriptions exactly as before — 3257214
 
 ### Phase 2: The `/mood` screen, end to end
 
 #### Automated
 
-- [ ] 2.1 Astro types regenerate cleanly
-- [ ] 2.2 Linting passes
-- [ ] 2.3 Production build passes
+- [x] 2.1 Astro types regenerate cleanly
+- [x] 2.2 Linting passes
+- [x] 2.3 Production build passes
 
 #### Manual
 
-- [ ] 2.4 Signed-out visitors are sent to sign in
-- [ ] 2.5 Pick one trope and get matching books
-- [ ] 2.6 No other account's books can appear
-- [ ] 2.7 Ticking a fourth trope is refused, not silently trimmed
-- [ ] 2.8 An empty TBR explains itself
-- [ ] 2.9 A stale link shows the no-match message
+- [x] 2.4 Signed-out visitors are sent to sign in
+- [x] 2.5 Pick one trope and get matching books
+- [x] 2.6 No other account's books can appear
+- [x] 2.7 Ticking a fourth trope is refused, not silently trimmed
+- [x] 2.8 An empty TBR explains itself
+- [x] 2.9 A stale link shows the no-match message
 
 ### Phase 3: Showing more suggestions, and guardrail verification
 

@@ -1,8 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
 import { BookOpen, FileText, PenLine, User } from "lucide-react";
 import { FormField } from "@/components/auth/FormField";
-import { SubmitButton } from "@/components/auth/SubmitButton";
 import { ServerError } from "@/components/auth/ServerError";
 import { TropeInput } from "@/components/books/TropeInput";
 import {
@@ -81,26 +80,21 @@ export default function EditBookForm({
   const [serverError, setServerError] = useState<string | null>(null);
   const [sessionExpired, setSessionExpired] = useState(false);
   const [notFound, setNotFound] = useState(false);
+  const [saving, setSaving] = useState(false);
   const allowLeaveRef = useRef(false);
+  const [baseline] = useState(() => ({
+    title: initialTitle,
+    author: initialAuthor,
+    description: initialDescription ?? "",
+    tropes: [...initialTropes],
+  }));
 
-  const isDirty = useMemo(() => {
-    if (title !== initialTitle) return true;
-    if (author !== initialAuthor) return true;
-    if (description !== (initialDescription ?? "")) return true;
-    if (!arraysEqual(tags, initialTropes)) return true;
-    if (pendingTropeText.trim().length > 0) return true;
-    return false;
-  }, [
-    title,
-    author,
-    description,
-    tags,
-    pendingTropeText,
-    initialTitle,
-    initialAuthor,
-    initialDescription,
-    initialTropes,
-  ]);
+  const isDirty =
+    title !== baseline.title ||
+    author !== baseline.author ||
+    description !== baseline.description ||
+    !arraysEqual(tags, baseline.tropes) ||
+    pendingTropeText.trim().length > 0;
 
   useEffect(() => {
     if (notFound) {
@@ -167,9 +161,20 @@ export default function EditBookForm({
   }
 
   async function handleSave() {
+    if (!isDirty || saving) return;
+
+    setSaving(true);
     setServerError(null);
     setSessionExpired(false);
 
+    try {
+      await persistChanges();
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function persistChanges() {
     const merged = mergePendingTrope(tags, pendingTropeText);
     if (merged.error !== undefined) {
       const tropeError = merged.error;
@@ -362,9 +367,24 @@ export default function EditBookForm({
           Cancel
         </a>
         <div className="min-w-0 flex-1">
-          <SubmitButton pendingText="Saving..." icon={<PenLine className="size-4" />}>
-            Save changes
-          </SubmitButton>
+          <button
+            key={isDirty ? "dirty" : "clean"}
+            type="submit"
+            disabled={!isDirty || saving}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-500 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {saving ? (
+              <>
+                <span className="size-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                Saving...
+              </>
+            ) : (
+              <>
+                <PenLine className="size-4" />
+                Save changes
+              </>
+            )}
+          </button>
         </div>
       </div>
     </form>
