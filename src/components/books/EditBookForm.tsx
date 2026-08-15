@@ -12,6 +12,7 @@ import {
   tropeListSchema,
   type BookPayload,
 } from "@/lib/book-schema";
+import { buildBooksHref } from "@/lib/book-filters";
 
 interface FieldErrors {
   title?: string;
@@ -26,6 +27,7 @@ interface EditBookFormProps {
   author: string;
   tropes: string[];
   description: string | null;
+  filterQuery: string;
 }
 
 const UNSAVED_LEAVE_MESSAGE = "You have unsaved changes. Leave without saving?";
@@ -68,6 +70,7 @@ export default function EditBookForm({
   author: initialAuthor,
   tropes: initialTropes,
   description: initialDescription,
+  filterQuery,
 }: EditBookFormProps) {
   const [title, setTitle] = useState(initialTitle);
   const [author, setAuthor] = useState(initialAuthor);
@@ -226,9 +229,13 @@ export default function EditBookForm({
       allowLeaveRef.current = true;
 
       if (body.duplicate) {
-        window.location.href = `/books?notice=duplicate&highlight=${id}#book-${id}`;
+        window.location.href = buildBooksHref(filterQuery, {
+          notice: "duplicate",
+          highlight: id,
+          hash: `book-${id}`,
+        });
       } else {
-        window.location.href = `/books#book-${id}`;
+        window.location.href = buildBooksHref(filterQuery, { hash: `book-${id}` });
       }
       return;
     }
@@ -348,7 +355,7 @@ export default function EditBookForm({
 
       <div className="flex gap-3">
         <a
-          href={`/books#book-${id}`}
+          href={buildBooksHref(filterQuery, { hash: `book-${id}` })}
           data-unsaved-guard
           className="inline-flex shrink-0 items-center justify-center rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
         >

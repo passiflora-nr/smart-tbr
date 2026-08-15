@@ -1,8 +1,18 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+import BookFilterBar from "@/components/books/BookFilterBar.astro";
 import BookList from "@/components/books/BookList.astro";
 import DeleteBookModal from "@/components/books/DeleteBookModal.astro";
 import SignOutButton from "@/components/auth/SignOutButton.astro";
+import {
+  buildBooksHref,
+  collectTropeVocabulary,
+  hasActiveFilters,
+  matchesBookFilters,
+  parseBookFilters,
+  serializeBookFilters,
+  type BookFilters,
+} from "@/lib/book-filters";
 import type { BookListRow } from "@/lib/sort-books-for-browse";
 import { bookIdSchema } from "@/lib/book-schema";
 import { sortBooksForBrowse } from "@/lib/sort-books-for-browse";
@@ -32,6 +42,9 @@ const errorParam = Astro.url.searchParams.get("error");
 const noticeParam = Astro.url.searchParams.get("notice");
 const highlight = Astro.url.searchParams.get("highlight");
 
+const filters: BookFilters = parseBookFilters(Astro.url.searchParams);
+const filterQuery = serializeBookFilters(filters);
+
 if (errorParam && Object.hasOwn(REDIRECT_ERRORS, errorParam)) {
   Astro.cookies.set(FLASH_ERROR_COOKIE, errorParam, {
     path: "/books",
@@ -39,7 +52,7 @@ if (errorParam && Object.hasOwn(REDIRECT_ERRORS, errorParam)) {
     sameSite: "lax",
     httpOnly: true,
   });
-  return Astro.redirect("/books");
+  return Astro.redirect(buildBooksHref(filterQuery));
 }
 
 if (noticeParam && Object.hasOwn(REDIRECT_NOTICES, noticeParam)) {
@@ -50,7 +63,9 @@ if (noticeParam && Object.hasOwn(REDIRECT_NOTICES, noticeParam)) {
     httpOnly: true,
   });
   const highlightResult = bookIdSchema.safeParse(highlight);
-  const dest = highlightResult.success ? `/books#book-${highlightResult.data}` : "/books";
+  const dest = highlightResult.success
+    ? buildBooksHref(filterQuery, { hash: `book-${highlightResult.data}` })
+    : buildBooksHref(filterQuery);
   return Astro.redirect(dest);
 }
 
@@ -73,8 +88,10 @@ const redirectNotice =
 
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 
-let state: "failed" | "empty" | "populated";
+let state: "failed" | "empty" | "no-match" | "populated";
 let books: BookListRow[] = [];
+let totalBookCount = 0;
+let tropeVocabulary: string[] = [];
 
 if (!supabase) {
   state = "failed";
@@ -90,12 +107,41 @@ if (!supabase) {
   } else if (data.length === 0) {
     state = "empty";
   } else {
-    state = "populated";
-    books = sortBooksForBrowse(data);
+    totalBookCount = data.length;
+    tropeVocabulary = collectTropeVocabulary(data, filters.tropes);
+    const filtered = data.filter((book) => matchesBookFilters(book, filters));
+    books = sortBooksForBrowse(filtered);
+
+    if (books.length === 0) {
+      state = "no-match";
+    } else {
+      state = "populated";
+    }
   }
 }
 
-const headingText = state === "populated" ? `Your TBR (${books.length})` : "Your TBR";
+const filtersActive = hasActiveFilters(filters);
+const headingText =
+  state === "failed" || state === "empty"
+    ? "Your TBR"
+    : filtersActive
+      ? `Your TBR (${books.length} of ${totalBookCount})`
+      : `Your TBR (${totalBookCount})`;
+
+function describeActiveFilters(activeFilters: BookFilters): string {
+  const parts: string[] = [];
+  if (activeFilters.q.length > 0) {
+    parts.push(`search “${activeFilters.q}”`);
+  }
+  if (activeFilters.tropes.length > 0) {
+    parts.push(
+      activeFilters.tropes.length === 1
+        ? `trope “${activeFilters.tropes[0]}”`
+        : `${activeFilters.tropes.length} selected tropes`,
+    );
+  }
+  return parts.join(" and ");
+}
 ---
 
 <Layout title="Your TBR">
@@ -183,14 +229,24 @@ const headingText = state === "populated" ? `Your TBR (${books.length})` : "Your
               Add your first book
             </a>
           </div>
+        ) : state === "no-match" ? (
+          <div>
+            <BookFilterBar filters={filters} tropeVocabulary={tropeVocabulary} />
+            <p class="text-blue-100/80">No books match your {describeActiveFilters(filters)}.</p>
+          </div>
         ) : (
-          <BookList books={books} />
+          <div>
+            <BookFilterBar filters={filters} tropeVocabulary={tropeVocabulary} />
+            <BookList books={books} filterQuery={filterQuery} />
+          </div>
         )
       }
     </div>
     {
       state === "populated"
-        ? books.map((book) => <DeleteBookModal id={book.id} title={book.title} dismissHref={`#book-${book.id}`} />)
+        ? books.map((book) => (
+            <DeleteBookModal id={book.id} title={book.title} dismissHref={`#book-${book.id}`} filters={filters} />
+          ))
         : null
     }
   </div>
