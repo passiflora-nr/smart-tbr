@@ -57,3 +57,10 @@
 - **Problem**: Manual tests were written as one-line summaries ("search narrows the list") and explained like developer notes (file paths, component names). The owner is a tester, not a developer, and could not run checks without guessing the steps.
 - **Rule**: Write manual verification as numbered steps (setup → actions → expected result → pass criteria) in plain language. Progress checklist titles in `plan.md` may stay short; the phase's `#### Manual Verification:` block and any message to the human must contain the full steps. See `@context/foundation/manual-testing.md`.
 - **Applies to**: plan, plan-review, implement, impl-review, all agent chat when proposing manual tests
+
+## Don't delete branches when merging PRs
+
+- **Context**: GitHub PR merge workflow — any time an agent or human merges a feature branch into main.
+- **Problem**: Checking "Delete branch" on merge (or running `git branch -d` afterward) removes the remote/local branch. That makes it harder to rebase, resume work, or reference the branch later — e.g. when main moves ahead before the next push.
+- **Rule**: Never delete feature branches when merging PRs. Leave GitHub's "Delete branch" unchecked, and do not delete local or remote branches unless the user explicitly asks.
+- **Applies to**: archive
