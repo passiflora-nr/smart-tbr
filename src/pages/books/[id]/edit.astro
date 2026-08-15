@@ -5,6 +5,7 @@ import DeleteBookTrigger from "@/components/books/DeleteBookTrigger.astro";
 import EditBookForm from "@/components/books/EditBookForm";
 import SignOutButton from "@/components/auth/SignOutButton.astro";
 import { bookIdSchema } from "@/lib/book-schema";
+import { buildBooksHref, parseBookFilters, serializeBookFilters } from "@/lib/book-filters";
 import { createClient } from "@/lib/supabase";
 
 // data-unsaved-guard and data-edit-delete-controls below are read by
@@ -17,16 +18,18 @@ if (!user) {
   return Astro.redirect("/auth/signin");
 }
 
+const filterQuery = serializeBookFilters(parseBookFilters(Astro.url.searchParams));
+
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 
 if (!supabase) {
-  return Astro.redirect("/books?error=load_failed");
+  return Astro.redirect(buildBooksHref(filterQuery, { error: "load_failed" }));
 }
 
 const idResult = bookIdSchema.safeParse(Astro.params.id);
 
 if (!idResult.success) {
-  return Astro.redirect("/books?error=not_found");
+  return Astro.redirect(buildBooksHref(filterQuery, { error: "not_found" }));
 }
 
 const id = idResult.data;
@@ -40,12 +43,14 @@ const { data: book, error } = await supabase
 
 if (error) {
   console.error("book edit load failed", error);
-  return Astro.redirect("/books?error=load_failed");
+  return Astro.redirect(buildBooksHref(filterQuery, { error: "load_failed" }));
 }
 
 if (!book) {
-  return Astro.redirect("/books?error=not_found");
+  return Astro.redirect(buildBooksHref(filterQuery, { error: "not_found" }));
 }
+
+const filters = parseBookFilters(Astro.url.searchParams);
 ---
 
 <Layout title={`Edit ${book.title}`}>
@@ -59,7 +64,7 @@ if (!book) {
         </h1>
         <div class="flex shrink-0 flex-wrap justify-end gap-2">
           <a
-            href="/books"
+            href={buildBooksHref(filterQuery)}
             data-unsaved-guard
             class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
           >
@@ -82,6 +87,7 @@ if (!book) {
         author={book.author}
         tropes={book.tropes}
         description={book.description}
+        filterQuery={filterQuery}
       />
       <div id={`delete-controls-${book.id}`} data-edit-delete-controls class="mt-8 border-t border-white/10 pt-6">
         <p class="mb-3 text-sm text-blue-100/60">Remove this book from your TBR permanently.</p>
@@ -94,6 +100,7 @@ if (!book) {
       genericConfirm
       editDeleteControls
       dismissHref={`#delete-controls-${book.id}`}
+      filters={filters}
     />
   </div>
 </Layout>

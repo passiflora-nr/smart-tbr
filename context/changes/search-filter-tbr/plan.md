@@ -285,41 +285,41 @@ No database migration, no schema change, no new dependency. All URLs remain back
 
 #### Automated
 
-- [x] 2.1 Astro types regenerate: `npx astro sync`
-- [x] 2.2 Linting passes: `npm run lint`
-- [x] 2.3 Production build succeeds: `npm run build`
+- [x] 2.1 Astro types regenerate: `npx astro sync` — cfdf00d
+- [x] 2.2 Linting passes: `npm run lint` — cfdf00d
+- [x] 2.3 Production build succeeds: `npm run build` — cfdf00d
 
 #### Manual
 
-- [x] 2.4 Title, author, and case-insensitive search each narrow the list
-- [x] 2.5 Trope selection is all-match; text and tropes combine with AND
-- [x] 2.6 Selecting 26+ tropes returns zero matches, not the unfiltered list
-- [x] 2.7 A stale trope in the URL returns zero matches and still renders as a tickable checked box
-- [x] 2.8 Heading reads `N of M` when filtered and `M` when cleared
-- [x] 2.9 No-match state shows distinct copy and retains submitted filter values; Clear filters in the bar clears everything
-- [x] 2.10 "Clear filters" returns to the full list (greyed out when nothing is filtered)
-- [x] 2.11 A filtered URL pasted into a fresh tab reproduces the view
-- [x] 2.12 Punctuation-heavy search terms are matched literally without errors
-- [x] 2.13 Page works with JavaScript disabled
+- [x] 2.4 Title, author, and case-insensitive search each narrow the list — cfdf00d
+- [x] 2.5 Trope selection is all-match; text and tropes combine with AND — cfdf00d
+- [x] 2.6 Selecting 26+ tropes returns zero matches, not the unfiltered list — cfdf00d
+- [x] 2.7 A stale trope in the URL returns zero matches and still renders as a tickable checked box — cfdf00d
+- [x] 2.8 Heading reads `N of M` when filtered and `M` when cleared — cfdf00d
+- [x] 2.9 No-match state shows distinct copy and retains submitted filter values; Clear filters in the bar clears everything — cfdf00d
+- [x] 2.10 "Clear filters" returns to the full list (greyed out when nothing is filtered) — cfdf00d
+- [x] 2.11 A filtered URL pasted into a fresh tab reproduces the view — cfdf00d
+- [x] 2.12 Punctuation-heavy search terms are matched literally without errors — cfdf00d
+- [x] 2.13 Page works with JavaScript disabled — cfdf00d
 
 ### Phase 3: Filter Persistence Across Edit and Delete
 
 #### Automated
 
-- [ ] 3.1 Astro types regenerate: `npx astro sync`
-- [ ] 3.2 Linting passes: `npm run lint`
-- [ ] 3.3 Production build succeeds: `npm run build`
+- [x] 3.1 Astro types regenerate: `npx astro sync`
+- [x] 3.2 Linting passes: `npm run lint`
+- [x] 3.3 Production build succeeds: `npm run build`
 
 #### Manual
 
-- [ ] 3.4 Delete from a filtered list returns to that filtered list with the notice shown
-- [ ] 3.5 A match-preserving edit returns to the filtered list at the highlighted row
-- [ ] 3.6 A match-removing edit preserves filters and shows the correct remaining or no-match state
-- [ ] 3.7 Duplicate-notice save returns to the filtered list with the message shown
-- [ ] 3.8 "View your TBR" and Cancel from the edit page return to the filtered list
-- [ ] 3.9 Unsaved-changes guard still fires on the edit page
-- [ ] 3.10 Deleting the last match yields the no-match state, not the empty-TBR state
-- [ ] 3.11 Deleting from an unfiltered list is unchanged
-- [ ] 3.12 Tampered hidden form values cannot redirect off-site
-- [ ] 3.13 Load-time edit errors return to the filtered list with the error flash
-- [ ] 3.14 All of the above work with JavaScript disabled (except the edit form island)
+- [x] 3.4 Delete from a filtered list returns to that filtered list with the notice shown
+- [x] 3.5 A match-preserving edit returns to the filtered list at the highlighted row
+- [x] 3.6 A match-removing edit preserves filters and shows the correct remaining or no-match state
+- [x] 3.7 Duplicate-notice save returns to the filtered list with the message shown
+- [x] 3.8 "View your TBR" and Cancel from the edit page return to the filtered list
+- [x] 3.9 Unsaved-changes guard still fires on the edit page
+- [x] 3.10 Deleting the last match yields the no-match state, not the empty-TBR state
+- [x] 3.11 Deleting from an unfiltered list is unchanged
+- [x] 3.12 Tampered hidden form values cannot redirect off-site
+- [x] 3.13 Load-time edit errors return to the filtered list with the error flash
+- [x] 3.14 All of the above work with JavaScript disabled (except the edit form island)

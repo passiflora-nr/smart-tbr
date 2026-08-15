@@ -1,4 +1,6 @@
 ---
+import type { BookFilters } from "@/lib/book-filters";
+
 interface Props {
   id: string;
   title: string;
@@ -11,9 +13,10 @@ interface Props {
    * would otherwise restart tabbing from the top of the page.
    */
   dismissHref: string;
+  filters: BookFilters;
 }
 
-const { id, title, genericConfirm = false, editDeleteControls = false, dismissHref } = Astro.props;
+const { id, title, genericConfirm = false, editDeleteControls = false, dismissHref, filters } = Astro.props;
 const modalId = `delete-${id}`;
 
 // role="dialog" carries no aria-modal: this is a CSS-only modal, so nothing can
@@ -50,6 +53,8 @@ const modalId = `delete-${id}`;
         Cancel
       </a>
       <form method="POST" action={`/api/books/${id}/delete`}>
+        {filters.q.length > 0 ? <input type="hidden" name="q" value={filters.q} /> : null}
+        {filters.tropes.map((trope) => <input type="hidden" name="trope" value={trope} />)}
         <button
           type="submit"
           aria-label={`Permanently delete ${title}`}

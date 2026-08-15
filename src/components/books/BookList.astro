@@ -9,9 +9,10 @@ const DESCRIPTION_CLAMP_CHARS = 180;
 
 interface Props {
   books: Pick<Tables<"books">, "id" | "title" | "author" | "tropes" | "description">[];
+  filterQuery: string;
 }
 
-const { books } = Astro.props;
+const { books, filterQuery } = Astro.props;
 ---
 
 <ul class="space-y-4">
@@ -25,7 +26,7 @@ const { books } = Astro.props;
           </div>
           <div class="flex shrink-0 flex-wrap items-start justify-end gap-2">
             <a
-              href={`/books/${book.id}/edit`}
+              href={filterQuery.length > 0 ? `/books/${book.id}/edit?${filterQuery}` : `/books/${book.id}/edit`}
               aria-label={`Edit ${book.title}`}
               class="rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-sm transition-colors hover:bg-white/20"
             >

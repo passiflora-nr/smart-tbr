@@ -5,10 +5,12 @@ import BookList from "@/components/books/BookList.astro";
 import DeleteBookModal from "@/components/books/DeleteBookModal.astro";
 import SignOutButton from "@/components/auth/SignOutButton.astro";
 import {
+  buildBooksHref,
   collectTropeVocabulary,
   hasActiveFilters,
   matchesBookFilters,
   parseBookFilters,
+  serializeBookFilters,
   type BookFilters,
 } from "@/lib/book-filters";
 import type { BookListRow } from "@/lib/sort-books-for-browse";
@@ -40,6 +42,8 @@ const errorParam = Astro.url.searchParams.get("error");
 const noticeParam = Astro.url.searchParams.get("notice");
 const highlight = Astro.url.searchParams.get("highlight");
 
+const filterQuery = serializeBookFilters(parseBookFilters(Astro.url.searchParams));
+
 if (errorParam && Object.hasOwn(REDIRECT_ERRORS, errorParam)) {
   Astro.cookies.set(FLASH_ERROR_COOKIE, errorParam, {
     path: "/books",
@@ -47,7 +51,7 @@ if (errorParam && Object.hasOwn(REDIRECT_ERRORS, errorParam)) {
     sameSite: "lax",
     httpOnly: true,
   });
-  return Astro.redirect("/books");
+  return Astro.redirect(buildBooksHref(filterQuery));
 }
 
 if (noticeParam && Object.hasOwn(REDIRECT_NOTICES, noticeParam)) {
@@ -58,7 +62,9 @@ if (noticeParam && Object.hasOwn(REDIRECT_NOTICES, noticeParam)) {
     httpOnly: true,
   });
   const highlightResult = bookIdSchema.safeParse(highlight);
-  const dest = highlightResult.success ? `/books#book-${highlightResult.data}` : "/books";
+  const dest = highlightResult.success
+    ? buildBooksHref(filterQuery, { hash: `book-${highlightResult.data}` })
+    : buildBooksHref(filterQuery);
   return Astro.redirect(dest);
 }
 
@@ -232,14 +238,16 @@ function describeActiveFilters(activeFilters: BookFilters): string {
         ) : (
           <div>
             <BookFilterBar filters={filters} tropeVocabulary={tropeVocabulary} />
-            <BookList books={books} />
+            <BookList books={books} filterQuery={filterQuery} />
           </div>
         )
       }
     </div>
     {
       state === "populated"
-        ? books.map((book) => <DeleteBookModal id={book.id} title={book.title} dismissHref={`#book-${book.id}`} />)
+        ? books.map((book) => (
+            <DeleteBookModal id={book.id} title={book.title} dismissHref={`#book-${book.id}`} filters={filters} />
+          ))
         : null
     }
   </div>
