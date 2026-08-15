@@ -1,12 +1,8 @@
 ---
+import BookDescription from "@/components/books/BookDescription.astro";
 import DeleteBookTrigger from "@/components/books/DeleteBookTrigger.astro";
 import { buildEditHref } from "@/lib/book-filters";
 import type { Tables } from "@/lib/database.types";
-
-// Server rendering cannot measure whether text overflows two rendered lines, so
-// the disclosure is gated on length instead. ~180 characters is two lines at this
-// card width and text size; shorter descriptions render plainly with no affordance.
-const DESCRIPTION_CLAMP_CHARS = 180;
 
 interface Props {
   books: Pick<Tables<"books">, "id" | "title" | "author" | "tropes" | "description">[];
@@ -22,7 +18,7 @@ const { books, filterQuery } = Astro.props;
       <li id={`book-${book.id}`} class="book-row rounded-lg border border-white/10 bg-white/5 p-4">
         <div class="flex items-start justify-between gap-2">
           <div class="min-w-0 flex-1">
-            <p class="truncate font-medium text-white">{book.title}</p>
+            <p class="font-medium break-words text-white">{book.title}</p>
             <p class="text-sm text-blue-100/70">{book.author}</p>
           </div>
           <div class="flex shrink-0 flex-wrap items-start justify-end gap-2">
@@ -36,21 +32,7 @@ const { books, filterQuery } = Astro.props;
             <DeleteBookTrigger id={book.id} title={book.title} />
           </div>
         </div>
-        {book.description ? (
-          book.description.length > DESCRIPTION_CLAMP_CHARS ? (
-            <details class="group mt-1">
-              <summary class="cursor-pointer list-none [&::-webkit-details-marker]:hidden">
-                <span class="line-clamp-2 text-sm text-blue-100/60 group-open:line-clamp-none">{book.description}</span>
-                <span class="mt-1 inline-block text-xs text-purple-300 transition-colors group-hover:text-purple-200">
-                  <span class="group-open:hidden">Show more</span>
-                  <span class="hidden group-open:inline">Show less</span>
-                </span>
-              </summary>
-            </details>
-          ) : (
-            <p class="mt-1 text-sm text-blue-100/60">{book.description}</p>
-          )
-        ) : null}
+        <BookDescription description={book.description} />
         <ul class="mt-2 flex flex-wrap gap-1.5">
           {book.tropes.map((trope) => (
             <li class="rounded-md bg-white/15 px-2 py-0.5 text-xs text-white">{trope}</li>

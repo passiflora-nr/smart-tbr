@@ -146,7 +146,8 @@ Supabase often requires verified email before sign-in. To skip confirmation in d
 | `/auth/signin`        | Sign in (redirects to `/dashboard` on success)                                                      |
 | `/auth/signup`        | Sign up                                                                                             |
 | `/auth/confirm-email` | Post-signup inbox reminder                                                                          |
-| `/dashboard`          | Authenticated hub (links to TBR and add-book)                                                       |
+| `/dashboard`          | Authenticated hub (links to TBR, Pick by mood, and add-book)                                        |
+| `/mood`               | Pick next read by 1–3 tropes from your TBR (protected)                                              |
 | `/books`              | Browse full TBR (protected)                                                                         |
 | `/books/new`          | Add a book (protected)                                                                              |
 

@@ -1,0 +1,183 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import MoodPicker from "@/components/books/MoodPicker.astro";
+import MoodResultList from "@/components/books/MoodResultList.astro";
+import SignOutButton from "@/components/auth/SignOutButton.astro";
+import { collectTropeVocabulary } from "@/lib/book-filters";
+import {
+  MOOD_STEP_SIZE,
+  buildMoodHref,
+  matchesAnyTrope,
+  parseMoodSelection,
+  parseMoodShowCount,
+  sortBooksForMood,
+  takeMoodMatches,
+  validateMoodSelection,
+} from "@/lib/mood-selection";
+import type { Tables } from "@/lib/database.types";
+import { createClient } from "@/lib/supabase";
+
+type MoodBookRow = Pick<Tables<"books">, "id" | "title" | "author" | "tropes" | "description">;
+
+type MoodPageState = "failed" | "empty-tbr" | "empty-vocabulary" | "picker-only" | "too-many" | "no-match" | "results";
+
+const user = Astro.locals.user;
+
+if (!user) {
+  return Astro.redirect("/auth/signin");
+}
+
+const selection = parseMoodSelection(Astro.url.searchParams);
+const validation = validateMoodSelection(selection);
+const selectedTropes = validation.status === "too-many" ? validation.tropes : selection.tropes;
+const formSubmitted = Astro.url.searchParams.has("submitted");
+
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+
+let state: MoodPageState;
+let tropeVocabulary: string[] = [];
+let results: MoodBookRow[] = [];
+let matchTotal = 0;
+let matchVisibleCount = 0;
+let nextShow: number | null = null;
+let resultTropes: string[] = [];
+let pickerError: string | undefined;
+
+if (!supabase) {
+  state = "failed";
+} else {
+  const { data, error } = await supabase
+    .from("books")
+    .select("id, title, author, tropes, description")
+    .eq("user_id", user.id);
+
+  if (error) {
+    console.error("mood page query failed", error);
+    state = "failed";
+  } else if (data.length === 0) {
+    state = "empty-tbr";
+  } else {
+    tropeVocabulary = collectTropeVocabulary(data, selectedTropes);
+
+    if (tropeVocabulary.length === 0) {
+      state = "empty-vocabulary";
+    } else if (validation.status === "empty") {
+      state = "picker-only";
+      if (formSubmitted) {
+        pickerError = "Pick at least one trope";
+      }
+    } else if (validation.status === "too-many") {
+      state = "too-many";
+      pickerError = "Pick 1 to 3 tropes";
+    } else {
+      const matches = sortBooksForMood(data.filter((book) => matchesAnyTrope(book, validation.tropes)));
+
+      if (matches.length === 0) {
+        state = "no-match";
+      } else {
+        const showCount = parseMoodShowCount(Astro.url.searchParams);
+        const slice = takeMoodMatches(matches, showCount);
+
+        state = "results";
+        results = slice.visible;
+        matchTotal = slice.total;
+        matchVisibleCount = slice.visible.length;
+        nextShow = slice.nextShow;
+        resultTropes = validation.tropes;
+      }
+    }
+  }
+}
+---
+
+<Layout title="Pick by mood">
+  <div class="bg-cosmic flex min-h-screen items-start justify-center p-4 pt-12">
+    <div class="w-full max-w-2xl rounded-2xl border border-white/10 bg-white/10 p-8 text-white backdrop-blur-xl">
+      <div class="mb-6 flex flex-col gap-4">
+        <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent">
+          Pick by mood
+        </h1>
+        <div class="flex flex-wrap gap-2">
+          <a
+            href="/books"
+            class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
+          >
+            View your TBR
+          </a>
+          <a
+            href="/dashboard"
+            class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
+          >
+            Back to dashboard
+          </a>
+          <SignOutButton />
+        </div>
+      </div>
+
+      {
+        state === "failed" ? (
+          <p class="flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-sm text-red-300">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="size-4 shrink-0"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" x2="12" y1="8" y2="12" />
+              <line x1="12" x2="12.01" y1="16" y2="16" />
+            </svg>
+            Couldn&apos;t load your list. Try reloading the page.
+          </p>
+        ) : state === "empty-tbr" || state === "empty-vocabulary" ? (
+          <div>
+            <p class="mb-6 text-blue-100/80">Add a book to your TBR first.</p>
+            <a
+              href="/books/new"
+              class="inline-block rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
+            >
+              Add a book
+            </a>
+          </div>
+        ) : (
+          <div>
+            <MoodPicker tropeVocabulary={tropeVocabulary} selectedTropes={selectedTropes} errorMessage={pickerError} />
+            {state === "no-match" ? (
+              <p class="text-blue-100/80">No matches — try different tropes.</p>
+            ) : state === "results" ? (
+              <div>
+                <p class="mb-4 text-sm text-blue-100/80">
+                  {matchVisibleCount < matchTotal
+                    ? `Showing ${matchVisibleCount} of ${matchTotal} matches`
+                    : matchTotal === 1
+                      ? "Showing your 1 match"
+                      : `Showing all ${matchTotal} matches`}
+                </p>
+                <MoodResultList books={results} />
+                {nextShow !== null ? (
+                  <p class="mt-4">
+                    <a
+                      href={buildMoodHref(resultTropes, nextShow)}
+                      class="text-sm text-blue-200 underline underline-offset-2 transition-colors hover:text-blue-100"
+                    >
+                      Show me 3 more
+                    </a>
+                  </p>
+                ) : matchTotal > MOOD_STEP_SIZE ? (
+                  <p class="mt-4 text-sm text-blue-100/60">No more matches for this mood.</p>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
+        )
+      }
+    </div>
+  </div>
+</Layout>

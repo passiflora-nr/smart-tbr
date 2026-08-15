@@ -1,0 +1,27 @@
+---
+import BookDescription from "@/components/books/BookDescription.astro";
+import type { Tables } from "@/lib/database.types";
+
+interface Props {
+  books: Pick<Tables<"books">, "id" | "title" | "author" | "tropes" | "description">[];
+}
+
+const { books } = Astro.props;
+---
+
+<ul class="space-y-4">
+  {
+    books.map((book) => (
+      <li class="rounded-lg border border-white/10 bg-white/5 p-4">
+        <p class="font-medium break-words text-white">{book.title}</p>
+        <p class="text-sm text-blue-100/70">{book.author}</p>
+        <BookDescription description={book.description} />
+        <ul class="mt-2 flex flex-wrap gap-1.5">
+          {book.tropes.map((trope) => (
+            <li class="rounded-md bg-white/15 px-2 py-0.5 text-xs text-white">{trope}</li>
+          ))}
+        </ul>
+      </li>
+    ))
+  }
+</ul>

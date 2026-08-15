@@ -1,0 +1,106 @@
+---
+interface Props {
+  tropeVocabulary: string[];
+  selectedTropes: string[];
+  errorMessage?: string;
+}
+
+const { tropeVocabulary, selectedTropes, errorMessage } = Astro.props;
+const selectedTropeSet = new Set(selectedTropes);
+const selectedTropeCount = selectedTropes.length;
+const tropeSummaryLabel =
+  selectedTropeCount === 0
+    ? "Tropes"
+    : selectedTropeCount === 1
+      ? "Tropes · 1 selected"
+      : `Tropes · ${selectedTropeCount} selected`;
+---
+
+<form method="GET" action="/mood" class="mb-6 rounded-lg border border-white/10 bg-white/5 p-4">
+  {
+    tropeVocabulary.length > 0 ? (
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-end">
+        <div class="relative min-w-0 flex-1">
+          <p class="mb-1 block text-sm text-blue-100/80">Pick 1 to 3 tropes</p>
+          <details class="group">
+            <summary class="flex cursor-pointer list-none items-center gap-2 rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm text-white transition-colors hover:bg-white/20 [&::-webkit-details-marker]:hidden">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="size-4 shrink-0 text-blue-100/70 transition-transform group-open:rotate-180"
+                aria-hidden="true"
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+              {tropeSummaryLabel}
+            </summary>
+            <div class="absolute left-0 z-10 mt-1 max-h-64 w-72 overflow-y-auto rounded-lg border border-white/10 bg-slate-900/95 p-3 shadow-lg backdrop-blur-xl sm:right-0 sm:left-auto">
+              <fieldset>
+                <legend class="sr-only">Pick tropes for your mood</legend>
+                <ul class="space-y-2">
+                  {tropeVocabulary.map((trope) => (
+                    <li>
+                      <label class="flex cursor-pointer items-start gap-2 text-sm text-blue-100/80">
+                        <input
+                          type="checkbox"
+                          name="trope"
+                          value={trope}
+                          checked={selectedTropeSet.has(trope)}
+                          class="mt-0.5 shrink-0 rounded border-white/20 bg-white/10 text-purple-400"
+                        />
+                        <span class="min-w-0 break-words">{trope}</span>
+                      </label>
+                    </li>
+                  ))}
+                </ul>
+              </fieldset>
+            </div>
+          </details>
+        </div>
+
+        <div class="flex shrink-0 flex-wrap items-center gap-3">
+          <button
+            type="submit"
+            name="submitted"
+            value="1"
+            class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
+          >
+            Find my next read
+          </button>
+        </div>
+      </div>
+    ) : null
+  }
+
+  {
+    errorMessage ? (
+      <p class="mt-3 flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-sm text-red-300">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="size-4 shrink-0"
+          aria-hidden="true"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" x2="12" y1="8" y2="12" />
+          <line x1="12" x2="12.01" y1="16" y2="16" />
+        </svg>
+        {errorMessage}
+      </p>
+    ) : null
+  }
+</form>
