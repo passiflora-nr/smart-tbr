@@ -1,6 +1,6 @@
 # Foundation Docs
 
-Cross-change living documents that span multiple changes. Each project picks which foundation docs it needs (e.g. product requirements, tech-stack, roadmap, glossary, test-stack). Foundation docs are owned by the skills that read and write them; this README describes the conventions that apply to all of them.
+Cross-change living documents that span multiple changes. Each project picks which foundation docs it needs (e.g. product requirements, tech-stack, roadmap, glossary, test-stack, manual-testing). Foundation docs are owned by the skills that read and write them; this README describes the conventions that apply to all of them.
 
 ## Update convention
 

@@ -50,3 +50,10 @@
 - **Problem**: The browse list is deliberately server-rendered with zero client-side JavaScript; its interactivity uses native HTML — `<details>` for the description disclosure and the delete confirm, anchors for navigation, form post + redirect for the delete itself. Adding a React island to that page costs hydration setup proportional to row count, and it degrades silently: lint, build, and CI all stay green, and the page looks and behaves identically to anyone testing with JavaScript enabled.
 - **Rule**: Before adding a React island to a page that renders one element per user-owned row, try the native HTML equivalent first — `<details>` for disclosure, anchors for navigation, form post + redirect for mutation, URL query params for filtering and sorting. If an island is genuinely required (as it is for the trope chip input), state that in the plan and record the trade-off; never let a list page become JavaScript-dependent by default. Verify by loading the page with JavaScript disabled.
 - **Applies to**: plan, plan-review, implement, impl-review
+
+## Manual verification for a tester audience
+
+- **Context**: Plans, PR test plans, and `/10x-implement` manual gates — any time an agent asks the project owner to verify behavior in the browser.
+- **Problem**: Manual tests were written as one-line summaries ("search narrows the list") and explained like developer notes (file paths, component names). The owner is a tester, not a developer, and could not run checks without guessing the steps.
+- **Rule**: Write manual verification as numbered steps (setup → actions → expected result → pass criteria) in plain language. Progress checklist titles in `plan.md` may stay short; the phase's `#### Manual Verification:` block and any message to the human must contain the full steps. See `@context/foundation/manual-testing.md`.
+- **Applies to**: plan, plan-review, implement, impl-review, all agent chat when proposing manual tests
