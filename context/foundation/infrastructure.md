@@ -113,7 +113,7 @@ The repo is already scaffolded for Cloudflare Workers via the 10x Astro Starter.
 
 Optional dashboard/hygiene tasks (not blockers). Full table: [`deploy-plan.md` → Remaining manual ops](../archive/deploy-plan.md#remaining-manual-ops-post-rollout).
 
-- Browser sign-up → confirm → sign-in → `/dashboard` (one-time production smoke test)
+- Browser sign-up → confirm → sign-in → `/` (one-time production smoke test)
 - `npx wrangler tail --format pretty` while clicking around
 - Cloudflare usage alert at 80k req/day
 - Bookmark [Worker dashboard](https://dash.cloudflare.com/10e6c5de7ae20000c186703ad894eab2/workers/services/view/smart-tbr) and [Supabase Auth users](https://supabase.com/dashboard/project/kahvpxeygnmqpysrskok/auth/users)

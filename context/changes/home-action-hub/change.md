@@ -1,7 +1,7 @@
 ---
 change_id: home-action-hub
 title: Home as signed-in action hub
-status: implemented
+status: impl_reviewed
 created: 2026-08-15
 updated: 2026-08-15
 archived_at: null
