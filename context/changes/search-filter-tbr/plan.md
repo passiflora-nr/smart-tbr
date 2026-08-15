@@ -306,20 +306,20 @@ No database migration, no schema change, no new dependency. All URLs remain back
 
 #### Automated
 
-- [x] 3.1 Astro types regenerate: `npx astro sync`
-- [x] 3.2 Linting passes: `npm run lint`
-- [x] 3.3 Production build succeeds: `npm run build`
+- [x] 3.1 Astro types regenerate: `npx astro sync` — 38e786e
+- [x] 3.2 Linting passes: `npm run lint` — 38e786e
+- [x] 3.3 Production build succeeds: `npm run build` — 38e786e
 
 #### Manual
 
-- [x] 3.4 Delete from a filtered list returns to that filtered list with the notice shown
-- [x] 3.5 A match-preserving edit returns to the filtered list at the highlighted row
-- [x] 3.6 A match-removing edit preserves filters and shows the correct remaining or no-match state
-- [x] 3.7 Duplicate-notice save returns to the filtered list with the message shown
-- [x] 3.8 "View your TBR" and Cancel from the edit page return to the filtered list
-- [x] 3.9 Unsaved-changes guard still fires on the edit page
-- [x] 3.10 Deleting the last match yields the no-match state, not the empty-TBR state
-- [x] 3.11 Deleting from an unfiltered list is unchanged
-- [x] 3.12 Tampered hidden form values cannot redirect off-site
-- [x] 3.13 Load-time edit errors return to the filtered list with the error flash
-- [x] 3.14 All of the above work with JavaScript disabled (except the edit form island)
+- [x] 3.4 Delete from a filtered list returns to that filtered list with the notice shown — 38e786e
+- [x] 3.5 A match-preserving edit returns to the filtered list at the highlighted row — 38e786e
+- [x] 3.6 A match-removing edit preserves filters and shows the correct remaining or no-match state — 38e786e
+- [x] 3.7 Duplicate-notice save returns to the filtered list with the message shown — 38e786e
+- [x] 3.8 "View your TBR" and Cancel from the edit page return to the filtered list — 38e786e
+- [x] 3.9 Unsaved-changes guard still fires on the edit page — 38e786e
+- [x] 3.10 Deleting the last match yields the no-match state, not the empty-TBR state — 38e786e
+- [x] 3.11 Deleting from an unfiltered list is unchanged — 38e786e
+- [x] 3.12 Tampered hidden form values cannot redirect off-site — 38e786e
+- [x] 3.13 Load-time edit errors return to the filtered list with the error flash — 38e786e
+- [x] 3.14 All of the above work with JavaScript disabled (except the edit form island) — 38e786e

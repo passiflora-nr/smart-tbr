@@ -1,7 +1,7 @@
 ---
 change_id: search-filter-tbr
 title: Search filter tbr
-status: implementing
+status: implemented
 created: 2026-08-14
 updated: 2026-08-15
 archived_at: null
