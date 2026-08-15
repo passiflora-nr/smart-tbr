@@ -1,10 +1,10 @@
 ---
 change_id: search-filter-tbr
 title: Search filter tbr
-status: impl_reviewed
+status: archived
 created: 2026-08-14
 updated: 2026-08-15
-archived_at: null
+archived_at: 2026-08-15T12:07:05Z
 ---
 
 ## Notes

@@ -3,7 +3,7 @@ project: SmartTBR
 version: 1
 status: draft
 created: 2026-06-14
-updated: 2026-08-14
+updated: 2026-08-15
 prd_version: 1
 main_goal: speed
 top_blocker: time
@@ -35,7 +35,7 @@ SmartTBR collapses a 100+ book "to be read" backlog that today lives scattered a
 | S-05 | mood-trope-recommendation | pick 1-3 mood tropes and get up to 3 matching books from their own TBR | F-01 ✓, S-01 ✓ | US-01, FR-008, FR-009, FR-010, NFR: <=2s | **ready** |
 | S-02 | browse-tbr-list | browse their full TBR as a list | S-01 ✓ | FR-005 | done |
 | S-03 | edit-delete-book | edit or delete any book in their TBR | S-02 ✓ | FR-006, FR-007 | done |
-| S-04 | search-filter-tbr | narrow the TBR by title/author substring and/or trope filter | S-02 ✓ | FR-012 | **ready** |
+| S-04 | search-filter-tbr | narrow the TBR by title/author substring and/or trope filter | S-02 ✓ | FR-012 | done |
 | S-07 | ui-theme-cafe-romance | see the whole app in the "Café Romance" palette instead of the starter's cosmic theme | S-02 ✓, S-03 ✓, S-04, S-05, S-06 | - (UX polish) | optional |
 
 > **Status:** `done` = archived · `ready` = prerequisites met, start with `/10x-plan <change-id>` · `proposed` = blocked on prerequisites · `optional` = not required by any PRD success criterion; pick up only if time remains after the functional slices. A ✓ in Prerequisites marks a satisfied dependency.
@@ -178,7 +178,7 @@ What's already in place in the codebase as of 2026-06-14 (auto-researched + user
 - **Blockers:** -
 - **Unknowns:** -
 - **Risk:** Makes a 100+ book list usable; required for the migration experience but not for the north-star ritual, so sequenced after the spine.
-- **Status:** ready
+- **Status:** done
 
 ### S-06: Account lifecycle - gating and self-serve deletion
 
@@ -214,7 +214,7 @@ What's already in place in the codebase as of 2026-06-14 (auto-researched + user
 | S-05 | mood-trope-recommendation | Pick next book by mood-tropes (north star) | yes | Next on Stream A (north star); S-01 done |
 | S-02 | browse-tbr-list | Browse the TBR list | done | Archived 2026-08-11 |
 | S-03 | edit-delete-book | Edit and delete a book | done | Archived 2026-08-14 |
-| S-04 | search-filter-tbr | Search and filter the TBR | yes | Next on Stream B; S-02 ✓, S-03 ✓ done |
+| S-04 | search-filter-tbr | Search and filter the TBR | done | Archived 2026-08-15 |
 | S-07 | ui-theme-cafe-romance | Apply the Café Romance UI theme across the app | no | Optional stretch; S-03 done; still needs S-04, S-05, S-06 |
 
 ## Open Roadmap Questions
@@ -238,3 +238,4 @@ What's already in place in the codebase as of 2026-06-14 (auto-researched + user
 - **S-01: user can add a book with title, author, one or more free-text trope tags, and an optional description, and see it saved to their private TBR.** — Archived 2026-08-08 → `context/archive/2026-08-02-add-book-to-tbr/`. Lesson: —.
 - **S-02: user can view their full TBR as a browsable list.** — Archived 2026-08-11 → `context/archive/2026-08-08-browse-tbr-list/`. Lesson: —.
 - **S-03: user can edit any field of a book or delete it from their TBR.** — Archived 2026-08-14 → `context/archive/2026-08-11-edit-delete-book/`. Lesson: —.
+- **S-04: user can narrow the TBR list by substring match on title/author and/or by selecting one or more trope tags from a filter widget.** — Archived 2026-08-15 → `context/archive/2026-08-14-search-filter-tbr/`. Lesson: —.
