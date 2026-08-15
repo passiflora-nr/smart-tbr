@@ -22,7 +22,7 @@ No test framework is wired up (`package.json:5-14`); automated verification is `
 
 ## Desired End State
 
-A user viewing `/books` sees a filter bar above their list containing a search box and a checkbox per distinct trope in their TBR. Typing a fragment of a title or author and/or ticking tropes and submitting reloads the page at a URL like `/books?q=hairpin&trope=Grumpy%20Sunshine`, showing only matching books, with the heading reading `Your TBR (12 of 143)`. A "Clear filters" link returns to the full list. When nothing matches, the filter bar stays populated and a distinct message explains that no books matched — not the "your TBR is empty" copy. Editing or deleting a book from a filtered view returns the user to that same filtered view.
+A user viewing `/books` sees a compact filter bar above their list: a labelled search field, a collapsible tropes dropdown (checkboxes inside a scrollable panel), **Apply filters**, and an always-visible **Clear filters** control (active link or greyed-out stub). Submitting reloads the page at a URL like `/books?q=hairpin&trope=Grumpy%20Sunshine`, showing only matching books, with the heading reading `Your TBR (12 of 143)`. A "Clear filters" link returns to the full list. When nothing matches, the filter bar stays populated and a distinct message explains that no books matched — not the "your TBR is empty" copy. Editing or deleting a book from a filtered view returns the user to that same filtered view.
 
 Verify by loading `/books?q=…&trope=…` directly in a fresh tab with JavaScript disabled and confirming the filtered list renders correctly.
 
@@ -113,7 +113,14 @@ Adds the visible feature: a native GET form above the list, filtered results, th
 
 **Intent**: Render the search box and trope checkboxes as a plain HTML GET form so submitting updates the URL and re-renders server-side, with no hydration.
 
-**Contract**: Props `{ filters: BookFilters; tropeVocabulary: string[] }`. Renders `<form method="GET" action="/books">` containing a labelled text input `name="q"` pre-filled from `filters.q`; a `<fieldset>` with a `<legend>` wrapping one `<input type="checkbox" name="trope">` per vocabulary entry, `value` set to the trope and `checked` when selected; a submit button; and — only when `hasActiveFilters(filters)` — a "Clear filters" anchor to `/books`. The form must not carry `error`, `notice`, or `highlight` inputs; those are transient and must not be re-submitted. Style with the existing glass-panel Tailwind classes used in `index.astro` (`border-white/10`, `bg-white/5`, `text-blue-100/*`) — the Café Romance restyle is S-07's job, not this slice's.
+**Contract**: Props `{ filters: BookFilters; tropeVocabulary: string[] }`. Renders `<form method="GET" action="/books">` in a horizontal row (stacked on small screens):
+
+- A labelled text input `name="q"` (`type="text"`, not `type="search"`) pre-filled from `filters.q`, placeholder `Search…`, label `Search title or author`. When `filters.q` is non-empty, a visible **× link** beside the input clears only the search term via `buildBooksHref(serializeBookFilters({ q: "", tropes: filters.tropes }))` — the browser's native search clear does not reload and must not be used.
+- A **`<details>` / `<summary>` tropes dropdown** next to the search field (not an inline checkbox grid). Summary reads `Tropes` or `Tropes · N selected`. Inside: a scrollable panel (`max-h-64`) with a `<fieldset>` wrapping one `<input type="checkbox" name="trope">` per vocabulary entry, `value` set to the trope and `checked` when selected. Panel is **collapsed by default** after page load (do not force `open` when tropes are selected).
+- **Apply filters** submit button.
+- **Clear filters** always rendered: an anchor to `/books` when `hasActiveFilters(filters)`, otherwise a greyed-out `<span aria-disabled="true">` with the same label.
+
+The form must not carry `error`, `notice`, or `highlight` inputs; those are transient and must not be re-submitted. Style with the existing glass-panel Tailwind classes used in `index.astro` (`border-white/10`, `bg-white/5`, `text-blue-100/*`) — the Café Romance restyle is S-07's job, not this slice's.
 
 #### 2. List page wiring
 
@@ -127,7 +134,7 @@ The `state` union gains a fourth member — `"failed" | "empty" | "no-match" | "
 
 `headingText` becomes `Your TBR (${filtered.length} of ${data.length})` when filters are active and `Your TBR (${data.length})` when they are not.
 
-The `no-match` branch renders copy distinct from the empty-TBR copy, naming what was filtered on and offering the same "Clear filters" link to `/books`. The `DeleteBookModal` loop at `index.astro:191-195` stays gated on `state === "populated"`.
+The `no-match` branch renders copy distinct from the empty-TBR copy, naming what was filtered on. **Clear filters** lives only in `BookFilterBar` (no duplicate link below the message). The `DeleteBookModal` loop at `index.astro:191-195` stays gated on `state === "populated"`.
 
 ### Success Criteria:
 
@@ -144,8 +151,8 @@ The `no-match` branch renders copy distinct from the empty-TBR copy, naming what
 - Selecting more tropes than any one book can hold (26+) returns zero matches with those tropes still ticked — not the unfiltered list
 - A URL naming a trope no longer present in any book returns zero matches and still renders that trope as a ticked checkbox that can be unticked
 - Heading reads `Your TBR (N of M)` while filtered and `Your TBR (M)` when cleared
-- A filter matching nothing shows the no-match message, not the empty-TBR copy, and the filter bar keeps the submitted values
-- "Clear filters" returns to the full unfiltered list
+- A filter matching nothing shows the no-match message, not the empty-TBR copy, and the filter bar keeps the submitted values; **Clear filters** in the bar clears everything
+- "Clear filters" returns to the full unfiltered list (greyed out and inert when nothing is filtered)
 - Pasting a filtered URL into a fresh tab reproduces the same filtered view
 - A search term containing punctuation (`O'Brien`, `Wait, What?`, `100%`, `a"b`) is treated as literal text and neither errors nor returns wrong rows
 - **The page works with JavaScript disabled** — required by `lessons.md:51`
@@ -229,12 +236,12 @@ No automated test framework exists in this repo, so verification is the build/li
 ### Manual Testing Steps:
 
 1. Sign in with an account holding a realistic TBR (ideally 100+ books across many tropes).
-2. Load `/books`, confirm the filter bar renders with a checkbox per distinct trope, sorted alphabetically, with case variants listed separately.
+2. Load `/books`, confirm the filter bar renders with search, a collapsible **Tropes** dropdown (checkboxes inside, sorted alphabetically, case variants listed separately), **Apply filters**, and an always-visible **Clear filters** (greyed when inactive).
 3. Search a title fragment, then an author fragment, then a mixed-case fragment; confirm each narrows correctly and the heading shows `N of M`.
 4. Tick one trope, then a second; confirm results narrow to books carrying both (all-match). Combine with a search term and confirm the two conditions AND together. Tick two tropes no single book shares and confirm zero results.
 4a. Copy a filtered URL, then edit the last book carrying one of its tropes so that trope disappears from your library. Reopen the URL: it should show zero matches with the now-absent trope still rendered as a ticked box you can untick.
 5. Search for punctuation-heavy terms (`O'Brien`, `Wait, What?`, `100%`, `a"b`, `50_50`) and confirm they are matched literally with no errors.
-6. Filter to zero results; confirm the no-match message, the retained filter values, and the working "Clear filters" link.
+6. Filter to zero results; confirm the no-match message, the retained filter values in the bar, and **Clear filters** in the bar (no duplicate link below the message).
 7. Copy the filtered URL into a new tab and confirm it reproduces the view.
 8. From a filtered view, delete a book and confirm the filter survives. Edit a book without changing whether it matches and confirm the page returns at its highlighted row; then edit a filter-relevant field so the book no longer matches and confirm the filters remain active with the correct remaining results or no-match state. Repeat with an edit-triggering-duplicate, Cancel, and "View your TBR". From a filtered edit URL, confirm a load failure (`/books/<bogus-id>/edit?q=…`) returns to the filtered list with the error flash.
 9. Filter to a single match and delete it; confirm the no-match state appears rather than the empty-TBR copy.
@@ -266,34 +273,34 @@ No database migration, no schema change, no new dependency. All URLs remain back
 
 #### Automated
 
-- [x] 1.1 Astro types regenerate: `npx astro sync`
-- [x] 1.2 Linting passes: `npm run lint`
-- [x] 1.3 Production build succeeds: `npm run build`
+- [x] 1.1 Astro types regenerate: `npx astro sync` — d535bbf
+- [x] 1.2 Linting passes: `npm run lint` — d535bbf
+- [x] 1.3 Production build succeeds: `npm run build` — d535bbf
 
 #### Manual
 
-- [x] 1.4 `book-filters.ts` imports nothing server-only, safe for use from a React island
+- [x] 1.4 `book-filters.ts` imports nothing server-only, safe for use from a React island — d535bbf
 
 ### Phase 2: Filter Bar and Page Wiring
 
 #### Automated
 
-- [ ] 2.1 Astro types regenerate: `npx astro sync`
-- [ ] 2.2 Linting passes: `npm run lint`
-- [ ] 2.3 Production build succeeds: `npm run build`
+- [x] 2.1 Astro types regenerate: `npx astro sync`
+- [x] 2.2 Linting passes: `npm run lint`
+- [x] 2.3 Production build succeeds: `npm run build`
 
 #### Manual
 
-- [ ] 2.4 Title, author, and case-insensitive search each narrow the list
-- [ ] 2.5 Trope selection is all-match; text and tropes combine with AND
-- [ ] 2.6 Selecting 26+ tropes returns zero matches, not the unfiltered list
-- [ ] 2.7 A stale trope in the URL returns zero matches and still renders as a tickable checked box
-- [ ] 2.8 Heading reads `N of M` when filtered and `M` when cleared
-- [ ] 2.9 No-match state shows distinct copy and retains submitted filter values
-- [ ] 2.10 "Clear filters" returns to the full list
-- [ ] 2.11 A filtered URL pasted into a fresh tab reproduces the view
-- [ ] 2.12 Punctuation-heavy search terms are matched literally without errors
-- [ ] 2.13 Page works with JavaScript disabled
+- [x] 2.4 Title, author, and case-insensitive search each narrow the list
+- [x] 2.5 Trope selection is all-match; text and tropes combine with AND
+- [x] 2.6 Selecting 26+ tropes returns zero matches, not the unfiltered list
+- [x] 2.7 A stale trope in the URL returns zero matches and still renders as a tickable checked box
+- [x] 2.8 Heading reads `N of M` when filtered and `M` when cleared
+- [x] 2.9 No-match state shows distinct copy and retains submitted filter values; Clear filters in the bar clears everything
+- [x] 2.10 "Clear filters" returns to the full list (greyed out when nothing is filtered)
+- [x] 2.11 A filtered URL pasted into a fresh tab reproduces the view
+- [x] 2.12 Punctuation-heavy search terms are matched literally without errors
+- [x] 2.13 Page works with JavaScript disabled
 
 ### Phase 3: Filter Persistence Across Edit and Delete
 

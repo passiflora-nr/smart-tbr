@@ -1,0 +1,151 @@
+---
+import { buildBooksHref, hasActiveFilters, serializeBookFilters, type BookFilters } from "@/lib/book-filters";
+
+interface Props {
+  filters: BookFilters;
+  tropeVocabulary: string[];
+}
+
+const { filters, tropeVocabulary } = Astro.props;
+const selectedTropes = new Set(filters.tropes);
+const selectedTropeCount = filters.tropes.length;
+const tropeSummaryLabel =
+  selectedTropeCount === 0
+    ? "Tropes"
+    : selectedTropeCount === 1
+      ? "Tropes · 1 selected"
+      : `Tropes · ${selectedTropeCount} selected`;
+const clearSearchHref = buildBooksHref(serializeBookFilters({ q: "", tropes: filters.tropes }));
+const filtersActive = hasActiveFilters(filters);
+---
+
+<form method="GET" action="/books" class="mb-6 rounded-lg border border-white/10 bg-white/5 p-4">
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-end">
+    <div class="min-w-0 flex-1">
+      <label for="book-filter-q" class="mb-1 block text-sm text-blue-100/80">Search title or author</label>
+      <div class="relative">
+        <input
+          type="text"
+          id="book-filter-q"
+          name="q"
+          value={filters.q}
+          maxlength={300}
+          placeholder="Search…"
+          class="w-full rounded-lg border border-white/20 bg-white/10 py-2 pr-9 pl-3 text-sm text-white placeholder:text-blue-100/40"
+        />
+        {
+          filters.q.length > 0 ? (
+            <a
+              href={clearSearchHref}
+              aria-label="Clear search"
+              class="absolute top-1/2 right-2 inline-flex -translate-y-1/2 rounded-md p-1 text-blue-100/80 transition-colors hover:bg-white/10 hover:text-white"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="size-4"
+                aria-hidden="true"
+              >
+                <path d="M18 6 6 18" />
+                <path d="m6 6 12 12" />
+              </svg>
+            </a>
+          ) : null
+        }
+      </div>
+    </div>
+
+    {
+      tropeVocabulary.length > 0 ? (
+        <div class="relative shrink-0">
+          <p
+            class="mb-1 block text-sm text-blue-100/80 sm:invisible sm:mb-0 sm:h-0 sm:overflow-hidden"
+            aria-hidden="true"
+          >
+            Tropes
+          </p>
+          <details class="group">
+            <summary class="flex cursor-pointer list-none items-center gap-2 rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm text-white transition-colors hover:bg-white/20 [&::-webkit-details-marker]:hidden">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="size-4 shrink-0 text-blue-100/70 transition-transform group-open:rotate-180"
+                aria-hidden="true"
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+              {tropeSummaryLabel}
+            </summary>
+            <div class="absolute left-0 z-10 mt-1 max-h-64 w-72 overflow-y-auto rounded-lg border border-white/10 bg-slate-900/95 p-3 shadow-lg backdrop-blur-xl sm:right-0 sm:left-auto">
+              <fieldset>
+                <legend class="sr-only">Filter by tropes</legend>
+                <ul class="space-y-2">
+                  {tropeVocabulary.map((trope) => (
+                    <li>
+                      <label class="flex cursor-pointer items-start gap-2 text-sm text-blue-100/80">
+                        <input
+                          type="checkbox"
+                          name="trope"
+                          value={trope}
+                          checked={selectedTropes.has(trope)}
+                          class="mt-0.5 shrink-0 rounded border-white/20 bg-white/10 text-purple-400"
+                        />
+                        <span class="min-w-0 break-words">{trope}</span>
+                      </label>
+                    </li>
+                  ))}
+                </ul>
+              </fieldset>
+            </div>
+          </details>
+        </div>
+      ) : null
+    }
+
+    <div class="flex shrink-0 flex-wrap items-center gap-3">
+      <button
+        type="submit"
+        class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
+      >
+        Apply filters
+      </button>
+      {
+        filtersActive ? (
+          <a
+            href="/books"
+            class:list={[
+              "rounded-lg border border-white/20 px-4 py-2 text-sm transition-colors",
+              "bg-white/10 text-purple-200 hover:bg-white/20 hover:text-white",
+            ]}
+          >
+            Clear filters
+          </a>
+        ) : (
+          <span
+            class:list={[
+              "rounded-lg border border-white/20 px-4 py-2 text-sm transition-colors",
+              "cursor-not-allowed border-white/10 bg-white/5 text-blue-100/40",
+            ]}
+            aria-disabled="true"
+          >
+            Clear filters
+          </span>
+        )
+      }
+    </div>
+  </div>
+</form>

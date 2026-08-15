@@ -13,7 +13,7 @@ A flat list of 100+ books is unusable — the counter-argument that produced FR-
 
 ## Desired End State
 
-A filter bar sits above the list with a search box and a checkbox per distinct trope in the user's TBR. Submitting it reloads the page at a URL like `/books?q=hairpin&trope=Grumpy%20Sunshine`, showing only matching books under a heading reading `Your TBR (12 of 143)`. When nothing matches, a distinct message says so and offers a "Clear filters" link. Editing or deleting a book from a filtered view returns the user to that same filtered view.
+A compact filter bar sits above the list: a labelled search field (`Search…` placeholder), a collapsible **Tropes** dropdown with checkboxes in a scrollable panel, **Apply filters**, and an always-visible **Clear filters** (link when active, greyed when not). Submitting reloads the page at a URL like `/books?q=hairpin&trope=Grumpy%20Sunshine`, showing only matching books under a heading reading `Your TBR (12 of 143)`. When nothing matches, a distinct message says so; clearing is via the bar's **Clear filters** control only.
 
 ## Key Decisions Made
 
@@ -26,14 +26,17 @@ A filter bar sits above the list with a search box and a checkbox per distinct t
 | Stale tropes in a URL | Kept in the filter and rendered as a ticked box | All-match makes silent dropping wrong — it would widen results — so the trope stays and stays visible so it can be unticked. | Plan |
 | Search scope | Title and author only | FR-012 says so, and description matches would be invisible on a collapsed row. | Plan |
 | Trope option source | All distinct tropes across the whole TBR | Keeps the checkbox list stable so a ticked trope can never vanish and strand the user. | Plan |
-| Zero-match state | Distinct message plus "Clear filters" link | Reusing the empty-TBR copy would tell a user with 143 books that their TBR is empty. | Plan |
+| Trope filter UI | Collapsible `<details>` dropdown beside search | ~60+ distinct tropes made an inline checkbox grid unusable; still native HTML, zero JS. | Phase 2 impl |
+| Search clear | Server-side × link (`type="text"` input) | Browser `type="search"` clear only wipes the field locally — filters stay applied in the URL. | Phase 2 impl |
+| Clear filters placement | Always visible in filter bar; greyed when inactive | One control, predictable layout; no duplicate link in the no-match message. | Phase 2 impl |
+| Zero-match state | Distinct message; clear via filter bar | Reusing empty-TBR copy would tell a user with 143 books that their TBR is empty. | Plan |
 | Heading count | `Your TBR (12 of 143)` | Makes the filter's effect legible and reassures the user that a bookmarked filtered view isn't data loss. | Plan |
 | Filters after edit/delete | Preserved | Filtering to a trope then cleaning up several books in a row is the migration workflow S-04 exists for. | Plan |
 | Return-trip safety | Carry `q`/`trope` values, rebuild the URL server-side | Accepting a caller-supplied return URL would be an open-redirect hole. | Plan |
 
 ## Scope
 
-**In scope:** substring search on title/author; all-match trope filtering; URL-based filter state; trope checkbox vocabulary; `N of M` heading; distinct no-match state; "Clear filters"; filter survival across edit and delete.
+**In scope:** substring search on title/author; all-match trope filtering; URL-based filter state; trope checkbox vocabulary in a collapsible dropdown; `N of M` heading; distinct no-match state; always-visible **Clear filters** in the filter bar; per-field search clear (×); filter survival across edit and delete.
 
 **Out of scope:** fuzzy/typo-tolerant search; searching descriptions; diacritic folding; trope normalization; `pg_trgm` or other DB indexing; sort controls; pagination; saved filters; any new dependency; any React island on `/books`; wiring a test framework.
 

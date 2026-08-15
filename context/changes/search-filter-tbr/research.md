@@ -249,3 +249,7 @@ Not recommended unless shadcn primitives prove insufficient after trying native 
 - cmdk + Radix Portal issues — [github.com/pacocoursey/cmdk/issues/95](https://github.com/pacocoursey/cmdk/issues/95)
 - nuqs Astro SSR gap — [github.com/47ng/nuqs/discussions/1425](https://github.com/47ng/nuqs/discussions/1425)
 - Astro native filter pattern — anchor chips + URL params (Passionfruit CollectionFilter pattern)
+
+## As-built UI notes (Phase 2, 2026-08-15)
+
+Research assumed inline trope checkboxes in the GET form. During implementation, large trope vocabularies led to a **collapsible `<details>` dropdown** beside the search field (still native HTML, zero JS). Other Phase 2 UI decisions (search clear link, always-visible Clear filters, placeholder copy) are recorded in `change.md`.
