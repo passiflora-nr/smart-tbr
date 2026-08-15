@@ -1,0 +1,5 @@
+{
+  // Lets lint/build reuse npm caches between sandboxed runs. Wrangler log dir is user-specific —
+  // add "$HOME/Library/Preferences/.wrangler" to ~/.cursor/sandbox.json additionalReadwritePaths if build still prompts.
+  "enableSharedBuildCache": true
+}
