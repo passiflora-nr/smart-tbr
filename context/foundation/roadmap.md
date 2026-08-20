@@ -203,6 +203,7 @@ What's already in place in the codebase as of 2026-06-14 (auto-researched + user
 - **Blockers:** -
 - **Unknowns:** -
 - **Sequencing:** Deliberately the **last** slice in the roadmap. Do not apply it early or in pieces while functional slices are still landing - a half-restyled app costs more to finish than an unstyled one.
+- **Opportunity:** Extract a shared signed-in navigation component as part of the rewrite. There is no shared nav today: `Topbar.astro` serves home with text links, while `/books`, `/mood`, `/books/new`, and `/books/[id]/edit` each hand-roll a bordered-button row ending in `SignOutButton.astro`. Leaving that alone is the right call for functional slices (each row differs, the edit page's links carry an unsaved-changes guard, and unifying home's text-link styling with the others is itself a design change) - but S-07 rewrites all of this chrome anyway, so consolidating during the restyle costs little and removes the drift risk of maintaining five rows by hand.
 - **Risk:** Pure polish - drop it if the timeline runs out; no slice depends on it. Not a token-swap job: the current pages hardcode cosmic Tailwind classes (`bg-cosmic`, `bg-white/10 backdrop-blur`, `text-blue-100/*`, gradient headings) instead of the semantic shadcn tokens, so the work is a per-page rewrite plus a token pass, and every slice built before it adds surface to rewrite. Palette spec lives in `context/changes/ui-theme-cafe-romance/change.md`.
 - **Status:** optional
 

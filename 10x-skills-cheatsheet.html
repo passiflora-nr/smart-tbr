@@ -141,6 +141,7 @@ body {
 .mod:first-child { margin-top: 0; }
 .mod-m1 { color: var(--accent-purple); }
 .mod-m2 { color: var(--accent-green); }
+.mod-m3 { color: var(--accent-blue); }
 
 /* ---- STEP ---- */
 .step {
@@ -177,6 +178,7 @@ body {
 .sn-g { background: var(--accent-green-dim); color: var(--accent-green); }
 .sn-b { background: var(--accent-amber-dim); color: var(--accent-amber); }
 .sn-p { background: var(--accent-purple-dim); color: var(--accent-purple); }
+.sn-bl { background: var(--accent-blue-dim); color: var(--accent-blue); }
 .sbody { padding-top: 3px; }
 .sbody .cmd {
   font-family: var(--mono);
@@ -191,6 +193,10 @@ body {
 .sbody .cmd-b {
   color: var(--accent-amber);
   background: rgba(245, 176, 68, 0.08);
+}
+.sbody .cmd-bl {
+  color: var(--accent-blue);
+  background: rgba(96, 165, 250, 0.08);
 }
 .sbody .desc {
   font-size: 13px;
@@ -323,9 +329,127 @@ body {
   font-family: var(--mono);
   font-size: 12px;
   color: var(--accent-green);
-  white-space: nowrap;
+  white-space: normal;
+  max-width: 280px;
 }
 .dtable tr:last-child td { border-bottom: none; }
+
+/* ---- LAYERS ---- */
+.layers {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin-top: 12px;
+}
+.layer {
+  background: var(--bg4);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 14px 14px 16px;
+}
+.layer .ltitle {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  letter-spacing: -0.01em;
+}
+.layer .ldesc {
+  font-size: 11.5px;
+  color: var(--text2);
+  line-height: 1.5;
+}
+.layer .lwhen {
+  font-size: 10.5px;
+  color: var(--text3);
+  margin-top: 8px;
+  font-family: var(--mono);
+  line-height: 1.4;
+}
+.layer-1 .ltitle { color: var(--accent-green); }
+.layer-2 .ltitle { color: var(--accent-amber); }
+.layer-3 .ltitle { color: var(--accent-coral); }
+.layer-4 .ltitle { color: var(--accent-purple); }
+.layer-5 .ltitle { color: var(--accent-blue); }
+
+/* ---- SKILL CARDS ---- */
+.scards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 12px;
+}
+.scard {
+  background: var(--bg4);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 16px 16px 18px;
+}
+.scard .scmd {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--accent-blue);
+  background: rgba(96, 165, 250, 0.08);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+.scard .sdesc {
+  font-size: 12.5px;
+  color: var(--text2);
+  line-height: 1.5;
+  margin-top: 10px;
+}
+.scard .sout {
+  font-size: 11px;
+  color: var(--text3);
+  margin-top: 8px;
+  font-family: var(--mono);
+  line-height: 1.45;
+}
+
+/* ---- TWO-COL BODY ---- */
+.split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  margin-top: 8px;
+}
+.split h3 {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text2);
+  margin-bottom: 10px;
+}
+.ap-item {
+  font-size: 12.5px;
+  color: var(--text2);
+  line-height: 1.5;
+  margin-bottom: 10px;
+  padding-left: 12px;
+  border-left: 2px solid var(--accent-coral-dim);
+}
+.ap-item strong {
+  color: var(--text);
+  font-weight: 600;
+  display: block;
+  margin-bottom: 1px;
+}
+.ap-fix {
+  font-size: 11.5px;
+  color: var(--accent-green);
+  margin-top: 2px;
+}
+
+.full-section h3 {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text2);
+  margin: 20px 0 8px;
+}
 
 /* ---- FOOTER ---- */
 .footer {
@@ -343,11 +467,16 @@ body {
   .col { border-color: #ddd; background: #fafafa; }
   .cmd { background: #f0f0f0 !important; color: #1a6b56 !important; }
 }
+@media (max-width: 1100px) {
+  .layers { grid-template-columns: 1fr 1fr; }
+}
 @media (max-width: 900px) {
   .cols { grid-template-columns: 1fr; }
   .page { padding: 24px 16px 40px; }
   .header { flex-direction: column; align-items: flex-start; gap: 8px; }
   .header .sub { text-align: left; }
+  .scards, .split { grid-template-columns: 1fr; }
+  .layers { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -357,7 +486,7 @@ body {
 <!-- HEADER -->
 <div class="header">
   <h1>10xDevs <span>Skills</span> Workflow<br>Cheat Sheet</h1>
-  <div class="sub">Kurs: 10xDevs 3.0 · Przeprogramowani.pl<br>Moduł 1 (Sprint Zero) + Moduł 2 (Plan → Code → Review)</div>
+  <div class="sub">Kurs: 10xDevs 3.0 · Przeprogramowani.pl<br>Moduł 1 (Sprint Zero) + Moduł 2 (Plan → Code → Review)<br>+ Moduł 3 (Jakość: plan → testy → hooki → E2E → debug)</div>
 </div>
 
 <!-- LEGEND -->
@@ -365,7 +494,8 @@ body {
   <div class="li"><span class="ldot ldot-g"></span> Greenfield only</div>
   <div class="li"><span class="ldot ldot-b"></span> Brownfield only</div>
   <div class="li"><span class="ldot ldot-shared"></span> Wspólne kroki</div>
-  <div class="li"><span class="lline lline-dash"></span> Pętla per slice</div>
+  <div class="li"><span class="ldot" style="background:var(--accent-blue)"></span> Moduł 3 — jakość</div>
+  <div class="li"><span class="lline lline-dash"></span> Pętla per slice / faza QA</div>
 </div>
 
 <!-- TWO COLUMNS -->
@@ -497,6 +627,60 @@ body {
       </div>
     </div>
 
+    <div class="mod mod-m3">Moduł 3 — jakość</div>
+
+    <div class="step">
+      <span class="snum sn-bl">14</span>
+      <div class="sbody">
+        <span class="cmd cmd-bl">/10x-test-plan</span>
+        <div class="desc">Mapa ryzyk (wpływ × prawdopodobieństwo) + bramki + fazy</div>
+        <div class="out">→ test-plan.md · sygnał, nie diagnoza w kodzie</div>
+      </div>
+    </div>
+
+    <div class="loop">
+      <span class="loop-tag">↻ per faza QA</span>
+      <div class="step">
+        <span class="snum sn-p">15</span>
+        <div class="sbody">
+          <span class="cmd">/10x-new</span> → <span class="cmd">/10x-research</span> → <span class="cmd">/10x-plan</span>
+          <div class="desc">Research znajduje kod; plan rozbija na fazy</div>
+        </div>
+      </div>
+      <div class="step">
+        <span class="snum sn-bl">16</span>
+        <div class="sbody">
+          <span class="cmd cmd-bl">/10x-implement</span> · <span class="cmd cmd-bl">/10x-tdd</span> · <span class="cmd cmd-bl">/10x-e2e</span>
+          <div class="desc">Ten sam <code style="font-family:var(--mono);font-size:11px">## Progress</code> — wybierz tryb fazy</div>
+          <div class="out">→ testy + cookbook w test-plan.md</div>
+        </div>
+      </div>
+      <div class="step" style="margin-bottom:0">
+        <span class="snum sn-bl">17</span>
+        <div class="sbody">
+          <span class="cmd cmd-bl">/10x-test-plan --status</span>
+          <div class="desc">Wznowienie. <span class="cmd cmd-bl" style="font-size:11px">--refresh</span> gdy plan się zestarzeje</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <span class="snum sn-bl">18</span>
+      <div class="sbody">
+        <span class="cmd cmd-bl">Hooki</span>
+        <div class="desc">Bramki z planu → automatyczna weryfikacja</div>
+        <div class="out">per-edit → pre-commit → pre-push → CI</div>
+      </div>
+    </div>
+    <div class="step">
+      <span class="snum sn-bl">19</span>
+      <div class="sbody">
+        <span class="cmd cmd-bl">Debug</span>
+        <div class="desc">Ticket → dowody → hipoteza → czerwony test → fix</div>
+        <div class="out">weryfikacja na każdej warstwie, która pokazała problem</div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -624,8 +808,62 @@ body {
       </div>
     </div>
 
+    <div class="mod mod-m3">Moduł 3 — jakość (identyczna)</div>
+
+    <div class="step">
+      <span class="snum sn-bl">14</span>
+      <div class="sbody">
+        <span class="cmd cmd-bl">/10x-test-plan</span>
+        <div class="desc">Mapa ryzyk (wpływ × prawdopodobieństwo) + bramki + fazy</div>
+        <div class="out">→ test-plan.md · sygnał, nie diagnoza w kodzie</div>
+      </div>
+    </div>
+
+    <div class="loop">
+      <span class="loop-tag">↻ per faza QA</span>
+      <div class="step">
+        <span class="snum sn-p">15</span>
+        <div class="sbody">
+          <span class="cmd">/10x-new</span> → <span class="cmd">/10x-research</span> → <span class="cmd">/10x-plan</span>
+          <div class="desc">Research znajduje kod; plan rozbija na fazy</div>
+        </div>
+      </div>
+      <div class="step">
+        <span class="snum sn-bl">16</span>
+        <div class="sbody">
+          <span class="cmd cmd-bl">/10x-implement</span> · <span class="cmd cmd-bl">/10x-tdd</span> · <span class="cmd cmd-bl">/10x-e2e</span>
+          <div class="desc">Ten sam <code style="font-family:var(--mono);font-size:11px">## Progress</code> — wybierz tryb fazy</div>
+          <div class="out">→ testy + cookbook w test-plan.md</div>
+        </div>
+      </div>
+      <div class="step" style="margin-bottom:0">
+        <span class="snum sn-bl">17</span>
+        <div class="sbody">
+          <span class="cmd cmd-bl">/10x-test-plan --status</span>
+          <div class="desc">Wznowienie. <span class="cmd cmd-bl" style="font-size:11px">--refresh</span> gdy plan się zestarzeje</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <span class="snum sn-bl">18</span>
+      <div class="sbody">
+        <span class="cmd cmd-bl">Hooki</span>
+        <div class="desc">Bramki z planu → automatyczna weryfikacja</div>
+        <div class="out">per-edit → pre-commit → pre-push → CI</div>
+      </div>
+    </div>
+    <div class="step">
+      <span class="snum sn-bl">19</span>
+      <div class="sbody">
+        <span class="cmd cmd-bl">Debug</span>
+        <div class="desc">Ticket → dowody → hipoteza → czerwony test → fix</div>
+        <div class="out">weryfikacja na każdej warstwie, która pokazała problem</div>
+      </div>
+    </div>
+
     <div class="note" style="border-left-color:var(--accent-amber-dim)">
-      Brownfield: moduł 2 jest identyczny. Różni się tylko sprint zero — diagnoza stacku zamiast wyboru, health-check zamiast bootstrapu.
+      Brownfield: moduły 2 i 3 są identyczne. Różni się tylko sprint zero — diagnoza stacku zamiast wyboru, health-check zamiast bootstrapu.
     </div>
 
   </div>
@@ -644,14 +882,16 @@ body {
     <div class="chain-node">AGENTS.md</div><span class="chain-arrow">→</span>
     <div class="chain-node">infrastructure.md</div><span class="chain-arrow">→</span>
     <div class="chain-node">roadmap.md</div><span class="chain-arrow">→</span>
-    <div class="chain-node" style="border-color:var(--accent-coral-dim);color:var(--accent-coral)">per slice:</div><span class="chain-arrow">→</span>
+    <div class="chain-node" style="border-color:var(--accent-blue-dim);color:var(--accent-blue)">test-plan.md</div><span class="chain-arrow">→</span>
+    <div class="chain-node" style="border-color:var(--accent-coral-dim);color:var(--accent-coral)">per slice / faza QA:</div><span class="chain-arrow">→</span>
     <div class="chain-node">change.md</div><span class="chain-arrow">→</span>
     <div class="chain-node">research.md</div><span class="chain-arrow">→</span>
     <div class="chain-node">plan.md</div><span class="chain-arrow">→</span>
-    <div class="chain-node">kod + commity</div><span class="chain-arrow">→</span>
+    <div class="chain-node">kod + testy</div><span class="chain-arrow">→</span>
+    <div class="chain-node">cookbook</div><span class="chain-arrow">→</span>
     <div class="chain-node">review → merge</div>
   </div>
-  <p style="font-size:12px;color:var(--text3);margin-top:8px">Każdy artefakt jest wsadem dla następnego. Pominięcie = agent improwizuje.</p>
+  <p style="font-size:12px;color:var(--text3);margin-top:8px">Każdy artefakt jest wsadem dla następnego. Pominięcie = agent improwizuje. <span style="color:var(--accent-blue)">test-plan.md</span> ustawia kolejność ryzyk; cookbook w §6 uczy kolejnego agenta, jak pisać testy w tym repo.</p>
 </div>
 
 <!-- ===== DECISION TABLE ===== -->
@@ -674,6 +914,16 @@ body {
       <tr><td>Kod gotowy, przed merge</td><td>/10x-impl-review → triage</td><td>Scorecard 6 wymiarów, nie "wygląda ok"</td></tr>
       <tr><td>Powtarzający się błąd agenta</td><td>/10x-lesson</td><td>Reguła w lessons.md > poprawka per sesja</td></tr>
       <tr><td>Wiele niezależnych slice'ów</td><td>git worktree + /goal per worktree</td><td>Izolacja: katalog + branch + agent</td></tr>
+      <tr><td>Nie wiem, co testować najpierw</td><td>/10x-test-plan</td><td>Ryzyko (wpływ × prawdopodobieństwo), nie najłatwiejszy plik</td></tr>
+      <tr><td>Wracam do planu testów po przerwie</td><td>/10x-test-plan --status</td><td>Pliki są pamięcią rolloutu, nie historia czatu</td></tr>
+      <tr><td>Plan testów się zestarzał</td><td>/10x-test-plan --refresh</td><td>Nowa runda analizy, ten sam cykl co pierwszy rollout</td></tr>
+      <tr><td>Umiesz nazwać czerwony test jednym zdaniem</td><td>/10x-tdd &lt;id&gt; phase N</td><td>RED → GREEN → REFACTOR; asercja zanim kod</td></tr>
+      <tr><td>Nowy kod + testy obok / scaffolding</td><td>/10x-implement</td><td>TDD nie opłaca się przy configu, docs, UI bez asercji</td></tr>
+      <tr><td>Ryzyko przez auth + API + bazę / tylko w UI</td><td>/10x-e2e &lt;id&gt; phase N</td><td>Najwolniejsza warstwa — tylko gdy tańszy test skłamie</td></tr>
+      <tr><td>Feature jeszcze nie istnieje</td><td>najpierw /10x-implement, potem /10x-e2e</td><td>Przeglądarka nie ma czego prowadzić</td></tr>
+      <tr><td>Agent edytuje, a ty ręcznie odpalasz lint</td><td>Hooki per-edit + pre-commit</td><td>Feedback w sekundach, zanim CI</td></tr>
+      <tr><td>Ticket od użytkownika, brak stack trace</td><td>Parsuj ticket → monitoring → logi → reprodukcja → test</td><td>Proaktywne testy łapią znane ryzyka; produkcja ujawnia resztę</td></tr>
+      <tr><td>Zielony test, nieufasz asercji</td><td>Celowe psucie kodu / Stryker (żywe mutanty)</td><td>Coverage mówi „linia się wykonała", nie „test złapałby błąd"</td></tr>
     </tbody>
   </table>
 </div>
@@ -697,9 +947,222 @@ body {
   <p style="font-size:12px;color:var(--text3);margin-top:12px">Triage per finding: <strong style="color:var(--accent-green)">fix now</strong> · <strong style="color:var(--accent-blue)">fix differently</strong> · <strong style="color:var(--text2)">skip</strong> · <strong style="color:var(--accent-amber)">record as lesson</strong></p>
 </div>
 
+<!-- ===== M3 SKILLS ===== -->
+<div class="full-section">
+  <h2><span>3</span> Moduł 3 — trzy skille jakości</h2>
+  <p style="font-size:13px;color:var(--text2);line-height:1.55;margin-bottom:4px">Żaden nie zastępuje cyklu z modułu 2. Ustawiają kolejność, odwracają kolejność asercja/kod albo przenoszą test na przeglądarkę. Wszystkie trzy zapisują postęp w tym samym <code style="font-family:var(--mono);font-size:12px">## Progress</code>.</p>
+  <div class="scards">
+    <div class="scard">
+      <span class="scmd">/10x-test-plan</span>
+      <div class="sdesc">Warstwa orkiestracji. Mapa ryzyk, quality gates, fazy rolloutu. Czyta PRD, roadmapę, GIT churn i wywiad — nie linie w kodzie. Po każdej fazie dopisuje cookbook (§6).</div>
+      <div class="sout">→ test-plan.md<br>--status · --refresh</div>
+    </div>
+    <div class="scard">
+      <span class="scmd">/10x-tdd</span>
+      <div class="sdesc">Ten sam plan.md, odwrócona kolejność: RED → GREEN → REFACTOR. Agent ujawnia asercję zanim napisze kod. Wymaga istniejącego runnera.</div>
+      <div class="sout">walidatory · kontrakty API · bugfix · regression guard</div>
+    </div>
+    <div class="scard">
+      <span class="scmd">/10x-e2e</span>
+      <div class="sdesc">Pętla PLAN → GENERATE → REVIEW → VERIFY wobec działającej aplikacji. Seed test + 5 antywzorców. Jeśli ryzyko da się udowodnić funkcją — przekierowuje do TDD/implement.</div>
+      <div class="sout">getByRole · storageState · celowe psucie asercji</div>
+    </div>
+  </div>
+  <div class="note" style="margin-top:16px;border-left-color:var(--accent-blue-dim)">
+    <strong style="color:var(--text)">Mieszaj tryby w jednym planie:</strong>
+    <span class="cmd cmd-bl" style="font-size:11px">/10x-implement phase 1</span> (środowisko) →
+    <span class="cmd cmd-bl" style="font-size:11px">/10x-tdd phase 2</span> (kontrakt) →
+    <span class="cmd cmd-bl" style="font-size:11px">/10x-e2e phase 6</span> (ścieżka użytkownika).
+    Reguła TDD: jeśli nie umiesz nazwać czerwonego testu jednym zdaniem — zostań przy implement albo wróć do researchu.
+  </div>
+</div>
+
+<!-- ===== RISK + ORACLE ===== -->
+<div class="full-section">
+  <h2><span>!</span> Mapa ryzyk i problem wyroczni</h2>
+  <div class="split">
+    <div>
+      <h3>Wpływ × prawdopodobieństwo</h3>
+      <table class="dtable">
+        <thead>
+          <tr><th>Ocena</th><th>Wpływ</th><th>Prawdopodobieństwo</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="color:var(--accent-coral)">Wysoki</td>
+            <td>utrata dostępu, danych albo pieniędzy</td>
+            <td>zmienia się co tydzień / już się tu przejechaliśmy</td>
+          </tr>
+          <tr>
+            <td style="color:var(--accent-amber)">Średni</td>
+            <td>funkcja działa gorzej, jest obejście</td>
+            <td>kod ruszany od czasu do czasu</td>
+          </tr>
+          <tr>
+            <td style="color:var(--accent-green)">Niski</td>
+            <td>kosmetyka, łatwo cofnąć</td>
+            <td>kod stabilny, rzadko dotykany</td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="font-size:12px;color:var(--text3);margin-top:10px">Najpierw <strong style="color:var(--text)">wysoki × wysoki</strong>. Awaria o ogromnym wpływie i znikomym prawdopodobieństwie (dostawca chmury) — obserwowalność, nie scenariusz testowy. Dorzuć osobno nadużycia: IDOR, injection, sekrety, rate-limit — agent sam ich nie zaproponuje.</p>
+    </div>
+    <div>
+      <h3>Cost × signal · wyrocznia</h3>
+      <div class="note" style="border-left-color:var(--accent-coral-dim);margin-top:0">
+        <strong style="color:var(--accent-coral)">Problem wyroczni.</strong> Test <code style="font-family:var(--mono);font-size:11px">expect(fn()).toBe(0.15)</code> odbija to, co kod <em>robi</em>, nie to, co <em>powinien</em>. Jeśli w funkcji siedzi błąd, test go zabetonuje. Oczekiwany wynik pochodzi z PRD / kontraktu / twojej wiedzy — nigdy z implementacji.
+      </div>
+      <div class="ap-item" style="border-left-color:var(--accent-blue-dim)">
+        <strong>Sygnał, nie diagnoza</strong>
+        <code style="font-family:var(--mono);font-size:11px">/10x-test-plan</code> mówi „ten obszar często się zmienia". Nie mówi „błąd jest w session.ts:42". Na plik patrzy dopiero research.
+      </div>
+      <div class="ap-item" style="border-left-color:var(--accent-green-dim)">
+        <strong>Cost × signal</strong>
+        Najtańszy test, który łapie ryzyko. Nie e2e „bo bezpieczniej". Coverage przestaje być celem — celem jest sygnał dla konkretnego ryzyka.
+      </div>
+      <div class="ap-item" style="border-left-color:var(--accent-amber-dim)">
+        <strong>Zielony to za mało</strong>
+        Zepsuj chronione zachowanie. Jeśli test zostaje zielony, asercja niczego nie pilnuje. Stryker: żywy mutant = ślepa asercja. Nie goń mutation score do 100%.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== QUALITY LAYERS ===== -->
+<div class="full-section">
+  <h2><span>☰</span> Pięć warstw jakości</h2>
+  <p style="font-size:13px;color:var(--text2);line-height:1.55">Trzy warstwy lokalne + CI to pipeline proaktywny. Monitoring to siatka pod nim — łapie to, czego testy nie przewidziały. Menu, nie nakaz: zacznij od najlepszego cost × signal.</p>
+  <div class="layers">
+    <div class="layer layer-1">
+      <div class="ltitle">1. Per-edit</div>
+      <div class="ldesc">Hooki agenta po Write/Edit. Lint, szybki typecheck, <code style="font-family:var(--mono);font-size:10.5px">vitest related $FILE</code>. Jedyna warstwa, która karmi agenta w trakcie pracy.</div>
+      <div class="lwhen">Cursor: afterFileEdit<br>.cursor/hooks.json</div>
+    </div>
+    <div class="layer layer-2">
+      <div class="ltitle">2. Pre-commit</div>
+      <div class="ldesc">Hooki gitowe na staged files. Łapie ręczne edycje i checki zbyt wolne na per-edit. Husky / Lefthook / pre-commit.</div>
+      <div class="lwhen">lint + related tests</div>
+    </div>
+    <div class="layer layer-3">
+      <div class="ltitle">3. Pre-push</div>
+      <div class="ldesc">Cięższe sprawdzenia przed remote: pełny typecheck, szerszy zestaw testów, e2e na krytycznych flow.</div>
+      <div class="lwhen">minuty, nie milisekundy</div>
+    </div>
+    <div class="layer layer-4">
+      <div class="ltitle">4. CI</div>
+      <div class="ldesc">Ostatnia siatka przed współdzielonym stanem. Integracja, infrastruktura niedostępna lokalnie. Nie zastępuje warstw lokalnych.</div>
+      <div class="lwhen">każdy PR</div>
+    </div>
+    <div class="layer layer-5">
+      <div class="ltitle">5. Monitoring</div>
+      <div class="ldesc">Sentry / logi runtime. Jedyny stały sygnał dla połkniętych błędów (200 OK, efekt uboczny pada po cichu). Reaktywna strona tej samej dyscypliny.</div>
+      <div class="lwhen">produkcja · Sentry MCP</div>
+    </div>
+  </div>
+  <h3>Hook: trigger → matcher → handler → sygnał</h3>
+  <table class="dtable">
+    <thead>
+      <tr><th>Exit code</th><th>Znaczenie</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>0</td><td>sukces — kontynuuj</td></tr>
+      <tr><td>2</td><td>błąd blokujący — agent widzi stdout i powinien naprawić</td></tr>
+      <tr><td>inny</td><td>logowany, nie przerywa pracy</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:12px;color:var(--text3);margin-top:10px">Heurystyka: check &gt; kilka sekund → wyższa warstwa. Cursor: <code style="font-family:var(--mono)">.cursor/hooks.json</code> · Claude: <code style="font-family:var(--mono)">.claude/settings.json</code> (PostToolUse, matcher Write|Edit). Vitest 4.1+: <code style="font-family:var(--mono)">AI_AGENT=1</code> — kompaktowe wyjście. Hooki są deterministyczne: przetrwają kompresję kontekstu, której CLAUDE.md nie przetrwa.</p>
+</div>
+
+<!-- ===== ANTI-PATTERNS ===== -->
+<div class="full-section">
+  <h2><span>✕</span> Antywzorce testów od agenta</h2>
+  <div class="split">
+    <div>
+      <h3>Unity — 3 klasy</h3>
+      <div class="ap-item">
+        <strong>Mirror implementacji</strong>
+        Test sprawdza prywatny szczegół albo wynik policzony tą samą logiką co kod.
+        <div class="ap-fix">→ asercja na obserwowalny wynik scenariusza biznesowego</div>
+      </div>
+      <div class="ap-item">
+        <strong>Tylko happy path</strong>
+        Łatwe testy na poprawnych danych.
+        <div class="ap-fix">→ przynajmniej jeden edge case wynikający z ryzyka</div>
+      </div>
+      <div class="ap-item">
+        <strong>Brak przypadków brzegowych</strong>
+        Zero nulla, pustych danych, błędu środowiska.
+        <div class="ap-fix">→ test łapie to, co realnie uszkodzi użytkownika</div>
+      </div>
+    </div>
+    <div>
+      <h3>E2E — 5 antywzorców</h3>
+      <div class="ap-item">
+        <strong>1. Naiwna asercja</strong>
+        Sprawdza tytuł strony zamiast, czy fiszka przetrwała reload.
+        <div class="ap-fix">→ czy asercja padnie, gdy ryzyko się zmaterializuje?</div>
+      </div>
+      <div class="ap-item">
+        <strong>2. Kruchy selektor</strong>
+        <code style="font-family:var(--mono);font-size:11px">div:nth-child(3) &gt; button</code>
+        <div class="ap-fix">→ getByRole('button', { name: 'Delete' })</div>
+      </div>
+      <div class="ap-item">
+        <strong>3. Współdzielony stan</strong>
+        Test B zakłada, że A utworzył deck. Flaky przy równoległym runie.
+        <div class="ap-fix">→ pełny setup + cleanup w jednym teście</div>
+      </div>
+      <div class="ap-item">
+        <strong>4. waitForTimeout</strong>
+        Czeka 3 s zamiast na stan. Pada w CI.
+        <div class="ap-fix">→ waitForResponse / expect().toBeVisible()</div>
+      </div>
+      <div class="ap-item">
+        <strong>5. Brak cleanup</strong>
+        Drugi przebieg: unique constraint violation.
+        <div class="ap-fix">→ Date.now() w ID + afterEach / afterAll</div>
+      </div>
+    </div>
+  </div>
+  <p style="font-size:12px;color:var(--text3);margin-top:8px">Re-prompt E2E: wskaż antywzorzec <em>po nazwie</em>, dlaczego nie chroni ryzyka, i wzorzec docelowy. Nie mów „popraw ten test". Seed test (<code style="font-family:var(--mono);font-size:11px">seed.spec.ts</code>) jest dźwignią: co pokażesz, to dostaniesz. Playwright CLI (~27K tokenów) przed MCP (~114K), chyba że sesja jest tylko do przeglądarki. Vision — suplement layoutu, nie default. Healer naprawia selektory; na zmianie logiki biznesowej maskuje buga.</p>
+</div>
+
+<!-- ===== DEBUG ===== -->
+<div class="full-section">
+  <h2><span>⚡</span> Debug — od ticketa do fixa</h2>
+  <p style="font-size:13px;color:var(--text2);line-height:1.55;margin-bottom:4px">Proaktywne testy łapią ryzyka, które potrafisz przewidzieć. Produkcja ujawnia resztę. Struktura dochodzenia jest stała — zmienia się tylko narzędzie (Sentry / Datadog, wrangler / vercel logs, Playwright / Cypress).</p>
+  <div class="chain">
+    <div class="chain-node">1. Parsuj ticket</div><span class="chain-arrow">→</span>
+    <div class="chain-node">2. Triage źródła</div><span class="chain-arrow">→</span>
+    <div class="chain-node">3. Monitoring</div><span class="chain-arrow">→</span>
+    <div class="chain-node">4. Logi runtime</div><span class="chain-arrow">→</span>
+    <div class="chain-node">5. Reprodukcja</div><span class="chain-arrow">→</span>
+    <div class="chain-node">6. Kod z celem</div><span class="chain-arrow">→</span>
+    <div class="chain-node" style="border-color:var(--accent-coral-dim);color:var(--accent-coral)">7. Czerwony test</div><span class="chain-arrow">→</span>
+    <div class="chain-node">8. Fix</div><span class="chain-arrow">→</span>
+    <div class="chain-node">9. Weryfikacja warstw</div>
+  </div>
+  <table class="dtable">
+    <thead>
+      <tr><th>Źródło</th><th>Co dodaje, czego inne nie mają</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Ticket + agent</td><td>Kroki reprodukcji, zakres, częstotliwość, możliwy obszar — pytania, nie odpowiedź</td></tr>
+      <tr><td>Sentry MCP</td><td>Lokalizacja i nazwa błędu (nawet przy 200 OK, jeśli captureConsoleIntegration łapie warn)</td></tr>
+      <tr><td>Logi runtime</td><td>Skala: sporadyczny vs każda ocena. wrangler tail · vercel logs · flyctl logs</td></tr>
+      <tr><td>Playwright CLI/MCP</td><td>Konsola vs sieć: front czy serwer? Vision (VLM) tylko gdy problem jest w pikselach</td></tr>
+      <tr><td>Kod</td><td>Root cause — czytany z celem, nie na ślepo</td></tr>
+      <tr><td>/10x-tdd lub /10x-e2e</td><td>Test-driven bugfixing: padający test na trwały stan, potem minimalny fix. Test zostaje jako regression guard</td></tr>
+    </tbody>
+  </table>
+  <div class="note" style="margin-top:14px;border-left-color:var(--accent-coral-dim)">
+    <strong style="color:var(--accent-coral)">Połknięty błąd (swallowed error).</strong> Handler loguje warn i zwraca 200 z wartością z pamięci. Użytkownik widzi sukces, trwały zapis przepadł. OWASP A10:2025. Hooki i typecheck tego nie złapią — TypeScript jest poprawny, pada zawartość w runtime. Stałym sygnałem jest monitoring. Fix ma dwie części: przestań połykać (500 zamiast 200) <em>i</em> napraw zapis. Weryfikacja jest lustrzanym odbiciem dochodzenia: każde źródło, które pokazało problem, musi potwierdzić, że go nie ma.
+  </div>
+</div>
+
 <div class="footer">
   <span>Na podstawie kursu 10xDevs 3.0 — Przeprogramowani.pl</span>
-  <span>Wygenerowano: maj 2026</span>
+  <span>Wygenerowano: sierpień 2026</span>
 </div>
 
 </div>
