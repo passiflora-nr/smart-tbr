@@ -51,9 +51,11 @@ jobs:
           secrets: |
             SUPABASE_URL
             SUPABASE_KEY
+            SUPABASE_SERVICE_ROLE_KEY
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
       - name: Smoke check home page
         run: curl -fsS https://smart-tbr.nicole-rozanska93.workers.dev/
       - name: Smoke check API route reaches Worker
