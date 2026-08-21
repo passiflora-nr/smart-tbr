@@ -3,7 +3,7 @@ change_id: account-lifecycle
 title: Account lifecycle — gating and self-serve deletion
 status: implementing
 created: 2026-08-15
-updated: 2026-08-20
+updated: 2026-08-21
 archived_at: null
 ---
 

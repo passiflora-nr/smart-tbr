@@ -611,28 +611,28 @@ The only environment change is the additive `SUPABASE_SERVICE_ROLE_KEY`. Because
 
 #### Automated
 
-- [x] 1.1 Env sync succeeds
-- [x] 1.2 Linting passes
-- [x] 1.3 Build passes with the key absent
+- [x] 1.1 Env sync succeeds — 5ebb4a7
+- [x] 1.2 Linting passes — 5ebb4a7
+- [x] 1.3 Build passes with the key absent — 5ebb4a7
 
 #### Manual
 
-- [x] 1.5 Local dev still starts with the new key present
-- [x] 1.6 Production still healthy after the secret is set
+- [x] 1.5 Local dev still starts with the new key present — 5ebb4a7
+- [x] 1.6 Production still healthy after the secret is set — 5ebb4a7
 
 ### Phase 2: Gated Account Page and Navigation
 
 #### Automated
 
-- [ ] 2.1 Linting passes
-- [ ] 2.2 Type checking passes
-- [ ] 2.3 Build passes
+- [x] 2.1 Linting passes
+- [x] 2.2 Type checking passes
+- [x] 2.3 Build passes
 
 #### Manual
 
-- [ ] 2.4 Account page is reachable from everywhere
-- [ ] 2.5 Account page is blocked when signed out
-- [ ] 2.6 Unsaved-changes warning still works on the edit page
+- [x] 2.4 Account page is reachable from everywhere
+- [x] 2.5 Account page is blocked when signed out
+- [x] 2.6 Unsaved-changes warning still works on the edit page
 
 ### Phase 3: Account Deletion End to End
 
