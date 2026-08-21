@@ -638,33 +638,33 @@ The only environment change is the additive `SUPABASE_SERVICE_ROLE_KEY`. Because
 
 #### Automated
 
-- [x] 3.1 Linting passes
-- [x] 3.2 Type checking passes
-- [x] 3.3 Build passes
-- [x] 3.4 Service-role client is imported by exactly one file
-- [x] 3.5 No second cleanup path exists in the account route
+- [x] 3.1 Linting passes — 474f21e
+- [x] 3.2 Type checking passes — 474f21e
+- [x] 3.3 Build passes — 474f21e
+- [x] 3.4 Service-role client is imported by exactly one file — 474f21e
+- [x] 3.5 No second cleanup path exists in the account route — 474f21e
 
 #### Manual
 
-- [x] 3.6 Wrong confirmation text is rejected
-- [x] 3.7 Cancelling the dialog changes nothing
-- [x] 3.8 Deletion works end to end
-- [x] 3.9 The message does not linger
-- [x] 3.10 Another account is completely unaffected
-- [x] 3.11 It works with JavaScript turned off
-- [x] 3.12 A missing key fails safely
-- [x] 3.13 The database cascade removes every owned book
+- [x] 3.6 Wrong confirmation text is rejected — 474f21e
+- [x] 3.7 Cancelling the dialog changes nothing — 474f21e
+- [x] 3.8 Deletion works end to end — 474f21e
+- [x] 3.9 The message does not linger — 474f21e
+- [x] 3.10 Another account is completely unaffected — 474f21e
+- [x] 3.11 It works with JavaScript turned off — 474f21e
+- [x] 3.12 A missing key fails safely — 474f21e
+- [x] 3.13 The database cascade removes every owned book — 474f21e
 
 ### Phase 4: Gating Sweep and Documentation
 
 #### Automated
 
-- [ ] 4.1 Linting passes
-- [ ] 4.2 Build passes
-- [ ] 4.3 `/account` is registered as protected
+- [x] 4.1 Linting passes
+- [x] 4.2 Build passes
+- [x] 4.3 `/account` is registered as protected
 
 #### Manual
 
-- [ ] 4.4 Every private page is closed to signed-out visitors
-- [ ] 4.5 Public pages still work signed out
+- [x] 4.4 Every private page is closed to signed-out visitors
+- [x] 4.5 Public pages still work signed out
 - [ ] 4.6 Production deployment is healthy

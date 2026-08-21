@@ -190,7 +190,7 @@ What's already in place in the codebase as of 2026-06-14 (auto-researched + user
 - **Prerequisites:** F-01
 - **Parallel with:** S-02 (done), S-05 (done)
 - **Blockers:** -
-- **Unknowns:** Whether cascade delete is enforced via Postgres FK `on delete cascade` vs the auth-user deletion hook - Owner: TBD (resolve in /10x-plan). Block: no.
+- **Unknowns:** Resolved — cascade is the Postgres FK `on delete cascade` on `books.user_id` in `supabase/migrations/20260705084406_create_books.sql`. No auth-user deletion hook.
 - **Status:** ready
 
 ### S-07: Café Romance UI theme (optional)
