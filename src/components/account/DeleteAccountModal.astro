@@ -1,0 +1,58 @@
+---
+import { ACCOUNT_DELETE_CONFIRMATION_FIELD, ACCOUNT_DELETE_CONFIRMATION_WORD } from "@/lib/account-schema";
+
+interface Props {
+  /**
+   * Where Cancel and the backdrop navigate to dismiss the modal. Point it at a
+   * real element near the trigger: the panel is `display: none` the moment the
+   * fragment changes, so focus falls back to the document and a keyboard user
+   * would otherwise restart tabbing from the top of the page.
+   */
+  dismissHref: string;
+}
+
+const { dismissHref } = Astro.props;
+const modalId = "delete-account";
+
+// role="dialog" carries no aria-modal: this is a CSS-only modal, so nothing can
+// make the rest of the page inert, and claiming otherwise misleads assistive tech.
+---
+
+<div id={modalId} class="delete-modal" role="dialog" aria-labelledby={`${modalId}-heading`}>
+  <a href={dismissHref} class="delete-modal-backdrop" aria-label="Cancel account deletion">
+    <span class="sr-only">Cancel account deletion</span>
+  </a>
+  <div class="delete-modal-panel">
+    <h2 id={`${modalId}-heading`} class="text-lg font-semibold text-white">Delete account?</h2>
+    <p class="mt-2 text-sm text-red-200">
+      This permanently removes your account, every book, and every trope tag. It cannot be recovered.
+    </p>
+    <form method="POST" action="/api/account/delete" class="mt-4">
+      <label for={`${modalId}-confirmation`} class="mb-1 block text-sm text-red-100">
+        Type {ACCOUNT_DELETE_CONFIRMATION_WORD} to confirm
+      </label>
+      <input
+        type="text"
+        id={`${modalId}-confirmation`}
+        name={ACCOUNT_DELETE_CONFIRMATION_FIELD}
+        autocomplete="off"
+        spellcheck="false"
+        class="w-full rounded-lg border border-red-500/40 bg-red-950/60 px-3 py-2 text-sm text-white placeholder:text-red-200/40"
+      />
+      <div class="mt-4 flex flex-wrap gap-2">
+        <a
+          href={dismissHref}
+          class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm text-white outline-none transition-colors hover:bg-white/20 focus-visible:ring-2 focus-visible:ring-white/40"
+        >
+          Cancel
+        </a>
+        <button
+          type="submit"
+          class="rounded-lg border border-red-500/40 bg-red-900/40 px-4 py-2 text-sm text-red-100 outline-none transition-colors hover:bg-red-900/60 focus-visible:ring-2 focus-visible:ring-red-400/60"
+        >
+          Delete account permanently
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

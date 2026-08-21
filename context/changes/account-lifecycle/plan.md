@@ -624,36 +624,36 @@ The only environment change is the additive `SUPABASE_SERVICE_ROLE_KEY`. Because
 
 #### Automated
 
-- [x] 2.1 Linting passes
-- [x] 2.2 Type checking passes
-- [x] 2.3 Build passes
+- [x] 2.1 Linting passes — f2605e7
+- [x] 2.2 Type checking passes — f2605e7
+- [x] 2.3 Build passes — f2605e7
 
 #### Manual
 
-- [x] 2.4 Account page is reachable from everywhere
-- [x] 2.5 Account page is blocked when signed out
-- [x] 2.6 Unsaved-changes warning still works on the edit page
+- [x] 2.4 Account page is reachable from everywhere — f2605e7
+- [x] 2.5 Account page is blocked when signed out — f2605e7
+- [x] 2.6 Unsaved-changes warning still works on the edit page — f2605e7
 
 ### Phase 3: Account Deletion End to End
 
 #### Automated
 
-- [ ] 3.1 Linting passes
-- [ ] 3.2 Type checking passes
-- [ ] 3.3 Build passes
-- [ ] 3.4 Service-role client is imported by exactly one file
-- [ ] 3.5 No second cleanup path exists in the account route
+- [x] 3.1 Linting passes
+- [x] 3.2 Type checking passes
+- [x] 3.3 Build passes
+- [x] 3.4 Service-role client is imported by exactly one file
+- [x] 3.5 No second cleanup path exists in the account route
 
 #### Manual
 
-- [ ] 3.6 Wrong confirmation text is rejected
-- [ ] 3.7 Cancelling the dialog changes nothing
-- [ ] 3.8 Deletion works end to end
-- [ ] 3.9 The message does not linger
-- [ ] 3.10 Another account is completely unaffected
-- [ ] 3.11 It works with JavaScript turned off
-- [ ] 3.12 A missing key fails safely
-- [ ] 3.13 The database cascade removes every owned book
+- [x] 3.6 Wrong confirmation text is rejected
+- [x] 3.7 Cancelling the dialog changes nothing
+- [x] 3.8 Deletion works end to end
+- [x] 3.9 The message does not linger
+- [x] 3.10 Another account is completely unaffected
+- [x] 3.11 It works with JavaScript turned off
+- [x] 3.12 A missing key fails safely
+- [x] 3.13 The database cascade removes every owned book
 
 ### Phase 4: Gating Sweep and Documentation
 
