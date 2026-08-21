@@ -3,20 +3,10 @@ import Welcome from "@/components/Welcome.astro";
 import Layout from "@/layouts/Layout.astro";
 
 const FLASH_NOTICE_COOKIE = "home_flash_notice";
-const ACCOUNT_DELETED_NOTICE = "account_deleted";
-const ACCOUNT_DELETED_MESSAGE = "Your account and all your books have been deleted.";
-
-const noticeParam = Astro.url.searchParams.get("notice");
-
-if (noticeParam === ACCOUNT_DELETED_NOTICE) {
-  Astro.cookies.set(FLASH_NOTICE_COOKIE, ACCOUNT_DELETED_NOTICE, {
-    path: "/",
-    maxAge: 30,
-    sameSite: "lax",
-    httpOnly: true,
-  });
-  return Astro.redirect("/");
-}
+const FLASH_NOTICE_MESSAGES: Record<string, string> = {
+  account_deleted: "Your account and all your books have been deleted.",
+  account_delete_unknown: "We couldn't verify whether your account was deleted. Try signing in to check.",
+};
 
 const flashNoticeCode = Astro.cookies.get(FLASH_NOTICE_COOKIE)?.value;
 
@@ -24,7 +14,10 @@ if (flashNoticeCode) {
   Astro.cookies.delete(FLASH_NOTICE_COOKIE, { path: "/" });
 }
 
-const notice = flashNoticeCode === ACCOUNT_DELETED_NOTICE ? ACCOUNT_DELETED_MESSAGE : null;
+const notice =
+  flashNoticeCode && Object.hasOwn(FLASH_NOTICE_MESSAGES, flashNoticeCode)
+    ? FLASH_NOTICE_MESSAGES[flashNoticeCode]
+    : null;
 ---
 
 <Layout title="Home">

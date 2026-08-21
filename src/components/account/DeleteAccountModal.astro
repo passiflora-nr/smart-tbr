@@ -9,9 +9,11 @@ interface Props {
    * would otherwise restart tabbing from the top of the page.
    */
   dismissHref: string;
+  /** Message shown inside the panel when a previous attempt was rejected. */
+  error?: string | null;
 }
 
-const { dismissHref } = Astro.props;
+const { dismissHref, error = null } = Astro.props;
 const modalId = "delete-account";
 
 // role="dialog" carries no aria-modal: this is a CSS-only modal, so nothing can
@@ -28,6 +30,11 @@ const modalId = "delete-account";
       This permanently removes your account, every book, and every trope tag. It cannot be recovered.
     </p>
     <form method="POST" action="/api/account/delete" class="mt-4">
+      {
+        error ? (
+          <p class="mb-3 rounded-lg border border-red-500/40 bg-red-950/60 px-3 py-2 text-sm text-red-200">{error}</p>
+        ) : null
+      }
       <label for={`${modalId}-confirmation`} class="mb-1 block text-sm text-red-100">
         Type {ACCOUNT_DELETE_CONFIRMATION_WORD} to confirm
       </label>

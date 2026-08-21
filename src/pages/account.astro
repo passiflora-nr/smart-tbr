@@ -10,6 +10,11 @@ const REDIRECT_ERRORS: Record<string, string> = {
 
 const FLASH_ERROR_COOKIE = "account_flash_error";
 
+// Errors the user can correct in the dialog reopen it and show the message inside
+// the panel; anything else renders as a page banner, which the modal backdrop
+// would otherwise dim to the point of being unreadable.
+const DIALOG_ERRORS = new Set(["confirm_mismatch"]);
+
 const user = Astro.locals.user;
 
 if (!user) {
@@ -25,7 +30,7 @@ if (errorParam && Object.hasOwn(REDIRECT_ERRORS, errorParam)) {
     sameSite: "lax",
     httpOnly: true,
   });
-  return Astro.redirect("/account");
+  return Astro.redirect(DIALOG_ERRORS.has(errorParam) ? "/account#delete-account" : "/account");
 }
 
 const flashErrorCode = Astro.cookies.get(FLASH_ERROR_COOKIE)?.value;
@@ -36,13 +41,16 @@ if (flashErrorCode) {
 
 const redirectError =
   flashErrorCode && Object.hasOwn(REDIRECT_ERRORS, flashErrorCode) ? REDIRECT_ERRORS[flashErrorCode] : null;
+
+const dialogError = flashErrorCode && DIALOG_ERRORS.has(flashErrorCode) ? redirectError : null;
+const pageError = dialogError ? null : redirectError;
 ---
 
 <Layout title="Account">
   <div class="bg-cosmic flex min-h-screen items-start justify-center p-4 pt-12">
     <div class="w-full max-w-2xl rounded-2xl border border-white/10 bg-white/10 p-8 text-white backdrop-blur-xl">
       {
-        redirectError ? (
+        pageError ? (
           <p class="mb-4 flex w-full items-center justify-center gap-2 rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-center text-sm text-red-300">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -61,7 +69,7 @@ const redirectError =
               <line x1="12" x2="12" y1="8" y2="12" />
               <line x1="12" x2="12.01" y1="16" y2="16" />
             </svg>
-            {redirectError}
+            {pageError}
           </p>
         ) : null
       }
@@ -111,6 +119,6 @@ const redirectError =
         </a>
       </section>
     </div>
-    <DeleteAccountModal dismissHref="#delete-account-trigger" />
+    <DeleteAccountModal dismissHref="#delete-account-trigger" error={dialogError} />
   </div>
 </Layout>

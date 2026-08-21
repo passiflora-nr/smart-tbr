@@ -4,6 +4,15 @@ import { createClient } from "@/lib/supabase";
 import { createAdminClient } from "@/lib/supabase-admin";
 
 export const POST: APIRoute = async (context) => {
+  const setHomeNotice = (noticeCode: "account_deleted" | "account_delete_unknown") => {
+    context.cookies.set("home_flash_notice", noticeCode, {
+      path: "/",
+      maxAge: 30,
+      sameSite: "lax",
+      httpOnly: true,
+    });
+  };
+
   const supabase = createClient(context.request.headers, context.cookies);
   if (!supabase) {
     return context.redirect("/auth/signin");
@@ -30,10 +39,30 @@ export const POST: APIRoute = async (context) => {
   }
 
   const userId = user.id;
-  const { error: deleteError } = await admin.auth.admin.deleteUser(userId);
-  if (deleteError) {
-    console.error("account delete failed", deleteError);
-    return context.redirect("/account?error=delete_failed");
+  try {
+    const { error: deleteError } = await admin.auth.admin.deleteUser(userId);
+    if (deleteError) {
+      console.error("account delete failed", deleteError);
+      return context.redirect("/account?error=delete_failed");
+    }
+  } catch (error) {
+    console.error("account delete threw", error);
+    try {
+      const { error: lookupError } = await admin.auth.admin.getUserById(userId);
+      if (lookupError?.code === "user_not_found") {
+        // The delete completed, but its response was lost. Continue through the success path.
+      } else if (lookupError) {
+        console.error("account delete outcome check failed", lookupError);
+        setHomeNotice("account_delete_unknown");
+        return context.redirect("/");
+      } else {
+        return context.redirect("/account?error=delete_failed");
+      }
+    } catch (lookupError) {
+      console.error("account delete outcome check threw", lookupError);
+      setHomeNotice("account_delete_unknown");
+      return context.redirect("/");
+    }
   }
 
   try {
@@ -45,5 +74,6 @@ export const POST: APIRoute = async (context) => {
     console.error("account delete signOut threw", error);
   }
 
-  return context.redirect("/?notice=account_deleted");
+  setHomeNotice("account_deleted");
+  return context.redirect("/");
 };

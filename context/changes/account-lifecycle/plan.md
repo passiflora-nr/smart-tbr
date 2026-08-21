@@ -199,6 +199,14 @@ Ship the `/account` page showing the signed-in email, protect it against signed-
 
 **Contract**: Add an `Account` anchor to `/account` in each nav row, styled identically to the sibling anchors in that row and positioned immediately before the sign-out control. In `Topbar.astro` the row uses the `text-purple-300` link style rather than the bordered button style — match the local convention in each file, not a single global one. In `src/pages/books/[id]/edit.astro` the link must also carry the `data-unsaved-guard` attribute, as the sibling Home link does at line 74, so navigating away from a half-edited book still warns the user.
 
+#### 4. Button cursor affordance (addendum, added during implementation)
+
+**File**: `src/styles/global.css`
+
+**Intent**: Restore the pointer cursor on buttons, which Tailwind v4's preflight no longer sets.
+
+**Contract**: Add `button:not(:disabled), [role="button"]:not(:disabled) { cursor: pointer; }` to the existing `@layer base` block. This is app-wide rather than Account-specific and was not in the original plan; it is recorded here so the plan stays the source of truth. It is a cursor affordance only — not the S-07 theme work the "What We're NOT Doing" list defers.
+
 ### Success Criteria:
 
 #### Automated Verification:
@@ -579,6 +587,14 @@ No test framework is wired up in this repository (`AGENTS.md`), so verification 
 
 Required manual scenario 3.13 confirms in Supabase Studio that both the auth user and every matching `books` row are gone. This directly evidences FR-013's cascade requirement rather than inferring it from the UI.
 
+### Verification record — Phases 1–3
+
+- **Date:** 2026-08-21
+- **Evidence:** Human verification transcribed from the completed Progress checklist; this note records the existing sign-off and does not claim a new test run.
+- **Environments:** Local Cloudflare workerd app, deployed production Worker, and Supabase Studio where required by the scenarios.
+- **Result:** Manual scenarios 1.5–1.6, 2.4–2.6, and 3.6–3.13 passed. Destructive checks used throwaway accounts and covered rejection/cancel behavior, end-to-end deletion, one-time messaging, cross-account isolation, JavaScript disabled, missing-key safety, and database cascade removal.
+- **Privacy:** No secret values, account identifiers, or test credentials are retained.
+
 ## Performance Considerations
 
 Negligible. The delete is one Admin API call plus one cascading Postgres delete over at most a few hundred rows for a single user — far inside the Cloudflare Workers per-request CPU ceiling that `context/foundation/lessons.md:12-17` warns about. The Account page renders one string. The extra nav link adds no requests.
@@ -659,12 +675,12 @@ The only environment change is the additive `SUPABASE_SERVICE_ROLE_KEY`. Because
 
 #### Automated
 
-- [x] 4.1 Linting passes
-- [x] 4.2 Build passes
-- [x] 4.3 `/account` is registered as protected
+- [x] 4.1 Linting passes — defa0fb
+- [x] 4.2 Build passes — defa0fb
+- [x] 4.3 `/account` is registered as protected — defa0fb
 
 #### Manual
 
-- [x] 4.4 Every private page is closed to signed-out visitors
-- [x] 4.5 Public pages still work signed out
+- [x] 4.4 Every private page is closed to signed-out visitors — defa0fb
+- [x] 4.5 Public pages still work signed out — defa0fb
 - [ ] 4.6 Production deployment is healthy
