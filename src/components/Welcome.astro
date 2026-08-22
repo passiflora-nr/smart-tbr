@@ -1,6 +1,11 @@
 ---
 import Topbar from "@/components/Topbar.astro";
 
+interface Props {
+  notice: string | null;
+}
+
+const { notice } = Astro.props;
 const user = Astro.locals.user;
 ---
 
@@ -32,6 +37,11 @@ const user = Astro.locals.user;
     {
       user ? (
         <div class="mx-auto flex max-w-4xl flex-col items-center justify-center px-4 py-24 text-center sm:py-32 lg:py-40">
+          {notice ? (
+            <p class="mb-6 w-full max-w-2xl rounded-lg border border-amber-500/30 bg-amber-900/20 px-3 py-2 text-center text-sm text-amber-200">
+              {notice}
+            </p>
+          ) : null}
           <h1 class="mb-6 bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200 bg-clip-text text-5xl leading-tight font-bold text-transparent sm:text-6xl lg:text-7xl">
             SmartTBR
           </h1>
@@ -64,6 +74,11 @@ const user = Astro.locals.user;
       ) : (
         <>
           <div class="mx-auto flex max-w-4xl flex-col items-center justify-center px-4 py-24 text-center sm:py-32 lg:py-40">
+            {notice ? (
+              <p class="mb-6 w-full max-w-2xl rounded-lg border border-amber-500/30 bg-amber-900/20 px-3 py-2 text-center text-sm text-amber-200">
+                {notice}
+              </p>
+            ) : null}
             <h1 class="mb-6 bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200 bg-clip-text text-5xl leading-tight font-bold text-transparent sm:text-6xl lg:text-7xl">
               SmartTBR
             </h1>

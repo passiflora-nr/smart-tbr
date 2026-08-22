@@ -35,7 +35,7 @@ cd smart-tbr
 npm install
 ```
 
-2. Configure secrets — see [Supabase configuration](#supabase-configuration) below. Server-only vars are **`SUPABASE_URL`** and **`SUPABASE_KEY`** (see Astro env schema in [`astro.config.mjs`](./astro.config.mjs)).
+2. Configure secrets — see [Supabase configuration](#supabase-configuration) below. Server-only vars are **`SUPABASE_URL`**, **`SUPABASE_KEY`** (anon / publishable), and **`SUPABASE_SERVICE_ROLE_KEY`** (secret / `service_role`; account deletion only). See Astro env schema in [`astro.config.mjs`](./astro.config.mjs). Never put the secret key in `SUPABASE_KEY`, and never import any of these in client code.
 
 3. For Cloudflare-style local dev (`npm run dev`), copy the Supabase placeholders into **`.dev.vars`** (Workers read this file; keep it gitignored):
 
@@ -78,7 +78,7 @@ supabase/             # Local Supabase CLI config (`config.toml`)
 
 ## Supabase configuration
 
-Auth uses Supabase. **`SUPABASE_URL`** and **`SUPABASE_KEY`** are **server-only** (via `astro:env`); never import them in client code.
+Auth uses Supabase. **`SUPABASE_URL`**, **`SUPABASE_KEY`**, and **`SUPABASE_SERVICE_ROLE_KEY`** are **server-only** (via `astro:env`); never import them in client code. **`SUPABASE_KEY`** is the **anon / publishable** key used for all TBR queries. **`SUPABASE_SERVICE_ROLE_KEY`** is the **secret / `service_role`** key, used only for account deletion — never place it in `SUPABASE_KEY` (that would bypass Row-Level Security on every TBR query).
 
 ### Local stack (recommended for offline iteration)
 
@@ -122,7 +122,7 @@ cp .env.example .env
 npx supabase start
 ```
 
-3. Paste the anon URL and anon key printed by the CLI into **both** `.env` and `.dev.vars` as `SUPABASE_URL` / `SUPABASE_KEY`.
+3. Paste the anon URL and anon key printed by the CLI into **both** `.env` and `.dev.vars` as `SUPABASE_URL` / `SUPABASE_KEY`. Also paste the printed **secret / `service_role`** key as `SUPABASE_SERVICE_ROLE_KEY` (account deletion only; never reuse it as `SUPABASE_KEY`).
 
 4. Studio: `http://localhost:54323`. Stop when done: `npx supabase stop`.
 
@@ -130,7 +130,7 @@ For early development you only need **`auth.users`**; app-specific tables appear
 
 ### Hosted Supabase
 
-Use the project URL and **anon** public key from the Supabase dashboard (Settings → API) in `.env`, `.dev.vars`, and CI secrets — same variable names.
+Use the project URL and **anon** public key from the Supabase dashboard (Settings → API) in `.env`, `.dev.vars`, and CI secrets as `SUPABASE_URL` / `SUPABASE_KEY`. Copy the **secret / `service_role`** key into the same files as `SUPABASE_SERVICE_ROLE_KEY` — it is used only for account deletion and must never replace `SUPABASE_KEY`.
 
 **Production Auth URLs** (required for sign-up/sign-in on the live Worker): in Supabase → **Authentication → URL Configuration**, set **Site URL** to `https://smart-tbr.nicole-rozanska93.workers.dev` and add redirect URLs for `https://smart-tbr.nicole-rozanska93.workers.dev/**` and `http://localhost:4321/**`. Re-apply after any custom-domain change.
 
@@ -150,6 +150,7 @@ Supabase often requires verified email before sign-in. To skip confirmation in d
 | `/mood`               | Pick next read by 1–3 tropes from your TBR (protected)                                              |
 | `/books`              | Browse full TBR (protected)                                                                         |
 | `/books/new`          | Add a book (protected)                                                                              |
+| `/account`            | Signed-in email and account-deletion danger zone (protected)                                        |
 
 Protected paths are centralized in **`PROTECTED_ROUTES`** in [`src/middleware.ts`](./src/middleware.ts); add paths there only.
 
@@ -161,7 +162,7 @@ No Docker image or `Dockerfile` is involved — [`@astrojs/cloudflare`](./astro.
 
 **Routine deploy:** merge to `main` — CI runs lint + build, then auto-deploys via [`wrangler-action`](./.github/workflows/ci.yml). **Manual redeploy:** GitHub Actions → **CI** → **Run workflow**. **Local emergency:** `npm run build && npx wrangler deploy`.
 
-Configure **`SUPABASE_URL`** and **`SUPABASE_KEY`** as [Wrangler secrets](https://developers.cloudflare.com/workers/configuration/secrets/) for production (CI uploads them on each deploy).
+Configure **`SUPABASE_URL`**, **`SUPABASE_KEY`** (anon / publishable), and **`SUPABASE_SERVICE_ROLE_KEY`** (secret / `service_role`; account deletion only) as [Wrangler secrets](https://developers.cloudflare.com/workers/configuration/secrets/) for production (CI uploads them on each deploy). Never put the secret key in `SUPABASE_KEY`.
 
 [`wrangler.jsonc`](./wrangler.jsonc) sets `assets.run_worker_first: ["/api/*"]` so API routes (auth, future TBR endpoints) hit the Worker instead of Static Assets. Keep this when adding paths under `src/pages/api/`.
 
@@ -177,7 +178,8 @@ Repository secrets required:
 
 | Secret | Purpose |
 | ------ | ------- |
-| `SUPABASE_URL` / `SUPABASE_KEY` | Build-time Astro env + Worker runtime secrets |
+| `SUPABASE_URL` / `SUPABASE_KEY` | Build-time Astro env + Worker runtime secrets (anon / publishable key — never the secret / `service_role` value) |
+| `SUPABASE_SERVICE_ROLE_KEY` | Worker runtime secret only; secret / `service_role` key used for account deletion. Never put this value in `SUPABASE_KEY`. Not required at build time. |
 | `CLOUDFLARE_API_TOKEN` | Wrangler deploy (use the **Edit Cloudflare Workers** template) |
 | `CLOUDFLARE_ACCOUNT_ID` | Target Cloudflare account |
 

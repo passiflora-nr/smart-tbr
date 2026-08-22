@@ -1,0 +1,124 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import DeleteAccountModal from "@/components/account/DeleteAccountModal.astro";
+import SignOutButton from "@/components/auth/SignOutButton.astro";
+
+const REDIRECT_ERRORS: Record<string, string> = {
+  confirm_mismatch: "Type the exact confirmation word to delete your account.",
+  delete_failed: "Could not delete your account. Try again.",
+};
+
+const FLASH_ERROR_COOKIE = "account_flash_error";
+
+// Errors the user can correct in the dialog reopen it and show the message inside
+// the panel; anything else renders as a page banner, which the modal backdrop
+// would otherwise dim to the point of being unreadable.
+const DIALOG_ERRORS = new Set(["confirm_mismatch"]);
+
+const user = Astro.locals.user;
+
+if (!user) {
+  return Astro.redirect("/auth/signin");
+}
+
+const errorParam = Astro.url.searchParams.get("error");
+
+if (errorParam && Object.hasOwn(REDIRECT_ERRORS, errorParam)) {
+  Astro.cookies.set(FLASH_ERROR_COOKIE, errorParam, {
+    path: "/account",
+    maxAge: 30,
+    sameSite: "lax",
+    httpOnly: true,
+  });
+  return Astro.redirect(DIALOG_ERRORS.has(errorParam) ? "/account#delete-account" : "/account");
+}
+
+const flashErrorCode = Astro.cookies.get(FLASH_ERROR_COOKIE)?.value;
+
+if (flashErrorCode) {
+  Astro.cookies.delete(FLASH_ERROR_COOKIE, { path: "/account" });
+}
+
+const redirectError =
+  flashErrorCode && Object.hasOwn(REDIRECT_ERRORS, flashErrorCode) ? REDIRECT_ERRORS[flashErrorCode] : null;
+
+const dialogError = flashErrorCode && DIALOG_ERRORS.has(flashErrorCode) ? redirectError : null;
+const pageError = dialogError ? null : redirectError;
+---
+
+<Layout title="Account">
+  <div class="bg-cosmic flex min-h-screen items-start justify-center p-4 pt-12">
+    <div class="w-full max-w-2xl rounded-2xl border border-white/10 bg-white/10 p-8 text-white backdrop-blur-xl">
+      {
+        pageError ? (
+          <p class="mb-4 flex w-full items-center justify-center gap-2 rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-center text-sm text-red-300">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="size-4 shrink-0"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" x2="12" y1="8" y2="12" />
+              <line x1="12" x2="12.01" y1="16" y2="16" />
+            </svg>
+            {pageError}
+          </p>
+        ) : null
+      }
+
+      <div class="mb-6 flex flex-col gap-4">
+        <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent">
+          Account
+        </h1>
+        <div class="flex flex-wrap gap-2">
+          <a
+            href="/books"
+            class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
+          >
+            View your TBR
+          </a>
+          <a
+            href="/mood"
+            class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
+          >
+            Pick by mood
+          </a>
+          <a
+            href="/"
+            class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
+          >
+            Home
+          </a>
+          <SignOutButton />
+        </div>
+      </div>
+
+      <p class="mb-8 text-blue-100/80">
+        Signed in as <span class="font-medium text-white">{user.email}</span>
+      </p>
+
+      <section class="border-t border-white/10 pt-6" aria-labelledby="danger-zone-heading">
+        <h2 id="danger-zone-heading" class="text-lg font-semibold text-white">Danger zone</h2>
+        <p class="mt-2 text-sm text-blue-100/80">
+          Permanently delete your account and every book you have saved. This cannot be undone.
+        </p>
+        <a
+          id="delete-account-trigger"
+          href="#delete-account"
+          class="mt-4 inline-block rounded-lg border border-red-500/30 bg-red-900/20 px-4 py-2 text-sm text-red-300 transition-colors outline-none hover:bg-red-900/30 focus-visible:ring-2 focus-visible:ring-red-400/60"
+        >
+          Delete account
+        </a>
+      </section>
+    </div>
+    <DeleteAccountModal dismissHref="#delete-account-trigger" error={dialogError} />
+  </div>
+</Layout>
