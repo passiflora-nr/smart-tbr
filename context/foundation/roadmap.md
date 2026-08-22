@@ -3,7 +3,7 @@ project: SmartTBR
 version: 1
 status: draft
 created: 2026-06-14
-updated: 2026-08-15
+updated: 2026-08-22
 prd_version: 1
 main_goal: speed
 top_blocker: time
@@ -33,7 +33,7 @@ SmartTBR collapses a 100+ book "to be read" backlog that today lives scattered a
 |---|---|---|---|---|---|
 | F-01 | tbr-data-and-isolation | (foundation) books + trope tags persisted with per-user RLS isolation | - | FR-011, Access Control, NFR: isolation | done |
 | S-01 | add-book-to-tbr | add a book (title, author, tropes, optional description) to their private TBR | F-01 ✓ | FR-004, NFR: <=30s entry | done |
-| S-06 | account-lifecycle | rely on gated routes and self-delete their account + all data | F-01 ✓ | FR-003, FR-013, FR-001, FR-002, Access Control | **ready** |
+| S-06 | account-lifecycle | rely on gated routes and self-delete their account + all data | F-01 ✓ | FR-003, FR-013, FR-001, FR-002, Access Control | done |
 | S-05 | mood-trope-recommendation | pick 1-3 mood tropes and get up to 3 matching books from their own TBR | F-01 ✓, S-01 ✓ | US-01, FR-008, FR-009, FR-010, NFR: <=2s | done |
 | S-02 | browse-tbr-list | browse their full TBR as a list | S-01 ✓ | FR-005 | done |
 | S-03 | edit-delete-book | edit or delete any book in their TBR | S-02 ✓ | FR-006, FR-007 | done |
@@ -191,7 +191,7 @@ What's already in place in the codebase as of 2026-06-14 (auto-researched + user
 - **Parallel with:** S-02 (done), S-05 (done)
 - **Blockers:** -
 - **Unknowns:** Resolved — cascade is the Postgres FK `on delete cascade` on `books.user_id` in `supabase/migrations/20260705084406_create_books.sql`. No auth-user deletion hook.
-- **Status:** ready
+- **Status:** done
 
 ### S-07: Café Romance UI theme (optional)
 
@@ -243,3 +243,4 @@ What's already in place in the codebase as of 2026-06-14 (auto-researched + user
 - **S-03: user can edit any field of a book or delete it from their TBR.** — Archived 2026-08-14 → `context/archive/2026-08-11-edit-delete-book/`. Lesson: —.
 - **S-04: user can narrow the TBR list by substring match on title/author and/or by selecting one or more trope tags from a filter widget.** — Archived 2026-08-15 → `context/archive/2026-08-14-search-filter-tbr/`. Lesson: —.
 - **S-05: user can open the trope-selection screen (populated from their own tropes), pick 1-3 mood tropes, and receive up to 3 matching books from their own TBR, each shown with title, author, and tropes - with empty states for no books / no tropes / no matches.** — Archived 2026-08-15 → `context/archive/2026-08-15-mood-trope-recommendation/`. Lesson: —.
+- **S-06: user's TBR routes are gated (unauthenticated visitors redirected to sign-in) and the user can permanently delete their own account, which cascades to all their books and trope tags and ends the session after an explicit confirmation.** — Archived 2026-08-22 → `context/archive/2026-08-15-account-lifecycle/`. Lesson: —.

@@ -683,4 +683,4 @@ The only environment change is the additive `SUPABASE_SERVICE_ROLE_KEY`. Because
 
 - [x] 4.4 Every private page is closed to signed-out visitors — defa0fb
 - [x] 4.5 Public pages still work signed out — defa0fb
-- [ ] 4.6 Production deployment is healthy
+- [x] 4.6 Production deployment is healthy
