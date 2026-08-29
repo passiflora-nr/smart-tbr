@@ -19,6 +19,8 @@ jobs:
       - run: npm ci
       - run: npx astro sync
       - run: npm run lint
+      - run: npx supabase start --exclude studio,imgproxy,edge-runtime,supavisor,logflare,vector
+      - run: npm test
       - run: npm run build
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}

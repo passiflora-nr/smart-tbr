@@ -109,6 +109,15 @@ export function takeMoodMatches<T>(matches: T[], show: number): MoodMatchSlice<T
   return { visible, total, nextShow };
 }
 
+/** How many books the next expansion click will add. Always 1–3 when more remain. */
+export function moodMoreCount(visibleCount: number, total: number): number {
+  return Math.min(Math.max(total - visibleCount, 0), MOOD_STEP_SIZE);
+}
+
+export function buildMoodMoreLabel(visibleCount: number, total: number): string {
+  return `Show me ${moodMoreCount(visibleCount, total)} more`;
+}
+
 export function buildMoodHref(tropes: string[], show?: number): string {
   const params = new URLSearchParams();
 
