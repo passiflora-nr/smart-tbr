@@ -12,6 +12,12 @@ export function createRunTitlePrefix(): string {
   return `${INTEGRATION_TEST_TITLE_PREFIX}${Date.now()}-`;
 }
 
+function assertReservedTitlePrefix(prefix: string): void {
+  if (!prefix.startsWith(INTEGRATION_TEST_TITLE_PREFIX)) {
+    throw new Error("Cleanup prefix must start with the reserved integration-test title prefix");
+  }
+}
+
 export async function createAuthenticatedVerificationClient(
   supabaseUrl: string,
   supabaseKey: string,
@@ -39,12 +45,17 @@ export async function createAuthenticatedVerificationClient(
 }
 
 export async function cleanupBooksWithTitlePrefix(client: SupabaseClient<Database>, prefix: string): Promise<void> {
-  const { data, error } = await client.from("books").select("id, title").eq("user_id", USER_D_ID);
+  assertReservedTitlePrefix(prefix);
+  const { data, error } = await client
+    .from("books")
+    .select("id, title")
+    .eq("user_id", USER_D_ID)
+    .like("title", `${prefix}%`);
   if (error) {
     throw new Error(`Failed to list user-D books for cleanup: ${error.message}`);
   }
 
-  const matchingIds = data.filter((row) => row.title.startsWith(prefix)).map((row) => row.id);
+  const matchingIds = data.map((row) => row.id);
 
   for (const id of matchingIds) {
     const { error: deleteError } = await client.from("books").delete().eq("id", id).eq("user_id", USER_D_ID);
@@ -58,11 +69,16 @@ export async function listBooksWithTitlePrefix(
   client: SupabaseClient<Database>,
   prefix: string,
 ): Promise<{ id: string; title: string }[]> {
-  const { data, error } = await client.from("books").select("id, title").eq("user_id", USER_D_ID);
+  assertReservedTitlePrefix(prefix);
+  const { data, error } = await client
+    .from("books")
+    .select("id, title")
+    .eq("user_id", USER_D_ID)
+    .like("title", `${prefix}%`);
   if (error) {
     throw new Error(`Failed to list user-D books: ${error.message}`);
   }
-  return data.filter((row) => row.title.startsWith(prefix));
+  return data;
 }
 
 export async function deleteBookViaAstroForm(astroOrigin: string, cookieHeader: string, bookId: string): Promise<void> {

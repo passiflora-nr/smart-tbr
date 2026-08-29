@@ -23,7 +23,7 @@ Key pieces:
 
 - **Node.js** — use [`.nvmrc`](./.nvmrc) (currently 22.x)
 - **npm**
-- **Docker** — only if you run the [local Supabase stack](#local-stack-recommended-for-offline-iteration). Not required for hosted Supabase, CI, or production deploy (Cloudflare Workers has no Dockerfile).
+- **Docker** — required for the [local Supabase stack](#local-stack-recommended-for-offline-iteration) and for the GitHub CI test step. Not required for hosted Supabase or production deploy (Cloudflare Workers has no Dockerfile).
 
 ## Getting started
 
@@ -163,7 +163,7 @@ Protected paths are centralized in **`PROTECTED_ROUTES`** in [`src/middleware.ts
 
 No Docker image or `Dockerfile` is involved — [`@astrojs/cloudflare`](./astro.config.mjs) builds a Worker bundle deployed with Wrangler.
 
-**Routine deploy:** merge to `main` — CI runs lint + build, then auto-deploys via [`wrangler-action`](./.github/workflows/ci.yml). **Manual redeploy:** GitHub Actions → **CI** → **Run workflow**. **Local emergency:** `npm run build && npx wrangler deploy`.
+**Routine deploy:** merge to `main` — CI runs lint → test → build, then auto-deploys via [`wrangler-action`](./.github/workflows/ci.yml). **Manual redeploy:** GitHub Actions → **CI** → **Run workflow**. **Local emergency:** `npm run build && npx wrangler deploy`.
 
 Configure **`SUPABASE_URL`**, **`SUPABASE_KEY`** (anon / publishable), and **`SUPABASE_SERVICE_ROLE_KEY`** (secret / `service_role`; account deletion only) as [Wrangler secrets](https://developers.cloudflare.com/workers/configuration/secrets/) for production (CI uploads them on each deploy). Never put the secret key in `SUPABASE_KEY`.
 

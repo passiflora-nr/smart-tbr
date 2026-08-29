@@ -270,7 +270,8 @@ the **Pick by mood** page.
 
 1. Select **contemporary**, **enemies-to-lovers**, and **slow burn**, then choose **Find my next read**.
 2. Confirm the page initially shows three books.
-3. Choose **Show me 3 more** and confirm the remaining matching books appear below the original three.
+3. Choose the **Show me more** link (it says **Show me 3 more**, or **Show me N more** if fewer than
+   three remain) and confirm the remaining matching books appear below the original three.
 4. Change the selection to **found family** and choose **Find my next read** again.
 5. Read the updated PRD recommendation wording alongside what the page did.
 
@@ -523,10 +524,20 @@ integration project serialized and narrow rather than adding more server startup
 No latency assertion is added for the product's two-second mood guardrail; wall-clock assertions in
 shared CI are noisy and were deliberately excluded from the test strategy.
 
+## Addenda
+
+### A1 — Expansion control names the next-click count (Phase 1)
+
+The shipped mood page used a fixed **Show me 3 more** label. During contract reconciliation the PRD
+gained the sentence that the expansion control names how many books the next click will add, and
+`moodMoreCount` / `buildMoodMoreLabel` were added so the page shows **Show me N more**. Matching,
+ordering, initial slice, expansion step, reset, and clamp did not change. Manual 1.6 accepts either
+wording.
+
 ## Migration Notes
 
-No application or database migration is required. The change adds development tooling, test files,
-documentation, and a CI step.
+No database migration is required. The change adds development tooling, test files, documentation, a
+CI step, and the small mood-label helpers in Addendum A1.
 
 Rollback is a normal code revert: remove the Vitest dependency/config/tests/scripts and the CI test
 step, then restore the prior PRD/test-plan wording only if the product behavior is also reverted. Test
@@ -581,7 +592,7 @@ cleanup never changes committed seed files or production data.
 - [x] 2.6 Reserved fixtures are cleaned after success and scenario errors — e692436
 - [x] 2.7 Type-aware lint passes — e692436
 - [x] 2.8 Production build passes — e692436
-- [ ] 2.9 CI passes with tests between lint and build
+- [x] 2.9 CI passes with tests between lint and build
 
 #### Manual
 

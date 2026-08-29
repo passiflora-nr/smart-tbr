@@ -41,3 +41,15 @@ export function assertLocalSupabaseCoordinates(apiUrl: string, dbUrl: string): v
     throw new Error(`Refusing Supabase database URL on wrong local port: ${port} (expected 54322)`);
   }
 }
+
+/** Reject a parsed `.dev.vars` map if it would overwrite the verified local API URL. Not a coordinate source. */
+export function assertDevVarsDoNotOverrideLocalCoordinates(
+  vars: Record<string, string | undefined>,
+  expectedUrl: string,
+): void {
+  if (Object.hasOwn(vars, "SUPABASE_URL") && vars.SUPABASE_URL !== expectedUrl) {
+    throw new Error(
+      "Refusing to start Astro because .dev.vars SUPABASE_URL is not the verified local loopback URL",
+    );
+  }
+}

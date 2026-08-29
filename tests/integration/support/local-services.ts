@@ -1,7 +1,12 @@
 import { spawn, spawnSync, type ChildProcessWithoutNullStreams } from "node:child_process";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { createInterface } from "node:readline";
-import { assertLocalSupabaseCoordinates, LOCAL_SUPABASE_API_URL } from "./local-coordinates";
+import {
+  assertDevVarsDoNotOverrideLocalCoordinates,
+  assertLocalSupabaseCoordinates,
+  LOCAL_SUPABASE_API_URL,
+} from "./local-coordinates";
 
 const REPO_ROOT = process.cwd();
 const SUPABASE_BIN = path.join(REPO_ROOT, "node_modules", ".bin", "supabase");
@@ -11,6 +16,7 @@ const ASTRO_HOST = "127.0.0.1";
 const ASTRO_PORT = 14567;
 const READINESS_TIMEOUT_MS = 90_000;
 const READINESS_INTERVAL_MS = 500;
+const ASTRO_STOP_GRACE_MS = 5_000;
 
 export interface LocalServiceHandles {
   astroBaseUrl: string;
@@ -33,7 +39,9 @@ function redactSensitiveOutput(text: string): string {
   return text
     .replace(/eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/g, "[REDACTED_TOKEN]")
     .replace(/sb_publishable_[A-Za-z0-9_-]+/g, "[REDACTED_KEY]")
-    .replace(/sb_secret_[A-Za-z0-9_-]+/g, "[REDACTED_KEY]");
+    .replace(/sb_secret_[A-Za-z0-9_-]+/g, "[REDACTED_KEY]")
+    .replace(/Cookie: [^\n]*/gi, "Cookie: [REDACTED_COOKIE]")
+    .replace(/postgresql:\/\/[^@\s]+@/g, "postgresql://[REDACTED_USERINFO]@");
 }
 
 function parseSupabaseStatusJson(raw: string): SupabaseStatusJson {
@@ -80,9 +88,78 @@ function resolveLocalSupabaseKey(status: SupabaseStatusJson): string {
   return key;
 }
 
-async function waitForHttpOk(url: string, timeoutMs: number): Promise<void> {
+function signalAstroTree(child: ChildProcessWithoutNullStreams, signal: NodeJS.Signals): void {
+  const pid = child.pid;
+  if (!pid) {
+    return;
+  }
+  try {
+    if (process.platform !== "win32") {
+      process.kill(-pid, signal);
+      return;
+    }
+    child.kill(signal);
+  } catch {
+    try {
+      child.kill(signal);
+    } catch {
+      // already gone
+    }
+  }
+}
+
+async function waitForProcessExit(child: ChildProcessWithoutNullStreams, timeoutMs: number): Promise<void> {
+  if (child.exitCode !== null || child.signalCode !== null) {
+    return;
+  }
+  await new Promise<void>((resolve) => {
+    const timer = setTimeout(resolve, timeoutMs);
+    child.once("exit", () => {
+      clearTimeout(timer);
+      resolve();
+    });
+  });
+}
+
+async function stopAstroProcess(child: ChildProcessWithoutNullStreams): Promise<void> {
+  signalAstroTree(child, "SIGTERM");
+  await waitForProcessExit(child, ASTRO_STOP_GRACE_MS);
+  if (child.exitCode === null && child.signalCode === null) {
+    signalAstroTree(child, "SIGKILL");
+    await waitForProcessExit(child, 1_000);
+  }
+}
+
+function stopSupabaseStack(): void {
+  spawnSync(SUPABASE_BIN, ["stop"], {
+    cwd: REPO_ROOT,
+    encoding: "utf8",
+    stdio: "ignore",
+  });
+}
+
+async function assertLoopbackPortFree(host: string, port: number): Promise<void> {
+  try {
+    const response = await fetch(`http://${host}:${port}/`, { redirect: "manual" });
+    await response.body?.cancel();
+    throw new Error(`Refusing to start Astro: ${host}:${port} is already responding`);
+  } catch (error) {
+    if (error instanceof Error && error.message.includes("already responding")) {
+      throw error;
+    }
+  }
+}
+
+async function waitForHttpOk(
+  url: string,
+  timeoutMs: number,
+  child: ChildProcessWithoutNullStreams,
+): Promise<void> {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
+    if (child.exitCode !== null) {
+      throw new Error(`Astro process exited during readiness (code ${child.exitCode})`);
+    }
     try {
       const response = await fetch(url, { redirect: "manual" });
       if (response.status >= 200 && response.status < 500) {
@@ -140,6 +217,38 @@ function startSupabaseStack(): void {
   }
 }
 
+function parseDotEnv(text: string): Record<string, string> {
+  const result: Record<string, string> = {};
+  for (const rawLine of text.split(/\r?\n/)) {
+    const line = rawLine.trim();
+    if (!line || line.startsWith("#")) {
+      continue;
+    }
+    const eq = line.indexOf("=");
+    if (eq <= 0) {
+      continue;
+    }
+    const key = line.slice(0, eq).trim();
+    let value = line.slice(eq + 1).trim();
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1);
+    }
+    result[key] = value;
+  }
+  return result;
+}
+
+function readDevVarsIfPresent(): Record<string, string> {
+  const devVarsPath = path.join(REPO_ROOT, ".dev.vars");
+  if (!existsSync(devVarsPath)) {
+    return {};
+  }
+  return parseDotEnv(readFileSync(devVarsPath, "utf8"));
+}
+
 function startAstroDev(supabaseUrl: string, supabaseKey: string): ChildProcessWithoutNullStreams {
   const child = spawn(NPM_BIN, ["run", "dev", "--", "--host", ASTRO_HOST, "--port", String(ASTRO_PORT)], {
     cwd: REPO_ROOT,
@@ -150,6 +259,7 @@ function startAstroDev(supabaseUrl: string, supabaseKey: string): ChildProcessWi
       SUPABASE_SERVICE_ROLE_KEY: "",
     },
     stdio: ["ignore", "pipe", "pipe"],
+    detached: process.platform !== "win32",
   });
 
   child.on("error", (error) => {
@@ -161,70 +271,82 @@ function startAstroDev(supabaseUrl: string, supabaseKey: string): ChildProcessWi
 
 export async function startLocalServices(): Promise<LocalServiceHandles> {
   let startedSupabase = false;
-  let status = readSupabaseStatus();
-
-  if (!isSupabaseHealthy(status)) {
-    startSupabaseStack();
-    startedSupabase = true;
-    status = readSupabaseStatus();
-  }
-
-  if (!isSupabaseHealthy(status)) {
-    throw new Error(
-      `Local Supabase stack is unavailable after startup attempt (cwd=${process.cwd()}, status=${JSON.stringify(status)})`,
-    );
-  }
-
-  const supabaseUrl = status.API_URL;
-  const supabaseDbUrl = status.DB_URL;
-  assertLocalSupabaseCoordinates(supabaseUrl, supabaseDbUrl);
-
-  const supabaseKey = resolveLocalSupabaseKey(status);
-  const astroOutput: string[] = [];
-  const astroProcess = startAstroDev(supabaseUrl, supabaseKey);
-  captureProcessOutput(astroProcess, astroOutput);
-
-  const astroBaseUrl = `http://${ASTRO_HOST}:${ASTRO_PORT}`;
+  let astroProcess: ChildProcessWithoutNullStreams | undefined;
 
   try {
-    await waitForHttpOk(`${astroBaseUrl}/`, READINESS_TIMEOUT_MS);
+    let status = readSupabaseStatus();
+
+    if (!isSupabaseHealthy(status)) {
+      startSupabaseStack();
+      startedSupabase = true;
+      status = readSupabaseStatus();
+    }
+
+    if (!isSupabaseHealthy(status)) {
+      throw new Error(
+        `Local Supabase stack is unavailable after startup attempt (cwd=${process.cwd()}, status=${redactSensitiveOutput(JSON.stringify(status))})`,
+      );
+    }
+
+    const supabaseUrl = status.API_URL;
+    const supabaseDbUrl = status.DB_URL;
+    assertLocalSupabaseCoordinates(supabaseUrl, supabaseDbUrl);
+
+    const supabaseKey = resolveLocalSupabaseKey(status);
+    assertDevVarsDoNotOverrideLocalCoordinates(readDevVarsIfPresent(), supabaseUrl);
+    if (process.env.SUPABASE_URL && process.env.SUPABASE_URL !== supabaseUrl) {
+      throw new Error("Refusing to start Astro because ambient SUPABASE_URL is not the verified local loopback URL");
+    }
+
+    await assertLoopbackPortFree(ASTRO_HOST, ASTRO_PORT);
+
+    const astroOutput: string[] = [];
+    astroProcess = startAstroDev(supabaseUrl, supabaseKey);
+    captureProcessOutput(astroProcess, astroOutput);
+
+    const astroBaseUrl = `http://${ASTRO_HOST}:${ASTRO_PORT}`;
+
+    try {
+      await waitForHttpOk(`${astroBaseUrl}/`, READINESS_TIMEOUT_MS, astroProcess);
+    } catch (error) {
+      const tail = astroOutput.slice(-40).join("\n");
+      const reason = error instanceof Error ? error.message : "Astro readiness probe failed";
+      throw new Error(`${reason}\nRecent Astro output:\n${tail}`);
+    }
+
+    if (astroProcess.exitCode !== null) {
+      const tail = astroOutput.slice(-40).join("\n");
+      throw new Error(`Astro dev server exited before tests could run\nRecent Astro output:\n${tail}`);
+    }
+
+    if (supabaseUrl !== LOCAL_SUPABASE_API_URL) {
+      throw new Error("Refusing to run integration tests against unexpected Supabase API URL");
+    }
+
+    return {
+      astroBaseUrl,
+      supabaseUrl,
+      supabaseKey,
+      supabaseDbUrl,
+      startedSupabase,
+      astroProcess,
+      astroOutput,
+    };
   } catch (error) {
-    astroProcess.kill("SIGTERM");
-    const tail = astroOutput.slice(-40).join("\n");
-    const reason = error instanceof Error ? error.message : "Astro readiness probe failed";
-    throw new Error(`${reason}\nRecent Astro output:\n${tail}`);
+    if (astroProcess) {
+      await stopAstroProcess(astroProcess);
+    }
+    if (startedSupabase) {
+      stopSupabaseStack();
+    }
+    throw error;
   }
-
-  if (astroProcess.exitCode !== null) {
-    const tail = astroOutput.slice(-40).join("\n");
-    throw new Error(`Astro dev server exited before tests could run\nRecent Astro output:\n${tail}`);
-  }
-
-  if (supabaseUrl !== LOCAL_SUPABASE_API_URL) {
-    throw new Error("Refusing to run integration tests against unexpected Supabase API URL");
-  }
-
-  return {
-    astroBaseUrl,
-    supabaseUrl,
-    supabaseKey,
-    supabaseDbUrl,
-    startedSupabase,
-    astroProcess,
-    astroOutput,
-  };
 }
 
 export async function stopLocalServices(handles: LocalServiceHandles): Promise<void> {
-  handles.astroProcess.kill("SIGTERM");
-  await new Promise((resolve) => setTimeout(resolve, 1_000));
-  handles.astroProcess.kill("SIGKILL");
+  await stopAstroProcess(handles.astroProcess);
 
   if (handles.startedSupabase) {
-    spawnSync(SUPABASE_BIN, ["stop"], {
-      cwd: REPO_ROOT,
-      encoding: "utf8",
-      stdio: "ignore",
-    });
+    stopSupabaseStack();
   }
 }

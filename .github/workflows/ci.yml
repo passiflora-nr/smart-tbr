@@ -19,9 +19,6 @@ jobs:
       - run: npm ci
       - run: npx astro sync
       - run: npm run lint
-      - uses: supabase/setup-cli@v1
-        with:
-          version: latest
       - run: npx supabase start --exclude studio,imgproxy,edge-runtime,supavisor,logflare,vector
       - run: npm test
       - run: npm run build

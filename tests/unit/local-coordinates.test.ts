@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  assertDevVarsDoNotOverrideLocalCoordinates,
   assertLocalSupabaseCoordinates,
   LOCAL_SUPABASE_API_URL,
   LOCAL_SUPABASE_DB_URL,
@@ -34,5 +35,28 @@ describe("assertLocalSupabaseCoordinates", () => {
     expect(() => {
       assertLocalSupabaseCoordinates(LOCAL_SUPABASE_API_URL, "postgresql://postgres:postgres@127.0.0.1:54321/postgres");
     }).toThrow(/wrong local port/i);
+  });
+});
+
+describe("assertDevVarsDoNotOverrideLocalCoordinates", () => {
+  it("accepts a missing or matching local URL", () => {
+    expect(() => {
+      assertDevVarsDoNotOverrideLocalCoordinates({}, LOCAL_SUPABASE_API_URL);
+    }).not.toThrow();
+    expect(() => {
+      assertDevVarsDoNotOverrideLocalCoordinates(
+        { SUPABASE_URL: LOCAL_SUPABASE_API_URL },
+        LOCAL_SUPABASE_API_URL,
+      );
+    }).not.toThrow();
+  });
+
+  it("rejects a hosted URL before Astro starts", () => {
+    expect(() => {
+      assertDevVarsDoNotOverrideLocalCoordinates(
+        { SUPABASE_URL: "https://kahvpxeygnmqpysrskok.supabase.co" },
+        LOCAL_SUPABASE_API_URL,
+      );
+    }).toThrow(/not the verified local loopback URL/i);
   });
 });
