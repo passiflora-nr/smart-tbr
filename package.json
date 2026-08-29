@@ -10,8 +10,9 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
-    "test": "vitest run --project unit",
+    "test": "vitest run",
     "test:unit": "vitest run --project unit",
+    "test:integration": "vitest run --project integration",
     "gen:types": "supabase gen types typescript --local > src/lib/database.types.ts"
   },
   "dependencies": {

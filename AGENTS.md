@@ -42,7 +42,15 @@ Astro v6 server-rendered app with React 19 islands, Tailwind v4, and Supabase Au
 
 ## Testing
 
-No test framework is wired up. If you add one, wire it into `@.github/workflows/ci.yml` between `lint` and `build`.
+Vitest 4 runs two named projects:
+
+- `npm run test:unit` — pure logic in `tests/unit/` (no Astro or Supabase runtime).
+- `npm run test:integration` — raw HTTP against the Astro dev server and local Supabase; requires Docker for the local stack.
+- `npm test` — both projects in non-watch mode; required in `@.github/workflows/ci.yml` between `lint` and `build`.
+
+Integration tests fail closed on non-loopback Supabase coordinates, mutate only user-D rows with the `[integration-test]` title prefix, and clean those rows in `finally`. Do not parse `.env` or `.dev.vars` as test coordinates.
+
+See `@context/foundation/test-plan.md` §6 for cookbook patterns.
 
 ## Audience & manual testing
 
@@ -55,4 +63,4 @@ Progress checklist titles in `plan.md` may stay short; the matching `#### Manual
 
 ## Commit & Pull Request Guidelines
 
-History is single-commit; no convention is established yet — prefer Conventional Commits (`feat:`, `fix:`, `chore:`). **All changes land on `main` through PRs only** — branch from `main`, push the branch, open a PR; never commit or push directly to `main`. CI runs `npm ci → npx astro sync → npm run lint → npm run build` and must pass (`@.github/workflows/ci.yml`). Husky `pre-commit` runs lint-staged (see `@package.json`) — don't bypass with `--no-verify`.
+History is single-commit; no convention is established yet — prefer Conventional Commits (`feat:`, `fix:`, `chore:`). **All changes land on `main` through PRs only** — branch from `main`, push the branch, open a PR; never commit or push directly to `main`. CI runs `npm ci → npx astro sync → npm run lint → npm test → npm run build` and must pass (`@.github/workflows/ci.yml`). Husky `pre-commit` runs lint-staged (see `@package.json`) — don't bypass with `--no-verify`.

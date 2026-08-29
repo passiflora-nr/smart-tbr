@@ -69,9 +69,9 @@ The classic test base for this project. AI-native tools (if any) carry a `checke
 
 | Layer              | Tool                       | Version | Notes                                                                                                        |
 | ------------------ | -------------------------- | ------- | ------------------------------------------------------------------------------------------------------------ |
-| unit + integration | Vitest (unit project)      | 4.1.11  | Named `unit` project, `environment: "node"`, no DOM. Integration project and local-Supabase lifecycle land in this change's second implement phase. |
+| unit + integration | Vitest (unit + integration projects) | 4.1.11  | Named `unit` and `integration` projects, both `environment: "node"`, no DOM. Integration uses Vitest global setup to start or reuse local Supabase, validate exact loopback coordinates, start Astro on loopback with explicit local env, and provide serializable context via `project.provide` / `inject`. |
 | component render   | none yet — see Phase 1     | —       | Astro's Container API renders `.astro` components directly; available since Astro 4.9, still experimental.    |
-| data boundary      | none yet — see Phase 1     | —       | Supabase is the only external boundary. The local Supabase stack plus the existing seed accounts is the honest integration surface — **how tests reach it is an open decision Phase 1 research must ground**, not a choice this plan pre-decides. No HTTP-mocking library is proposed. |
+| data boundary      | local Supabase + raw HTTP  | CLI 2.x | Honest integration surface: Astro dev server on loopback plus local Supabase Auth/PostgREST/Postgres. Tests sign in through real `/api/auth/signin`, mutate through JSON routes, and read back through an independently authenticated Supabase client. No HTTP-mocking library. |
 | e2e                | none yet — see Phase 4     | —       | Playwright, run against all three engines (Chromium, Firefox, WebKit) so the PRD's four-browser matrix is honoured automatically — Chrome and Edge share Chromium. Rationale: the repeat cost is machine minutes on a thin net, versus the owner hand-clicking every flow three times. Known caveat: WebKit on Linux CI is the flakiest of the three and is not identical to Safari on macOS; if it becomes noisy, quarantine that engine rather than deleting the matrix. |
 | accessibility      | none — not in this rollout | —       | `eslint-plugin-jsx-a11y` already runs in lint. No runtime a11y assertions proposed for v1.                    |
 
@@ -110,7 +110,13 @@ How to add new tests in this project. Each sub-section is filled in once the rel
 
 ### 6.2 Adding an integration test
 
-- TBD — see §3 Phase 1. Will cover the request-to-persisted-state-and-back pattern that proves a book keeps every field and trope tag through add and edit.
+- Put the file in `tests/integration/` and name it `*.test.ts`. The named `integration` project includes only that tree and runs one serialized worker.
+- Run the focused command: `npm run test:integration`. Docker must be available; the global setup starts or reuses local Supabase and Astro on loopback.
+- Use `inject("astroBaseUrl")`, `inject("supabaseUrl")`, `inject("supabaseKey")`, and `inject("supabaseDbUrl")` from global setup — never read `.env` or `.dev.vars` for coordinates.
+- Sign in once per file through `POST /api/auth/signin` with same-origin `Origin`, `redirect: "manual"`, and reuse the collected cookie header.
+- Mutate only user D (`user-d@example.test`) and only rows whose title starts with the run's `[integration-test]` prefix. Pre-clean stale prefixed rows, then delete in `finally`.
+- After a successful Astro mutation, read the row back through an independently authenticated local Supabase client. If the local read misses after a 201, delete that id through the Astro session and fail as a split-brain safety error.
+- Assert statuses, normalized data, book titles, and explanatory copy only — never CSS classes, DOM structure, element counts, or snapshots.
 
 ### 6.3 Adding an e2e test
 
@@ -118,7 +124,10 @@ How to add new tests in this project. Each sub-section is filled in once the rel
 
 ### 6.4 Adding a test for a new API endpoint
 
-- TBD — see §3 Phase 1 for the request-and-side-effect pattern, and §3 Phase 3 for the ownership and 401-not-HTML pattern every new endpoint must satisfy.
+- Prefer real HTTP through the integration project helpers in `tests/integration/support/http-session.ts` and `tests/integration/support/test-books.ts`.
+- Parse JSON as `unknown` and narrow through existing guards such as `isBookMutationSuccess` / `isBookMutationError`.
+- Reuse the Astro session cookie header and same-origin `Origin` on mutating requests. Form-post routes need form encoding and manual redirect handling so every `Set-Cookie` is captured.
+- Ownership and 401-not-HTML patterns for new endpoints land in rollout Phase 3; until then, follow the user-D namespacing and cleanup rules from §6.2.
 
 ### 6.5 Adding a test for a new page or route
 
@@ -130,7 +139,7 @@ How to add new tests in this project. Each sub-section is filled in once the rel
 
 ### 6.7 Per-rollout-phase notes
 
-(Optional. After each phase lands, `/10x-implement` appends a two-to-three-line note here capturing anything surprising the phase taught.)
+**Phase 1 (Harness + data-integrity core).** `.env` may point at hosted Supabase while `.dev.vars` points at local — integration setup must inject explicit loopback coordinates and reject anything else before mutation. RLS automation (`supabase/tests/rls.sql`) and DOM/island coverage stay in later rollout phases. User A's six-book seed count must never be mutated by integration fixtures; user D with a reserved title prefix is the safe mutation account.
 
 ## 7. What We Deliberately Don't Test
 

@@ -559,30 +559,30 @@ cleanup never changes committed seed files or production data.
 
 #### Automated
 
-- [x] 1.1 Astro-generated types are current
-- [x] 1.2 Unit project passes in run mode
-- [x] 1.3 Type-aware lint passes for config and tests
-- [x] 1.4 Production build remains green
-- [x] 1.5 Unit project discovers only intended unit files
+- [x] 1.1 Astro-generated types are current — 44362e2
+- [x] 1.2 Unit project passes in run mode — 44362e2
+- [x] 1.3 Type-aware lint passes for config and tests — 44362e2
+- [x] 1.4 Production build remains green — 44362e2
+- [x] 1.5 Unit project discovers only intended unit files — 44362e2
 
 #### Manual
 
-- [x] 1.6 Recommendation wording matches the shipped flow
+- [x] 1.6 Recommendation wording matches the shipped flow — 44362e2
 
 ### Phase 2: Safe HTTP Integration and Required CI Gate
 
 #### Automated
 
-- [ ] 2.1 Astro-generated types are current
-- [ ] 2.2 Focused unit suite passes
-- [ ] 2.3 Focused integration suite passes against local services
-- [ ] 2.4 Complete required test gate passes
-- [ ] 2.5 Hosted Supabase coordinates are rejected before mutation
-- [ ] 2.6 Reserved fixtures are cleaned after success and scenario errors
-- [ ] 2.7 Type-aware lint passes
-- [ ] 2.8 Production build passes
+- [x] 2.1 Astro-generated types are current
+- [x] 2.2 Focused unit suite passes
+- [x] 2.3 Focused integration suite passes against local services
+- [x] 2.4 Complete required test gate passes
+- [x] 2.5 Hosted Supabase coordinates are rejected before mutation
+- [x] 2.6 Reserved fixtures are cleaned after success and scenario errors
+- [x] 2.7 Type-aware lint passes
+- [x] 2.8 Production build passes
 - [ ] 2.9 CI passes with tests between lint and build
 
 #### Manual
 
-- [ ] 2.10 Normal local add, edit, and mood flow still works
+- [x] 2.10 Normal local add, edit, and mood flow still works

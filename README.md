@@ -59,6 +59,9 @@ npm run dev
 | `npm run lint`     | ESLint with type-checked rules (`astro sync` first if env/schema changed; CI runs it) |
 | `npm run lint:fix` | ESLint with `--fix`                                                                   |
 | `npm run format`   | Prettier                                                                              |
+| `npm test`         | Unit + integration Vitest projects (integration needs local Supabase + Docker)        |
+| `npm run test:unit` | Unit project only (`tests/unit/`)                                                    |
+| `npm run test:integration` | Integration project only (`tests/integration/`)                             |
 
 ## Project layout
 
@@ -170,7 +173,7 @@ Ops reference: [`context/foundation/infrastructure.md`](./context/foundation/inf
 
 ## CI
 
-[`.github/workflows/ci.yml`](./.github/workflows/ci.yml) runs **`npm ci` → `npx astro sync` → `npm run lint` → `npm run build`** on pushes and PRs to **`main`**.
+[`.github/workflows/ci.yml`](./.github/workflows/ci.yml) runs **`npm ci` → `npx astro sync` → `npm run lint` → `npm test` → `npm run build`** on pushes and PRs to **`main`**. The test step starts local Supabase via Docker and does not receive hosted Supabase secrets.
 
 On **push to `main`**, a **`deploy`** job (after CI passes) runs **`wrangler deploy`** via [`cloudflare/wrangler-action@v3`](https://github.com/cloudflare/wrangler-action) and uploads Worker secrets. Trigger a manual redeploy from the Actions tab with **`workflow_dispatch`**.
 
