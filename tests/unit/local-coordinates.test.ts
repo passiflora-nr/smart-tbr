@@ -44,10 +44,7 @@ describe("assertDevVarsDoNotOverrideLocalCoordinates", () => {
       assertDevVarsDoNotOverrideLocalCoordinates({}, LOCAL_SUPABASE_API_URL);
     }).not.toThrow();
     expect(() => {
-      assertDevVarsDoNotOverrideLocalCoordinates(
-        { SUPABASE_URL: LOCAL_SUPABASE_API_URL },
-        LOCAL_SUPABASE_API_URL,
-      );
+      assertDevVarsDoNotOverrideLocalCoordinates({ SUPABASE_URL: LOCAL_SUPABASE_API_URL }, LOCAL_SUPABASE_API_URL);
     }).not.toThrow();
   });
 

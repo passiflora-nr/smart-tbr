@@ -150,11 +150,7 @@ async function assertLoopbackPortFree(host: string, port: number): Promise<void>
   }
 }
 
-async function waitForHttpOk(
-  url: string,
-  timeoutMs: number,
-  child: ChildProcessWithoutNullStreams,
-): Promise<void> {
+async function waitForHttpOk(url: string, timeoutMs: number, child: ChildProcessWithoutNullStreams): Promise<void> {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
     if (child.exitCode !== null) {
@@ -230,10 +226,7 @@ function parseDotEnv(text: string): Record<string, string> {
     }
     const key = line.slice(0, eq).trim();
     let value = line.slice(eq + 1).trim();
-    if (
-      (value.startsWith('"') && value.endsWith('"')) ||
-      (value.startsWith("'") && value.endsWith("'"))
-    ) {
+    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
       value = value.slice(1, -1);
     }
     result[key] = value;

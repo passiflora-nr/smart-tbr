@@ -48,8 +48,6 @@ export function assertDevVarsDoNotOverrideLocalCoordinates(
   expectedUrl: string,
 ): void {
   if (Object.hasOwn(vars, "SUPABASE_URL") && vars.SUPABASE_URL !== expectedUrl) {
-    throw new Error(
-      "Refusing to start Astro because .dev.vars SUPABASE_URL is not the verified local loopback URL",
-    );
+    throw new Error("Refusing to start Astro because .dev.vars SUPABASE_URL is not the verified local loopback URL");
   }
 }
