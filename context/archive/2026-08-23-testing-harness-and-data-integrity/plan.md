@@ -592,7 +592,7 @@ cleanup never changes committed seed files or production data.
 - [x] 2.6 Reserved fixtures are cleaned after success and scenario errors — e692436
 - [x] 2.7 Type-aware lint passes — e692436
 - [x] 2.8 Production build passes — e692436
-- [x] 2.9 CI passes with tests between lint and build
+- [x] 2.9 CI passes with tests between lint and build — e692436
 
 #### Manual
 
