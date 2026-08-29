@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "hooks": {
+    "postToolUse": [
+      {
+        "command": ".cursor/hooks/lint-typecheck.sh",
+        "matcher": "Write|StrReplace",
+        "timeout": 60
+      },
+      {
+        "command": ".cursor/hooks/related-tests.sh",
+        "matcher": "Write|StrReplace",
+        "timeout": 30
+      }
+    ]
+  }
+}
