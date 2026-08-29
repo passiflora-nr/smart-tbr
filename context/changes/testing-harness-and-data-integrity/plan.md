@@ -573,16 +573,16 @@ cleanup never changes committed seed files or production data.
 
 #### Automated
 
-- [x] 2.1 Astro-generated types are current
-- [x] 2.2 Focused unit suite passes
-- [x] 2.3 Focused integration suite passes against local services
-- [x] 2.4 Complete required test gate passes
-- [x] 2.5 Hosted Supabase coordinates are rejected before mutation
-- [x] 2.6 Reserved fixtures are cleaned after success and scenario errors
-- [x] 2.7 Type-aware lint passes
-- [x] 2.8 Production build passes
+- [x] 2.1 Astro-generated types are current — e692436
+- [x] 2.2 Focused unit suite passes — e692436
+- [x] 2.3 Focused integration suite passes against local services — e692436
+- [x] 2.4 Complete required test gate passes — e692436
+- [x] 2.5 Hosted Supabase coordinates are rejected before mutation — e692436
+- [x] 2.6 Reserved fixtures are cleaned after success and scenario errors — e692436
+- [x] 2.7 Type-aware lint passes — e692436
+- [x] 2.8 Production build passes — e692436
 - [ ] 2.9 CI passes with tests between lint and build
 
 #### Manual
 
-- [x] 2.10 Normal local add, edit, and mood flow still works
+- [x] 2.10 Normal local add, edit, and mood flow still works — e692436

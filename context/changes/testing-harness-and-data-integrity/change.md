@@ -1,7 +1,7 @@
 ---
 change_id: testing-harness-and-data-integrity
 title: Harness + data-integrity core
-status: implementing
+status: implemented
 created: 2026-08-23
 updated: 2026-08-29
 archived_at: null
