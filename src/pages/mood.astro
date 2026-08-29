@@ -7,6 +7,7 @@ import { collectTropeVocabulary } from "@/lib/book-filters";
 import {
   MOOD_STEP_SIZE,
   buildMoodHref,
+  buildMoodMoreLabel,
   matchesAnyTrope,
   parseMoodSelection,
   parseMoodShowCount,
@@ -173,7 +174,7 @@ if (!supabase) {
                       href={buildMoodHref(resultTropes, nextShow)}
                       class="text-sm text-blue-200 underline underline-offset-2 transition-colors hover:text-blue-100"
                     >
-                      Show me 3 more
+                      {buildMoodMoreLabel(matchVisibleCount, matchTotal)}
                     </a>
                   </p>
                 ) : matchTotal > MOOD_STEP_SIZE ? (

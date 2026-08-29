@@ -59,7 +59,7 @@ The MVP flow is locked to a six-step path:
 3. The user browses their TBR and can search, filter, edit, or delete existing book entries as needed during migration.
 4. When ready to choose the next read, the user opens the trope-selection screen.
 5. The user selects 1–3 trope tags from the tropes already present in their own TBR to represent their current reading mood.
-6. SmartTBR returns up to 3 matching books from that user's own TBR, using any-match trope overlap, and the user chooses what to read next.
+6. SmartTBR initially shows up to 3 matching books from that user's own TBR, using any-match trope overlap. The reader may explicitly reveal more matches in steps of up to 3 until all current matches are visible. The expansion control names how many books the next click will add. Submitting a new mood selection resets the visible result count to 3. The user then chooses what to read next.
 
 ### MVP Included Scope
 
@@ -71,14 +71,14 @@ The MVP includes only the capabilities needed to consolidate a personal TBR and 
 - Viewing, searching, filtering, editing, and deleting books in the user's own TBR.
 - A trope-selection screen populated from the user's own existing trope tags.
 - Selection of up to 3 mood-trope tags per recommendation query.
-- Recommendation results capped at up to 3 books, each drawn only from the user's own TBR and shown with title, author, and trope tags.
+- Recommendation results that initially show up to 3 books, each drawn only from the user's own TBR and shown with title, author, and trope tags. The reader may explicitly reveal further matches in steps of up to 3 until all current matches are visible; the expansion control names how many the next click will add. Submitting a new mood selection resets the visible count to 3. A large valid expansion request is clamped to the finite match total rather than rejected.
 - Empty states for no books, no available tropes, and no matching recommendations.
 
 ### US-01: User picks the next book by mood-tropes
 
 - **Given** a signed-in user with at least one book in their TBR
 - **When** they open the trope-selection screen, pick one or more trope tags representing their current mood, and submit
-- **Then** they see up to 3 books from their own TBR whose trope tags include at least one of the selected mood-tropes
+- **Then** they initially see up to 3 books from their own TBR whose trope tags include at least one of the selected mood-tropes. They may explicitly reveal more matches in steps of up to 3 until all current matches are visible; submitting a new mood selection resets the visible result count to 3.
 
 #### Acceptance Criteria
 
@@ -86,6 +86,8 @@ The MVP includes only the capabilities needed to consolidate a personal TBR and 
 - If the user's TBR is empty, the trope-selection screen shows an explanatory empty-state ("Add a book to your TBR first"), not a 0-result list.
 - If no books in the TBR match any of the selected tropes, the result screen shows an explanatory empty-state ("No matches — try different tropes"), not a blank screen.
 - Each returned book shows its title, author, and the trope tags it was tagged with.
+- A new mood query initially shows at most 3 any-match books. The reader may explicitly reveal more matches in steps of up to 3 until all current matches are visible. The expansion control names how many books the next click will add (for example "Show me 2 more" when two remain). Submitting a new mood selection resets the visible result count to 3. A large valid expansion request is clamped to the finite match total rather than rejected.
+- Presentation order is deterministic (title, then id) so already-visible books do not move when more appear. This is display stability, not relevance ranking.
 - The result screen returns within ≤ 2 seconds end-to-end (per Guardrail).
 - No book from another user's TBR can appear in the result, by construction.
 
@@ -121,8 +123,8 @@ The MVP includes only the capabilities needed to consolidate a personal TBR and 
   > Socrates: Reviewed counters (global vocabulary would aid discovery; cold-start screen is empty for new users; dynamic checklist is non-trivial UI). Resolution: stands as written — per-user vocabulary is required to honor FR-011's strict isolation; the empty-state is handled in US-01's acceptance criteria; the dynamic checklist is a single list render off existing data.
 - FR-009: A signed-in user can select up to 3 trope tags that match their current mood and request a recommendation. Priority: must-have
   > Socrates: Counter-argument considered: "Multi-select adds combinatorial complexity in UI and matching; single-trope-at-a-time selection is simpler and may be enough." Resolution: FR-009 REVISED — multi-select retained but capped at 3 tropes per query, preventing combinatorial blow-up while keeping the core multi-trope value (the mood pattern "I want enemies-to-lovers AND grumpy-sunshine" is the central insight of the product).
-- FR-010: The app returns up to 3 books from the user's TBR whose trope tags overlap with at least one of the selected mood-tropes (any-match), each shown with title, author, and tagged tropes. Priority: must-have
-  > Socrates: Reviewed counters (any-match feels weak — one shared tag of five; no ranking risks repetition; 3 results is too few). Resolution: stands as written — any-match keeps results generous against a 100-book pile, where strict matching would frequently return zero; if repetition becomes a real problem during personal use, ranking can land in v2 without changing this FR's contract.
+- FR-010: The app initially returns up to 3 books from the user's TBR whose trope tags overlap with at least one of the selected mood-tropes (any-match), each shown with title, author, and tagged tropes. The reader may explicitly reveal more matches in steps of up to 3 until all current matches are visible. The expansion control names how many books the next click will add. Submitting a new mood selection resets the visible result count to 3. A large valid expansion request is clamped to the finite match total rather than rejected. Results are presented in deterministic title-then-id order so expansion is stable; this is presentation stability, not relevance ranking. Priority: must-have
+  > Socrates: Reviewed counters (any-match feels weak — one shared tag of five; no ranking risks repetition; 3 results is too few). Resolution: stands as written — any-match keeps results generous against a 100-book pile, where strict matching would frequently return zero; if repetition becomes a real problem during personal use, ranking can land in v2 without changing this FR's contract. Later product decision: "up to 3" is the default first view, not a hard cap on what the reader may deliberately ask to see.
 
 ### Data isolation (defensive)
 
@@ -131,7 +133,7 @@ The MVP includes only the capabilities needed to consolidate a personal TBR and 
 
 ## Non-Functional Requirements
 
-- The trope/mood selector produces its result (up to 3 books) within 2 seconds end-to-end of the user submitting their selection. (Mirrors the Guardrail; without this, the product's "no more decision paralysis" value proposition fails — a slow recommender is itself a source of decision paralysis.)
+- The trope/mood selector produces its initial result (up to 3 books) within 2 seconds end-to-end of the user submitting their selection. (Mirrors the Guardrail; without this, the product's "no more decision paralysis" value proposition fails — a slow recommender is itself a source of decision paralysis.)
 - A user's TBR (titles, authors, trope tags, optional descriptions) is never visible to any account other than the owning user, and is never returnable to a different account through any interface SmartTBR exposes. (Mirrors FR-011 and the privacy Guardrail at the product boundary, independent of mechanism.)
 - Adding a single book to the TBR via manual entry requires no more than 30 seconds of user input once the entry surface is presented. (Mirrors the Guardrail; without this, the migration of 100+ books becomes a prohibitive up-front tax and Primary success criteria cannot be measured.)
 - The product remains usable on the latest two major versions of the four mainstream desktop browsers. (Provides a predictable test matrix for v1; broader compatibility is not promised. Mobile browsers are explicitly excluded — see Non-Goals.)
@@ -145,9 +147,9 @@ Given a user's TBR (each book carrying free-text trope tags) and a set of 1–3 
 
 The rule consumes two user-facing inputs: the user's accumulated TBR (manually entered, each entry tagged with one or more free-text tropes), and a transient mood query (a set of 1–3 trope tags the user picks from the trope vocabulary that exists in their own TBR). It does not consume star ratings, genre, length, publish date, or any external metadata — those exist nowhere in v1.
 
-The rule produces a tightly bounded output: at most 3 books, each presented with title, author, and trope tags. The cap is intentional — the entire point is to escape the paralysis of a 100-book pile, so the rule never returns a long list, never "ranks" beyond the implicit filter, and never returns nothing if any match exists (it returns whatever matches, up to 3). If zero books match, the user is told explicitly so they can re-query with different tropes; the rule does not fall back to "books you might also like" or any other inferred substitute.
+The rule produces a tightly bounded default output: at most 3 books on a new mood query, each presented with title, author, and trope tags. The initial cap is intentional — the entire point is to escape the paralysis of a 100-book pile, so the rule never volunteers a long list. The reader may explicitly ask to see more matches in steps of up to 3, and may continue until all current matches are visible; the expansion control names how many the next click will add, and a large valid expansion request is clamped to the finite match total rather than rejected. Submitting a new mood selection resets the visible result count to 3. Results are presented in deterministic title-then-id order so already-visible books stay in place when more appear; the rule does not score relevance, weight recency, learn a ranking, or shuffle. The rule never returns nothing if any match exists (it returns whatever matches, starting with up to 3). If zero books match, the user is told explicitly so they can re-query with different tropes; the rule does not fall back to "books you might also like" or any other inferred substitute.
 
-The user encounters the rule by opening the trope-selection screen at the moment of choosing the next book to read, picking up to 3 tropes that capture the current mood, and submitting. The 3 results are the decision space. The reader picks one and goes off to read it; no further system involvement is required.
+The user encounters the rule by opening the trope-selection screen at the moment of choosing the next book to read, picking up to 3 tropes that capture the current mood, and submitting. The initial 3 results are the default decision space. The reader may then reveal more matches in steps of up to 3, pick one, and go off to read it; no further system involvement is required.
 
 ## Access Control
 
@@ -165,7 +167,7 @@ Sign-up creates a fresh, empty TBR account. Sign-in returns the user to the dash
 - Avoid: native mobile app (iOS / Android). — Rationale: web is the v1 surface.
 - Avoid: any mobile-browser usability commitment for v1. — Rationale: v1 targets desktop browsers exclusively (per Non-Functional Requirements). The product may not render or behave acceptably at phone widths, and that is not considered a defect for v1. Mobile-browser support — including the previously-mentioned "add a book from my phone" moment — is deferred to v2+.
 - Avoid: complex recommendation logic beyond simple tag-set intersection (no scoring weights, no collaborative filtering, no machine learning). — Rationale: the Business Logic is intentionally simple; algorithmic complexity here would consume timeline budget without proving the core insight that trope-matching alone solves the problem.
-- Avoid: ranking or ordering within the 3 recommended results (no "best match first", no recency weighting, no random shuffle). — Rationale: v1 returns any matching books up to 3; ranking is a v2 concern once we know whether the simple match is good enough on its own.
+- Avoid: relevance scoring, recency weighting, learned ranking, or random shuffling of recommendation results. Deterministic title-then-id presentation is allowed so incremental expansion keeps already-visible books in place. — Rationale: v1 must not introduce a "best match first" ranking; stable presentation is a display contract, not a quality score.
 - Avoid: a "read" / "archived" / "finished" state for books. — Rationale: hard delete is sufficient for v1 (per FR-007 Socrates resolution); a status state machine is a v2 concern.
 - Avoid: offline-first guarantees. — Rationale: the v1 product requires a live network connection to be usable, and no claim is made about availability or behavior when the user is offline; adding offline support would substantially expand engineering scope without earning its keep at single-digit users.
 - Avoid: aiming for any compliance certification beyond baseline practices, and any multi-region availability commitment. — Rationale: v1 is single-region, personal-scale; compliance certification and multi-region availability are concerns that arise when the product graduates to broader use.

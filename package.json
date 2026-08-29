@@ -10,6 +10,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
+    "test": "vitest run --project unit",
+    "test:unit": "vitest run --project unit",
     "gen:types": "supabase gen types typescript --local > src/lib/database.types.ts"
   },
   "dependencies": {
@@ -54,6 +56,7 @@
     "supabase": "^2.101.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.59.2",
+    "vitest": "^4.1.11",
     "wrangler": "^4.90.0"
   },
   "overrides": {
