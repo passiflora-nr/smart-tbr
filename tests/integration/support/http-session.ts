@@ -75,15 +75,19 @@ export async function postFormWithManualRedirect(
   url: string,
   fields: Record<string, string>,
   cookieHeader: string,
-  origin: string,
+  origin?: string,
 ): Promise<Response> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/x-www-form-urlencoded",
+    Cookie: cookieHeader,
+  };
+  if (origin !== undefined) {
+    headers.Origin = origin;
+  }
+
   const response = await fetch(url, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Cookie: cookieHeader,
-      Origin: origin,
-    },
+    headers,
     body: new URLSearchParams(fields),
     redirect: "manual",
   });
