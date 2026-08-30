@@ -6,7 +6,7 @@
 >
 > Refresh: re-run `/10x-test-plan --refresh` when stale (see §8).
 >
-> Last updated: 2026-08-29
+> Last updated: 2026-08-30
 
 ## 1. Strategy
 
@@ -136,7 +136,12 @@ How to add new tests in this project. Each sub-section is filled in once the rel
 
 ### 6.6 Adding a test for a control on a list surface
 
-- TBD — see §3 Phase 2. Unit tests cover the browse-filter matching rule (FR-012 all-match AND). Integration tests assert which book titles appear or disappear on the page, never markup, so the suite survives the S-07 rewrite. Related rule: `lessons.md` — prefer native HTML over React islands on per-row list surfaces, and verify with JavaScript disabled.
+- **Unit layer (the rule).** Put browse-filter matching tests in `tests/unit/`, import `@/lib/book-filters`, and spell expected parse/match results from FR-012: case-insensitive substring on title or author, trope filters **all-match** (every selected trope, exact string), text and tropes combined with AND. Do not copy expected values out of the implementation. These tests lock the rule in Node; they do not prove the browse page still calls the matcher — that needs a page GET.
+- **Integration layer (the wiring).** Put list-surface tests in `tests/integration/`, sign in as user D, seed only rows whose title starts with the run's `[integration-test]` prefix, and assert **which book titles remain or disappear** after `GET /books`, or the empty / no-match sentences (`Your TBR is empty — add your first book to get started.` and `No books match your`). Assert `status === 200` before title checks — a stale session returns 302 with an empty body and would otherwise read as a missing title. See §6.2 for sign-in, prefix cleanup, and split-brain read-back; use `fetchAuthedHtml` for the HTML GET and `createBookViaApi` to seed without duplicating the POST block.
+- **Build query strings by hand.** Construct `q` and repeated `trope` with `URLSearchParams.append("trope", …)`. Do not use `serializeBookFilters` or `buildBooksHref` as the test oracle — a broken serializer would hide itself. Do not reuse mood any-match helpers or expectations: Your TBR requires **every** selected trope; Pick by mood requires **any one** overlapping trope. A book that shares only one of two selected tropes must be **absent** on Your TBR and would be **present** on mood.
+- **Native filter controls only.** For server-rendered filter forms and clear links, assert behaviour-bearing `method`, `action`, `name`, and `href` values as literal substrings in the response text — there is no HTML parser in the suite. A passing check proves each value appears somewhere on the page, not that the label and destination belong to the same element; run these checks against a filtered response where the control is actually active (e.g. "Clear filters" is a link only when filters are on). Do not assert CSS classes, DOM structure, element counts, heading `(N of M)`, snapshots, checkbox state, or flash-notice copy.
+- **JavaScript-off equivalence.** Browse, filter, and delete on Your TBR are server HTML — a raw authed `GET /books` (and a form POST for delete, then another GET) is the automated stand-in for loading the page with JavaScript disabled. Add Book and Save are React islands; proving those button clicks stays in §3 Phase 4 e2e.
+- **Related rule.** `lessons.md` — prefer native HTML over React islands on per-row list surfaces, and verify with JavaScript disabled. Example shipped in `tests/integration/books-surface.test.ts` and `tests/unit/book-filters.test.ts`.
 
 ### 6.7 Per-rollout-phase notes
 

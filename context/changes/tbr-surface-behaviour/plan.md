@@ -366,22 +366,22 @@ No schema or data migration. User D must remain the fixture-only mutation accoun
 
 #### Automated
 
-- [x] 2.1 Focused integration suite passes: `npm run test:integration`
-- [x] 2.2 Full gate passes: `npm test`
-- [x] 2.3 Type-aware lint passes: `npm run lint`
-- [x] 2.4 Existing `books-persistence` cases still pass (helpers stay backward compatible)
+- [x] 2.1 Focused integration suite passes: `npm run test:integration` — 32d2807
+- [x] 2.2 Full gate passes: `npm test` — 32d2807
+- [x] 2.3 Type-aware lint passes: `npm run lint` — 32d2807
+- [x] 2.4 Existing `books-persistence` cases still pass (helpers stay backward compatible) — 32d2807
 
 #### Manual
 
-- [x] 2.5 Empty list, then filters, clears, and delete with JavaScript off
+- [x] 2.5 Empty list, then filters, clears, and delete with JavaScript off — 32d2807
 
 ### Phase 3: Cookbook §6.6
 
 #### Automated
 
-- [ ] 3.1 `context/foundation/test-plan.md` §6.6 no longer says TBD
-- [ ] 3.2 Markdown format passes if staged: Prettier on `*.md`
+- [x] 3.1 `context/foundation/test-plan.md` §6.6 no longer says TBD
+- [x] 3.2 Markdown format passes if staged: Prettier on `*.md`
 
 #### Manual
 
-- [ ] 3.3 Cookbook tells you what a new list check may look at
+- [x] 3.3 Cookbook tells you what a new list check may look at
