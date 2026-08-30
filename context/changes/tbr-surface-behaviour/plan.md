@@ -366,14 +366,14 @@ No schema or data migration. User D must remain the fixture-only mutation accoun
 
 #### Automated
 
-- [ ] 2.1 Focused integration suite passes: `npm run test:integration`
-- [ ] 2.2 Full gate passes: `npm test`
-- [ ] 2.3 Type-aware lint passes: `npm run lint`
-- [ ] 2.4 Existing `books-persistence` cases still pass (helpers stay backward compatible)
+- [x] 2.1 Focused integration suite passes: `npm run test:integration`
+- [x] 2.2 Full gate passes: `npm test`
+- [x] 2.3 Type-aware lint passes: `npm run lint`
+- [x] 2.4 Existing `books-persistence` cases still pass (helpers stay backward compatible)
 
 #### Manual
 
-- [ ] 2.5 Empty list, then filters, clears, and delete with JavaScript off
+- [x] 2.5 Empty list, then filters, clears, and delete with JavaScript off
 
 ### Phase 3: Cookbook §6.6
 
