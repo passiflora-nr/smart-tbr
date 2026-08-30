@@ -347,23 +347,23 @@ prefix semantics. Test cleanup remains restricted to user-D titles beginning wit
 
 #### Automated
 
-- [x] 1.1 Astro-generated types are current: `npx astro sync`
-- [x] 1.2 Focused access-control integration suite passes
-- [x] 1.3 Full unit and integration gate passes: `npm test`
-- [x] 1.4 Type-aware lint passes: `npm run lint`
-- [x] 1.5 Production build passes: `npm run build`
+- [x] 1.1 Astro-generated types are current: `npx astro sync` — 8c68e91
+- [x] 1.2 Focused access-control integration suite passes — 8c68e91
+- [x] 1.3 Full unit and integration gate passes: `npm test` — 8c68e91
+- [x] 1.4 Type-aware lint passes: `npm run lint` — 8c68e91
+- [x] 1.5 Production build passes: `npm run build` — 8c68e91
 
 #### Manual
 
-- [x] 1.6 Signed-out pages lead to sign-in without blocking public pages
+- [x] 1.6 Signed-out pages lead to sign-in without blocking public pages — 8c68e91
 
 ### Phase 2: Phase 3 cookbook
 
 #### Automated
 
-- [ ] 2.1 Test-plan sections 6.4 and 6.5 contain the shipped recipes, and section 6.5 no longer says TBD
-- [ ] 2.2 Changed Markdown files pass formatting
+- [x] 2.1 Test-plan sections 6.4 and 6.5 contain the shipped recipes, and section 6.5 no longer says TBD
+- [x] 2.2 Changed Markdown files pass formatting
 
 #### Manual
 
-- [ ] 2.3 Cookbook clearly explains safe access-control tests
+- [x] 2.3 Cookbook clearly explains safe access-control tests

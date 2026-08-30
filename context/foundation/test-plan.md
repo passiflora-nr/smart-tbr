@@ -52,12 +52,12 @@ The top failure scenarios this project must protect against, ordered by risk = i
 
 Each row is a discrete rollout phase that will open its own change folder via `/10x-new`. Status moves left-to-right through the values below; the orchestrator updates Status as artifacts appear on disk.
 
-| #   | Phase name                    | Goal (one line)                                                                                                                                 | Risks covered          | Test types               | Status       | Change folder                                         |
-| --- | ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- | ------------------------ | ------------ | ----------------------------------------------------- |
-| 1   | Harness + data-integrity core | Stand up the test runner, then prove a book survives add/edit intact and that trope matching obeys FR-010                                       | #1, #5, #6             | setup, unit, integration | implemented  | `context/changes/testing-harness-and-data-integrity/` |
-| 2   | TBR surface behaviour         | Prove every control on browse/search/filter/edit/delete produces the right set of books, asserting data not markup                              | #1, #2, #3             | unit, integration        | implementing | `context/changes/tbr-surface-behaviour/`              |
-| 3   | Access control and abuse      | Prove ownership is enforced per request, cross-origin deletes are refused, and route gating holds for new routes                                | #4, #7                 | integration              | not started  | —                                                     |
-| 4   | Critical-path e2e net + gates | A thin browser-level net over sign-in → add book → browse → mood pick, run on all three engines, wired as a required CI gate before S-07 starts | #2, #3 (cross-cutting) | e2e, gates               | not started  | —                                                     |
+| #   | Phase name                    | Goal (one line)                                                                                                                                 | Risks covered          | Test types               | Status      | Change folder                                         |
+| --- | ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- | ------------------------ | ----------- | ----------------------------------------------------- |
+| 1   | Harness + data-integrity core | Stand up the test runner, then prove a book survives add/edit intact and that trope matching obeys FR-010                                       | #1, #5, #6             | setup, unit, integration | implemented | `context/changes/testing-harness-and-data-integrity/` |
+| 2   | TBR surface behaviour         | Prove every control on browse/search/filter/edit/delete produces the right set of books, asserting data not markup                              | #1, #2, #3             | unit, integration        | implemented | `context/changes/tbr-surface-behaviour/`              |
+| 3   | Access control and abuse      | Prove ownership is enforced per request, cross-origin deletes are refused, and route gating holds for new routes                                | #4, #7                 | integration              | implemented | `context/changes/access-controll-and-abuse/`          |
+| 4   | Critical-path e2e net + gates | A thin browser-level net over sign-in → add book → browse → mood pick, run on all three engines, wired as a required CI gate before S-07 starts | #2, #3 (cross-cutting) | e2e, gates               | not started | —                                                     |
 
 **Ordering rationale.** Phase 1 is unavoidable: with no runner and no test files, nothing can be asserted until one exists, and it pairs the bootstrap with the highest-scoring risk. Phase 2 targets the defect class the owner has actually lived through (interview Q2) at the layer that survives the S-07 rewrite. Phase 3 covers lower-likelihood but irreversible failures and is short. Phase 4 is last because the cheaper layers cover most of the surface first, but it must land **before** the S-07 theme rewrite begins.
 
@@ -128,11 +128,22 @@ How to add new tests in this project. Each sub-section is filled in once the rel
 - Prefer real HTTP through the integration project helpers in `tests/integration/support/http-session.ts` and `tests/integration/support/test-books.ts`.
 - Parse JSON as `unknown` and narrow through existing guards such as `isBookMutationSuccess` / `isBookMutationError`.
 - Reuse the Astro session cookie header and same-origin `Origin` on mutating requests. Form-post routes need form encoding and manual redirect handling so every `Set-Cookie` is captured.
-- Ownership and 401-not-HTML patterns for new endpoints land in rollout Phase 3; until then, follow the user-D namespacing and cleanup rules from §6.2.
+- **Two accounts.** User D owns every reserved temporary book (`[integration-test]` title prefix). User A is the other signed-in account and is **read-only** — never create, edit, or delete user A's six seeded books. Sign A in only to send a blocked request at D's row.
+- **Wrong owner is not found.** A signed-in caller who does not own the book gets the same result as a missing id: `404` JSON `{ "error": "Book not found" }` on `PUT`, or a redirect containing `error=not_found` (never `notice=deleted`) on form delete. Do not expect `403`.
+- **Pair the status with an independent read.** After a blocked edit or delete, read the victim row back through user D's independently authenticated verification client and assert title, author, description, tropes, owner, and id are unchanged. A redirect or 404 alone is not proof the book survived.
+- **Signed-out JSON vs form.** Unsigned `POST /api/books` and `PUT /api/books/<id>` return `401`, `Content-Type` including `application/json`, and a narrowed `isBookMutationError` body — not an HTML sign-in page. Unsigned form posts (`POST /api/books/<id>/delete`, `POST /api/account/delete`) with the local app Origin return `302` to `/auth/signin`, not `401`. Do not flatten both into one "every API returns 401" rule.
+- **Form-origin checks need real HTTP.** Astro's origin check only runs on form-like content types. Prove it with `Origin: https://evil.example` and with no Origin at all — both must return `403` and leave the row (or the signed-in account) intact. `postFormWithManualRedirect` sets Origin only when a value is supplied. Importing a handler into a unit test cannot see this check. A signed-out form post that should redirect must send the local Origin; a missing or hostile Origin is refused with `403` before the handler can redirect.
+- Example shipped in `tests/integration/access-control.test.ts`. See §6.2 for sign-in, prefix cleanup, and split-brain read-back.
 
 ### 6.5 Adding a test for a new page or route
 
-- TBD — see §3 Phase 3. Will cover the table-driven gating sweep, derived from the app's own protected-route list rather than hand-listed in the test.
+- Put the file in `tests/integration/` and drive real HTTP (`redirect: "manual"`). A page GET that needs a session uses `fetchAuthedHtml`; a signed-out gate check uses raw `fetch`.
+- **Import the app's protected-page list.** Table-drive signed-out checks from `PROTECTED_ROUTE_PREFIXES` in `@/lib/protected-routes` — the same array the app uses to decide which pages require sign-in. Do **not** type a second copy of `/books`, `/mood`, and `/account` into the test. A hand-maintained list will drift the moment a prefix is added or renamed.
+- Matching is prefix `startsWith`. After the imported roots, add explicit GETs for nested pages that exist today and rely on `/books`: `/books/new` and a syntactically valid `/books/<uuid>/edit`. Home (`/`) and Sign In (`/auth/signin`) are the public controls — they must stay reachable and must not redirect back to sign-in.
+- Signed-out protected pages return `302` to `/auth/signin`. API routes are **not** on this list; they self-authenticate (see §6.4).
+- A new top-level private page (for example `/settings`) is public until someone adds its prefix to `src/lib/protected-routes.ts`. New files under `/books/` inherit the existing prefix. The sweep proves the listed roots, not developer intent for an unlisted page.
+- Assert status and `Location` only. Do not assert CSS, DOM structure, element counts, or snapshots.
+- Example shipped in `tests/integration/access-control.test.ts`.
 
 ### 6.6 Adding a test for a control on a list surface
 
@@ -146,6 +157,8 @@ How to add new tests in this project. Each sub-section is filled in once the rel
 ### 6.7 Per-rollout-phase notes
 
 **Phase 1 (Harness + data-integrity core).** `.env` may point at hosted Supabase while `.dev.vars` points at local — integration setup must inject explicit loopback coordinates and reject anything else before mutation. RLS automation (`supabase/tests/rls.sql`) and DOM/island coverage stay in later rollout phases. User A's six-book seed count must never be mutated by integration fixtures; user D with a reserved title prefix is the safe mutation account.
+
+**Phase 3 (Access control and abuse).** Do not mutate user A's six seeded books — user A is the read-only other signed-in account; user D owns every temporary row. Do not automate the database provider's own security rules (`supabase/tests/rls.sql`); assert the HTTP contract (status plus an untouched victim row) instead. Wrong-owner mutations are not found, not forbidden. Keep the service-role key unavailable to integration tests: a set `SUPABASE_SERVICE_ROLE_KEY` in `.dev.vars` must refuse Astro startup, and the harness pins an empty key so account-delete origin checks cannot fall through to a real delete.
 
 ## 7. What We Deliberately Don't Test
 
