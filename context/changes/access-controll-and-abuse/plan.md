@@ -361,9 +361,9 @@ prefix semantics. Test cleanup remains restricted to user-D titles beginning wit
 
 #### Automated
 
-- [x] 2.1 Test-plan sections 6.4 and 6.5 contain the shipped recipes, and section 6.5 no longer says TBD
-- [x] 2.2 Changed Markdown files pass formatting
+- [x] 2.1 Test-plan sections 6.4 and 6.5 contain the shipped recipes, and section 6.5 no longer says TBD — 0f302d2
+- [x] 2.2 Changed Markdown files pass formatting — 0f302d2
 
 #### Manual
 
-- [x] 2.3 Cookbook clearly explains safe access-control tests
+- [x] 2.3 Cookbook clearly explains safe access-control tests — 0f302d2
