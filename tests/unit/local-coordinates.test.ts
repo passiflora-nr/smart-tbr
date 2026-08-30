@@ -56,4 +56,22 @@ describe("assertDevVarsDoNotOverrideLocalCoordinates", () => {
       );
     }).toThrow(/not the verified local loopback URL/i);
   });
+
+  it("accepts a missing or empty service-role key", () => {
+    expect(() => {
+      assertDevVarsDoNotOverrideLocalCoordinates({}, LOCAL_SUPABASE_API_URL);
+    }).not.toThrow();
+    expect(() => {
+      assertDevVarsDoNotOverrideLocalCoordinates({ SUPABASE_SERVICE_ROLE_KEY: "" }, LOCAL_SUPABASE_API_URL);
+    }).not.toThrow();
+  });
+
+  it("rejects a set service-role key before Astro starts", () => {
+    expect(() => {
+      assertDevVarsDoNotOverrideLocalCoordinates(
+        { SUPABASE_SERVICE_ROLE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.example" },
+        LOCAL_SUPABASE_API_URL,
+      );
+    }).toThrow(/SUPABASE_SERVICE_ROLE_KEY is set/i);
+  });
 });

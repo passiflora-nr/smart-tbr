@@ -50,4 +50,10 @@ export function assertDevVarsDoNotOverrideLocalCoordinates(
   if (Object.hasOwn(vars, "SUPABASE_URL") && vars.SUPABASE_URL !== expectedUrl) {
     throw new Error("Refusing to start Astro because .dev.vars SUPABASE_URL is not the verified local loopback URL");
   }
+
+  if (Object.hasOwn(vars, "SUPABASE_SERVICE_ROLE_KEY") && vars.SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error(
+      "Refusing to start Astro because .dev.vars SUPABASE_SERVICE_ROLE_KEY is set — integration tests must not run with a real service-role key",
+    );
+  }
 }
