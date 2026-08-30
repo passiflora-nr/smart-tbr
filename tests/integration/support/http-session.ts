@@ -75,13 +75,13 @@ export async function postFormWithManualRedirect(
   url: string,
   fields: Record<string, string>,
   cookieHeader: string,
-  origin?: string,
+  origin: string | null,
 ): Promise<Response> {
   const headers: Record<string, string> = {
     "Content-Type": "application/x-www-form-urlencoded",
     Cookie: cookieHeader,
   };
-  if (origin !== undefined) {
+  if (origin !== null) {
     headers.Origin = origin;
   }
 

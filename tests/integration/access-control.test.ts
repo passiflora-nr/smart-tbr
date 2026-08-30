@@ -59,14 +59,23 @@ describe("access control over HTTP", () => {
     runTitlePrefix = createRunTitlePrefix();
     await cleanupBooksWithTitlePrefix(verificationClient, INTEGRATION_TEST_TITLE_PREFIX);
 
-    const created = await createBookViaApi(astroBaseUrl, ownerCookieHeader, verificationClient, {
-      title: `${runTitlePrefix}Access Control Victim`,
-      author: "Victim Author",
-      description: "Owned by user D for access-control coverage.",
-      tropes: ["contemporary", "romance"],
-    });
-    victimBookId = created.id;
-    victimBook = created.book;
+    let setupFailed = true;
+    try {
+      const created = await createBookViaApi(astroBaseUrl, ownerCookieHeader, verificationClient, {
+        title: `${runTitlePrefix}Access Control Victim`,
+        author: "Victim Author",
+        description: "Owned by user D for access-control coverage.",
+        tropes: ["contemporary", "romance"],
+      });
+      victimBookId = created.id;
+      victimBook = created.book;
+      setupFailed = false;
+    } finally {
+      if (setupFailed) {
+        await cleanupBooksWithTitlePrefix(verificationClient, runTitlePrefix);
+        await cleanupBooksWithTitlePrefix(verificationClient, INTEGRATION_TEST_TITLE_PREFIX);
+      }
+    }
   });
 
   afterAll(async () => {
@@ -211,6 +220,7 @@ describe("access control over HTTP", () => {
       `${astroBaseUrl}/api/books/${victimBookId}/delete`,
       {},
       ownerCookieHeader,
+      null,
     );
     expect(missingOriginResponse.status).toBe(403);
 
@@ -258,6 +268,7 @@ describe("access control over HTTP", () => {
       `${astroBaseUrl}/api/account/delete`,
       fields,
       ownerCookieHeader,
+      null,
     );
     if (missingOriginResponse.status !== 403) {
       throw new Error(
