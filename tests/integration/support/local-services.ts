@@ -1,7 +1,8 @@
-import { spawn, spawnSync, type ChildProcessWithoutNullStreams } from "node:child_process";
+import { spawn, spawnSync, type ChildProcessByStdio } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { createInterface } from "node:readline";
+import type { Readable } from "node:stream";
 import {
   assertDevVarsDoNotOverrideLocalCoordinates,
   assertLocalSupabaseCoordinates,
@@ -18,13 +19,16 @@ const READINESS_TIMEOUT_MS = 90_000;
 const READINESS_INTERVAL_MS = 500;
 const ASTRO_STOP_GRACE_MS = 5_000;
 
+/** stdin is ignored on spawn; stdout and stderr stay piped for readiness logs. */
+type AstroDevProcess = ChildProcessByStdio<null, Readable, Readable>;
+
 export interface LocalServiceHandles {
   astroBaseUrl: string;
   supabaseUrl: string;
   supabaseKey: string;
   supabaseDbUrl: string;
   startedSupabase: boolean;
-  astroProcess: ChildProcessWithoutNullStreams;
+  astroProcess: AstroDevProcess;
   astroOutput: string[];
 }
 
@@ -88,7 +92,7 @@ function resolveLocalSupabaseKey(status: SupabaseStatusJson): string {
   return key;
 }
 
-function signalAstroTree(child: ChildProcessWithoutNullStreams, signal: NodeJS.Signals): void {
+function signalAstroTree(child: AstroDevProcess, signal: NodeJS.Signals): void {
   const pid = child.pid;
   if (!pid) {
     return;
@@ -108,7 +112,7 @@ function signalAstroTree(child: ChildProcessWithoutNullStreams, signal: NodeJS.S
   }
 }
 
-async function waitForProcessExit(child: ChildProcessWithoutNullStreams, timeoutMs: number): Promise<void> {
+async function waitForProcessExit(child: AstroDevProcess, timeoutMs: number): Promise<void> {
   if (child.exitCode !== null || child.signalCode !== null) {
     return;
   }
@@ -121,7 +125,7 @@ async function waitForProcessExit(child: ChildProcessWithoutNullStreams, timeout
   });
 }
 
-async function stopAstroProcess(child: ChildProcessWithoutNullStreams): Promise<void> {
+async function stopAstroProcess(child: AstroDevProcess): Promise<void> {
   signalAstroTree(child, "SIGTERM");
   await waitForProcessExit(child, ASTRO_STOP_GRACE_MS);
   if (child.exitCode === null && child.signalCode === null) {
@@ -150,7 +154,7 @@ async function assertLoopbackPortFree(host: string, port: number): Promise<void>
   }
 }
 
-async function waitForHttpOk(url: string, timeoutMs: number, child: ChildProcessWithoutNullStreams): Promise<void> {
+async function waitForHttpOk(url: string, timeoutMs: number, child: AstroDevProcess): Promise<void> {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
     if (child.exitCode !== null) {
@@ -169,7 +173,7 @@ async function waitForHttpOk(url: string, timeoutMs: number, child: ChildProcess
   throw new Error(`Timed out waiting for HTTP readiness at ${url}`);
 }
 
-function captureProcessOutput(process: ChildProcessWithoutNullStreams, buffer: string[]): void {
+function captureProcessOutput(process: AstroDevProcess, buffer: string[]): void {
   const attach = (stream: NodeJS.ReadableStream) => {
     const reader = createInterface({ input: stream });
     reader.on("line", (line) => {
@@ -242,7 +246,7 @@ function readDevVarsIfPresent(): Record<string, string> {
   return parseDotEnv(readFileSync(devVarsPath, "utf8"));
 }
 
-function startAstroDev(supabaseUrl: string, supabaseKey: string): ChildProcessWithoutNullStreams {
+function startAstroDev(supabaseUrl: string, supabaseKey: string): AstroDevProcess {
   const child = spawn(NPM_BIN, ["run", "dev", "--", "--host", ASTRO_HOST, "--port", String(ASTRO_PORT)], {
     cwd: REPO_ROOT,
     env: {
@@ -264,7 +268,7 @@ function startAstroDev(supabaseUrl: string, supabaseKey: string): ChildProcessWi
 
 export async function startLocalServices(): Promise<LocalServiceHandles> {
   let startedSupabase = false;
-  let astroProcess: ChildProcessWithoutNullStreams | undefined;
+  let astroProcess: AstroDevProcess | undefined;
 
   try {
     let status = readSupabaseStatus();

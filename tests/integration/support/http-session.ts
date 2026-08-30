@@ -59,6 +59,18 @@ export async function fetchUnknownJson(
   return { response, body };
 }
 
+export async function fetchAuthedHtml(
+  url: string,
+  cookieHeader: string,
+): Promise<{ response: Response; body: string }> {
+  const response = await fetch(url, {
+    headers: { Cookie: cookieHeader },
+    redirect: "manual",
+  });
+
+  return { response, body: await response.text() };
+}
+
 export async function postFormWithManualRedirect(
   url: string,
   fields: Record<string, string>,

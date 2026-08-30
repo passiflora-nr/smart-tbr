@@ -64,3 +64,17 @@
 - **Problem**: Checking "Delete branch" on merge (or running `git branch -d` afterward) removes the remote/local branch. That makes it harder to rebase, resume work, or reference the branch later — e.g. when main moves ahead before the next push.
 - **Rule**: Never delete feature branches when merging PRs. Leave GitHub's "Delete branch" unchecked, and do not delete local or remote branches unless the user explicitly asks.
 - **Applies to**: archive
+
+## Explain in plain, non-developer terms
+
+- **Context**: all user-facing chat
+- **Problem**: The project owner has problems understanding the agents messages during development
+- **Rule**: Every time an agent talks to the project owner they should explain in plain, non-developer terms, using language a tester will understand, not mental shortcuts
+- **Applies to**: all
+
+## Always fix failed hook checks
+
+- **Context**: Anytime a hook reports an issue
+- **Problem**: The hooks fail but the agent doesn't do anything about it.
+- **Rule**: Hook checks are there for a reason - they should ALWAYS be considered and failures should be addressed and fixed. It doesn not matter if the check is about a file the agent didn't touch or if the check is irrelevant for the current phase the agent is currently working on. Hook check issues should ALWAYS be addressed and fixed.
+- **Applies to**: all
