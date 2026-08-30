@@ -132,10 +132,17 @@ export async function createBookViaApi(
   return { id: createdBookId, book: createResult.body.book };
 }
 
+const POSTGREST_MAX_ROWS = 1000;
+
 export async function assertUserDHasOnlyReservedFixtures(client: SupabaseClient<Database>): Promise<void> {
   const { data, error } = await client.from("books").select("title").eq("user_id", USER_D_ID);
   if (error) {
     throw new Error(`Failed to list user-D books for fixture hygiene: ${error.message}`);
+  }
+  if (data.length === POSTGREST_MAX_ROWS) {
+    throw new Error(
+      `User D fixture hygiene could not finish: the title list hit the ${String(POSTGREST_MAX_ROWS)}-row page cap. Sign in as user D and delete leftover books, then re-run the tests.`,
+    );
   }
 
   const strayTitles = data.map((row) => row.title).filter((title) => !title.startsWith(INTEGRATION_TEST_TITLE_PREFIX));
