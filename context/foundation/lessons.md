@@ -64,3 +64,10 @@
 - **Problem**: Checking "Delete branch" on merge (or running `git branch -d` afterward) removes the remote/local branch. That makes it harder to rebase, resume work, or reference the branch later — e.g. when main moves ahead before the next push.
 - **Rule**: Never delete feature branches when merging PRs. Leave GitHub's "Delete branch" unchecked, and do not delete local or remote branches unless the user explicitly asks.
 - **Applies to**: archive
+
+## Explain in plain, non-developer terms
+
+- **Context**: all user-facing chat
+- **Problem**: The project owner has problems understanding the agents messages during development
+- **Rule**: Every time an agent talks to the project owner they should explain in plain, non-developer terms, using language a tester will understand, not mental shortcuts
+- **Applies to**: all
