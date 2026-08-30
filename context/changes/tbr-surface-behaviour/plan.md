@@ -358,9 +358,9 @@ No schema or data migration. User D must remain the fixture-only mutation accoun
 
 #### Automated
 
-- [x] 1.1 Focused unit suite passes: `npm run test:unit`
-- [x] 1.2 New file lives at `tests/unit/book-filters.test.ts` and is picked up by the unit project
-- [x] 1.3 Type-aware lint passes: `npm run lint`
+- [x] 1.1 Focused unit suite passes: `npm run test:unit` — 85f1d3e
+- [x] 1.2 New file lives at `tests/unit/book-filters.test.ts` and is picked up by the unit project — 85f1d3e
+- [x] 1.3 Type-aware lint passes: `npm run lint` — 85f1d3e
 
 ### Phase 2: TBR surface integration
 
