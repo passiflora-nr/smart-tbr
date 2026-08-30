@@ -379,9 +379,9 @@ No schema or data migration. User D must remain the fixture-only mutation accoun
 
 #### Automated
 
-- [x] 3.1 `context/foundation/test-plan.md` §6.6 no longer says TBD
-- [x] 3.2 Markdown format passes if staged: Prettier on `*.md`
+- [x] 3.1 `context/foundation/test-plan.md` §6.6 no longer says TBD — 534c350
+- [x] 3.2 Markdown format passes if staged: Prettier on `*.md` — 534c350
 
 #### Manual
 
-- [x] 3.3 Cookbook tells you what a new list check may look at
+- [x] 3.3 Cookbook tells you what a new list check may look at — 534c350
