@@ -8,14 +8,19 @@ export const USER_D_EMAIL = "user-d@example.test";
 export const USER_D_PASSWORD = "password123";
 export const USER_D_ID = "d0000000-0000-4000-8000-000000000001";
 export const INTEGRATION_TEST_TITLE_PREFIX = "[integration-test]";
+export const E2E_TEST_TITLE_PREFIX = "[e2e]";
 
 export function createRunTitlePrefix(): string {
   return `${INTEGRATION_TEST_TITLE_PREFIX}${Date.now()}-`;
 }
 
-function assertReservedTitlePrefix(prefix: string): void {
-  if (!prefix.startsWith(INTEGRATION_TEST_TITLE_PREFIX)) {
-    throw new Error("Cleanup prefix must start with the reserved integration-test title prefix");
+export function isReservedTitlePrefix(titleOrPrefix: string): boolean {
+  return titleOrPrefix.startsWith(INTEGRATION_TEST_TITLE_PREFIX) || titleOrPrefix.startsWith(E2E_TEST_TITLE_PREFIX);
+}
+
+export function assertReservedTitlePrefix(prefix: string): void {
+  if (!isReservedTitlePrefix(prefix)) {
+    throw new Error('Cleanup prefix must start with a reserved fixture title prefix ("[integration-test]" or "[e2e]")');
   }
 }
 
@@ -145,13 +150,13 @@ export async function assertUserDHasOnlyReservedFixtures(client: SupabaseClient<
     );
   }
 
-  const strayTitles = data.map((row) => row.title).filter((title) => !title.startsWith(INTEGRATION_TEST_TITLE_PREFIX));
+  const strayTitles = data.map((row) => row.title).filter((title) => !isReservedTitlePrefix(title));
   if (strayTitles.length === 0) {
     return;
   }
 
   throw new Error(
-    `User D must stay fixture-only. These books do not start with "${INTEGRATION_TEST_TITLE_PREFIX}": ${strayTitles.join(", ")}. Sign in as user D and delete those books, then re-run the tests.`,
+    `User D must stay fixture-only. These books do not start with "${INTEGRATION_TEST_TITLE_PREFIX}" or "${E2E_TEST_TITLE_PREFIX}": ${strayTitles.join(", ")}. Sign in as user D and delete those books, then re-run the tests.`,
   );
 }
 

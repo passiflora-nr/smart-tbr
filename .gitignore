@@ -51,3 +51,5 @@ coverage/
 # playwright
 playwright/.auth/
 .playwright-cli/
+test-results/
+playwright-report/

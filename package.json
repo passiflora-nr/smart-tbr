@@ -13,6 +13,7 @@
     "test": "vitest run",
     "test:unit": "vitest run --project unit",
     "test:integration": "vitest run --project integration",
+    "test:e2e": "playwright test --grep-invert @seed",
     "gen:types": "supabase gen types typescript --local > src/lib/database.types.ts",
     "prepare": "husky"
   },

@@ -1,9 +1,9 @@
 ---
 change_id: testing-critical-path-e2e-net-gates
 title: Critical-path e2e net and CI gates
-status: new
+status: implementing
 created: 2026-08-30
-updated: 2026-08-30
+updated: 2026-09-06
 archived_at: null
 ---
 
