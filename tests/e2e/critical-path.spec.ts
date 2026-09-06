@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { E2E_BASE_URL, createdBookIdFrom, deleteBookViaForm, typeFieldsWhenReady, visibleBookTitle } from "./support";
+import { E2E_BASE_URL, deleteBookViaForm, tryCreatedBookId, typeFieldsWhenReady, visibleBookTitle } from "./support";
 
 test.describe("Critical-path island hops", () => {
   test("added book title is on 'Your TBR' and in mood results after 'Find my next read'", async ({ page }) => {
@@ -40,7 +40,11 @@ test.describe("Critical-path island hops", () => {
 
       await page.getByRole("button", { name: "Add to TBR" }).click();
       const createResponse = await created;
-      bookId = createdBookIdFrom(await createResponse.json());
+      const body: unknown = await createResponse.json();
+      bookId = tryCreatedBookId(body);
+      if (!bookId) {
+        throw new Error("Expected POST /api/books to return { book: { id } }");
+      }
 
       // The book should appear on 'Your TBR' after this hop (add stay on this page).
       await page.getByRole("link", { name: "View your TBR" }).click();

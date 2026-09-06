@@ -6,7 +6,7 @@
 - **Scope**: Phases 1–3 of 3
 - **Date**: 2026-09-06
 - **Verdict**: NEEDS ATTENTION
-- **Findings**: 0 critical 2 warnings 0 observations
+- **Findings**: 0 critical 5 warnings 1 observation
 
 ## Verdicts
 
@@ -14,7 +14,7 @@
 | ------------------- | ------- |
 | Plan Adherence      | WARNING |
 | Scope Discipline    | WARNING |
-| Safety & Quality    | PASS    |
+| Safety & Quality    | WARNING |
 | Architecture        | PASS    |
 | Pattern Consistency | PASS    |
 | Success Criteria    | PASS    |
@@ -38,7 +38,7 @@
   - Tradeoff: Still the locator family the plan forbade; a restyle that adds another visible “Tropes…” string can make the click ambiguous.
   - Confidence: HIGH — same API as the passing line, only the match is wider.
   - Blind spot: “Pick 1 to 3 tropes” does not match `/^Tropes/`, but any new heading that starts with Tropes would.
-- **Decision**: PENDING
+- **Decision**: DISMISSED — Tropes is a `<summary>` inside `<details>`. Playwright’s accessibility snapshot exposes it as a group with a generic child named “Tropes”, not a button; `getByRole("button", { name: "Tropes" })` hangs. `getByText("Tropes", { exact: true })` is the working click; `exact: true` is required so “Pick 1 to 3 tropes” is not also matched. Checkboxes after open correctly use `getByRole("checkbox")`.
 
 ### F2 — Unplanned Playwright cursor rule
 
@@ -57,4 +57,53 @@
   - Tradeoff: Loses the in-editor reminder on `tests/e2e/**`.
   - Confidence: HIGH — cookbook is already filled.
   - Blind spot: Authors who never open `test-plan.md` lose the prompt.
-- **Decision**: PENDING
+- **Decision**: FIXED via Fix A — kept `.cursor/rules/e2e.mdc`; Tropes `getByText` + `exact: true` note and `finally` / `page.request` cleanup now match what shipped.
+
+### F3 — Cleanup treats any 302 as a successful delete
+
+- **Severity**: ⚠️ WARNING
+- **Impact**: 🏃 LOW — quick decision; fix is obvious and narrowly scoped
+- **Dimension**: Safety & Quality
+- **Location**: tests/e2e/support.ts:88
+- **Detail**: `deleteBookViaForm` accepts any 302/303. The delete route also redirects 302 to `/auth/signin` when the session is missing, and to Your TBR with `error=not_found` or `error=delete_failed` when the row is not deleted. Specs pass `page.request` today, so the current call sites are fine; a future caller (or an expired storage state) can “pass” cleanup and leave the `[e2e]` row.
+- **Fix**: Require `Location` to include `notice=deleted` (and not `/auth/signin` or `error=`).
+- **Decision**: FIXED — `deleteBookViaForm` now requires `Location` `notice=deleted` and rejects `/auth/signin` or `error=`.
+
+### F4 — Stale Playwright snapshot can stop the wrong Astro or Supabase process
+
+- **Severity**: ⚠️ WARNING
+- **Impact**: 🔎 MEDIUM — real tradeoff; pause to reason through it
+- **Dimension**: Safety & Quality
+- **Location**: tests/e2e/global-teardown.ts:12
+- **Detail**: Teardown reads `playwright/.auth/local-services.json`, unlinks it, then kills that `astroPid` and may `supabase stop` if `startedSupabase` is true. Global setup does not clear a leftover snapshot before `startLocalServices`. If this run’s setup fails before it overwrites the file, teardown can SIGKILL a reused PID from a previous crash and stop a Supabase stack this run did not start. Unlinking before stop also means a throw during parse/stop loses the only handle.
+- **Fix A ⭐ Recommended**: Delete any stale snapshot at the start of global setup; in teardown parse → stop → then unlink.
+  - Strength: Teardown can only act on a snapshot this run wrote (or a leftover that setup already discarded).
+  - Tradeoff: A crashed setup that never wrote a new file will not try to clean the old one in teardown (setup already deleted it).
+  - Confidence: HIGH — pid reuse and `startedSupabase` on a leftover file are the failure mode.
+  - Blind spot: Have not reproduced a crashed-run leftover on this machine.
+- **Fix B**: Keep teardown as-is; only stop Supabase when a this-run marker is present (e.g. write snapshot only after a successful start, and refuse to stop Supabase unless the snapshot mtime is from this process).
+  - Strength: Narrower change in teardown alone.
+  - Tradeoff: Still kills a stale `astroPid` if the file is leftover.
+  - Confidence: MEDIUM — does not fix pid reuse.
+  - Blind spot: Marker design is extra state to get wrong.
+- **Decision**: FIXED via Fix A — setup deletes a leftover snapshot before start; teardown parses and stops, then unlinks.
+
+### F5 — Leftover `[e2e]` books can fail the empty-TBR integration test
+
+- **Severity**: ⚠️ WARNING
+- **Impact**: 🏃 LOW — quick decision; fix is obvious and narrowly scoped
+- **Dimension**: Safety & Quality
+- **Location**: tests/integration/books-surface.test.ts:114
+- **Detail**: Hygiene now accepts `[e2e]` titles, but the empty-TBR case only deletes `[integration-test]` rows, then expects the empty sentence. A leftover `[e2e]` book from a crashed e2e run now passes hygiene, survives that cleanup, and fails `npm test`. CI hides this (fresh VM, `npm test` before e2e). Locally, `npm test` after a leaked e2e run will not.
+- **Fix**: Also sweep `E2E_TEST_TITLE_PREFIX` in that empty-TBR cleanup (or in integration `beforeAll`).
+- **Decision**: FIXED — empty-TBR try/finally now also deletes leftover `[e2e]` rows.
+
+### F6 — Journey skips cleanup if the create-response body cannot be parsed
+
+- **Severity**: 🔍 OBSERVATION
+- **Impact**: 🏃 LOW — quick decision; fix is obvious and narrowly scoped
+- **Dimension**: Safety & Quality
+- **Location**: tests/e2e/critical-path.spec.ts:43
+- **Detail**: `bookId` is set only after `createdBookIdFrom(await createResponse.json())`. The book already exists at HTTP 201. If `json()` or the shape guard throws, `finally` sees `bookId === undefined` and skips delete. `edit-save.spec.ts` creates through the helper and always has an id.
+- **Fix**: Capture the id as soon as the 201 arrives, or delete by the unique title if id extraction fails.
+- **Decision**: FIXED — journey stores `bookId` from `tryCreatedBookId` before throwing, so `finally` can still delete when the id is in the 201 body.

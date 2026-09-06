@@ -36,11 +36,16 @@ function assertE2eTitle(title: string): void {
   }
 }
 
+export function tryCreatedBookId(body: unknown): string | undefined {
+  return isCreatedBookId(body) ? body.book.id : undefined;
+}
+
 export function createdBookIdFrom(body: unknown): string {
-  if (!isCreatedBookId(body)) {
+  const id = tryCreatedBookId(body);
+  if (!id) {
     throw new Error("Expected POST /api/books to return { book: { id } }");
   }
-  return body.book.id;
+  return id;
 }
 
 function isCreatedBookId(body: unknown): body is { book: { id: string } } {
@@ -87,5 +92,14 @@ export async function deleteBookViaForm(request: APIRequestContext, baseURL: str
   });
   if (response.status() !== 302 && response.status() !== 303) {
     throw new Error(`Cleanup expected a redirect, got status ${response.status()}`);
+  }
+  const location = response.headers().location;
+  const locationUrl = new URL(location, origin);
+  if (
+    locationUrl.pathname === "/auth/signin" ||
+    locationUrl.searchParams.has("error") ||
+    locationUrl.searchParams.get("notice") !== "deleted"
+  ) {
+    throw new Error(`Cleanup did not delete the book (status ${response.status()}, Location ${location})`);
   }
 }

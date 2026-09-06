@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, unlinkSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import {
   startLocalServices,
@@ -10,6 +10,10 @@ import {
 const SNAPSHOT_PATH = path.join(process.cwd(), "playwright/.auth/local-services.json");
 
 export default async function globalSetup(): Promise<void> {
+  if (existsSync(SNAPSHOT_PATH)) {
+    unlinkSync(SNAPSHOT_PATH);
+  }
+
   let handles: LocalServiceHandles | undefined;
   try {
     handles = await startLocalServices({ surviveParentExit: true });

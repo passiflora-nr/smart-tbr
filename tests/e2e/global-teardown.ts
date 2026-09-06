@@ -10,7 +10,7 @@ export default async function globalTeardown(): Promise<void> {
   }
 
   const raw = readFileSync(SNAPSHOT_PATH, "utf8");
-  unlinkSync(SNAPSHOT_PATH);
   const snapshot = parseLocalServiceSnapshot(raw);
   await stopLocalServicesFromSnapshot(snapshot);
+  unlinkSync(SNAPSHOT_PATH);
 }
