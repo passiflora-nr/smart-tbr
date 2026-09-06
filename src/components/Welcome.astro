@@ -17,13 +17,7 @@ const featureCardClass = "border-border bg-card rounded-xl border p-6 shadow-sm"
 
 <div class="bg-background flex min-h-dvh w-full flex-col">
   <div class="relative mx-auto flex min-h-dvh w-full max-w-4xl flex-col px-4 py-6 sm:px-8">
-    {
-      user ? (
-        <div class="absolute inset-x-4 top-6 z-10 sm:inset-x-8">
-          <SignedInNav />
-        </div>
-      ) : null
-    }
+    {user ? <SignedInNav /> : null}
 
     {
       user ? (

@@ -1,7 +1,7 @@
 ---
 change_id: ui-theme-cafe-romance
 title: Café Romance UI theme
-status: implemented
+status: impl_reviewed
 created: 2026-08-08
 updated: 2026-09-06
 archived_at: null
@@ -17,7 +17,7 @@ Replaces the starter's cosmic/purple-glass chrome (`bg-cosmic`, `bg-white/10 bac
 
 | Role             | Hex       | Use                               |
 | ---------------- | --------- | --------------------------------- |
-| Background       | `#F7F3EE` | Warm linen page                   |
+| Background       | `#E9E1D4` | Warm oat page                     |
 | Card / surface   | `#FDFBF8` | Cream cards                       |
 | Foreground       | `#3D2E2A` | Espresso body text                |
 | Muted foreground | `#8B7355` | Warm taupe, secondary text        |

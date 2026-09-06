@@ -91,7 +91,7 @@ Load the fonts, map the palette onto the existing token names, bump radius, and 
 
 | Token                                | Hex       |
 | ------------------------------------ | --------- |
-| `--background`                       | `#F7F3EE` |
+| `--background`                       | `#E9E1D4` |
 | `--card` / `--popover`               | `#FDFBF8` |
 | `--foreground` / `--card-foreground` | `#3D2E2A` |
 | `--muted-foreground`                 | `#8B7355` |
