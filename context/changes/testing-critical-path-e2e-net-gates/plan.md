@@ -483,15 +483,15 @@ The “full-suite run before S-07” remains a **local-once** owner gate after t
 
 #### Automated
 
-- [x] 3.1 `ci.yml` runs Playwright install + `test:e2e` after `npm test`, before build
-- [x] 3.2 Cookbook §6.3 is no longer TBD
-- [x] 3.3 §4 e2e row no longer says “none yet”
-- [x] 3.4 `infrastructure.md` CI sentences include test + e2e
-- [x] 3.5 `AGENTS.md` and `README.md` list `npm run test:e2e`
-- [x] 3.6 `npm run lint` passes
+- [x] 3.1 `ci.yml` runs Playwright install + `test:e2e` after `npm test`, before build — 241623c
+- [x] 3.2 Cookbook §6.3 is no longer TBD — 241623c
+- [x] 3.3 §4 e2e row no longer says “none yet” — 241623c
+- [x] 3.4 `infrastructure.md` CI sentences include test + e2e — 241623c
+- [x] 3.5 `AGENTS.md` and `README.md` list `npm run test:e2e` — 241623c
+- [x] 3.6 `npm run lint` passes — 241623c
 
 #### Manual
 
-- [x] 3.7 Confirm GitHub ran the browser net
-- [x] 3.8 Cookbook matches what shipped
-- [x] 3.9 Full suite once before the restyle
+- [x] 3.7 Confirm GitHub ran the browser net — 241623c
+- [x] 3.8 Cookbook matches what shipped — 241623c
+- [x] 3.9 Full suite once before the restyle — 241623c
