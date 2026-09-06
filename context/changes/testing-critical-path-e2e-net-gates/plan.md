@@ -14,7 +14,7 @@ What is still unproven is the **island hops** and the **stitch** between hops:
 - **Add to TBR** and **Save changes** are React 19 form actions that `fetch` JSON. Without JavaScript they do nothing. After add, the page stays on Add a book; the book only appears on Your TBR after **View your TBR**.
 - S-07 will rewrite markup on every surface, including a cover-forward list rebuild. Tests that assert classes, structure, counts, or `Edit ${title}` as the only list proof will be deleted by the rewrite instead of protecting it.
 
-Playwright is already a devDependency (`@playwright/test` ^1.63.0). The seed on this branch (`playwright.config.ts`, `tests/e2e/seed.spec.ts`) is not runnable: it references a missing `auth.setup.ts`, has no `baseURL` or server, only Chromium, no `test:e2e` script, and no CI step. The seed oracles (`Edit ${title}`, `toHaveCount(0)`) are unsafe for S-07.
+Playwright is already a devDependency (`@playwright/test` ^1.63.0). Phase 1 made the harness runnable (three engines, `auth.setup.ts`, local-stack global setup, `npm run test:e2e`). The old seed file was kept as a tagged skip (`tests/e2e/seed.spec.ts` with `@seed`; `"test:e2e": "playwright test --grep-invert @seed"`) instead of being deleted. Progress 1.2 is therefore stale. The seed has working helper patterns (`page.request` delete, Origin, `body.book.id`, hydration `toPass`) but its list oracle (`getByRole("paragraph")`) is unsafe for S-07. Phase 2 must extract the helper bits, delete the file, and drop `--grep-invert`.
 
 `startLocalServices` / `stopLocalServices` in `tests/integration/support/local-services.ts` are plain Node and can be imported from Playwright. They pin Astro on `http://127.0.0.1:14567`, refuse non-loopback Supabase, and blank `SUPABASE_SERVICE_ROLE_KEY`. Playwright cannot use Vitest `inject()`. Port 14567 is exclusive — integration teardown stops Astro, so a later e2e start in the same CI job is safe if it is sequential.
 
@@ -38,7 +38,7 @@ User D (`user-d@example.test` / `password123`) is the only mutation account. Int
 - Tropes on Add commit via Enter / comma / `mergePendingTrope` on Save. Pressing Enter before **Add to TBR** is enough for the thin net (`TropeInput.tsx:70-74`).
 - Official Playwright auth pattern (`/websites/playwright_dev`, checked 2026-09-06): a `setup` project matching `*.setup.ts` clicks sign-in, writes `storageState`, and browser projects depend on it. Each test still gets an isolated context. CI install is `npx playwright install --with-deps`.
 - `local-services.ts` exports no Vitest APIs. Playwright `webServer: { command: "npm run dev" }` would skip the loopback and service-role guards and fight over port 14567 — do not use it as the server starter.
-- `test-books.ts` helpers import `@/lib/*`. Playwright’s loader may not resolve that alias. E2e specs must not import `test-books.ts`; they delete through Playwright `request` + the session cookies. Hygiene still changes in `test-books.ts` so a crashed e2e run cannot poison `npm test`.
+- `test-books.ts` helpers import `@/lib/*`. Playwright’s loader may not resolve that alias. E2e specs must not import `test-books.ts`; they delete through `page.request` (or `context.request`) plus the session cookies. Do not use the standalone `request` fixture — it has no `storageState`. Hygiene still changes in `test-books.ts` so a crashed e2e run cannot poison `npm test`.
 
 ## What We're NOT Doing
 
@@ -68,7 +68,9 @@ Three phases, cheapest runnable layer first — same rhythm as prior test-rollou
 
 **Oracles that survive S-07.** Assert book title (and author when useful) as visible text, fixed product copy, URL, and button/link names that are product copy: Sign in, Add to TBR, Save changes, Find my next read, View your TBR, Pick by mood, Add a book. Reach the edit island via `/books/{id}/edit` from the create-response id — do not use `Edit ${title}` as the list oracle. Cleanup must not use `toHaveCount(0)`.
 
-**Mood hop.** Open the tropes disclosure (`<details>` / summary labelled **Tropes**) before ticking the checkbox. Use a unique trope committed on Add so the picker lists it. Tick that trope and click **Find my next read**. Assert the book title is present. Do not try to produce “No matches — try different tropes.” by ticking a listed trope.
+**Mood hop.** Open the tropes disclosure with a role locator on **Tropes** (regex `/^Tropes/` so **Tropes · N selected** still matches). Do not use `getByText("Tropes")` — that also matches the “Pick 1 to 3 tropes” paragraph. Tick `getByRole("checkbox", { name: uniqueTrope })`. Click **Find my next read**. Assert the book title is present. Do not try to produce “No matches — try different tropes.” by ticking a listed trope.
+
+**Island hydration.** Sign in, Add to TBR, and Save changes are `client:load` React islands. Filling before hydration is overwritten (already proven in `auth.setup.ts`). Journey and edit cases must retry with `toPass()` until committed tropes show a Remove-chip and Title/Author `.toHaveValue` matches — do not one-shot fill+Enter.
 
 **WebKit quarantine hook.** Ship all three engines in CI. If WebKit-on-Linux becomes noisy for non-product reasons, skip only that project when `CI` is set (document the reason in config). Do not drop Firefox or local WebKit.
 
@@ -178,7 +180,7 @@ Rewrite the unfinished harness so `npm run test:e2e` starts the local stack, cli
 
 ### Overview
 
-Replace the harness-only smoke story with the two cases Phase 4 must keep: the signed-in add → TBR → mood stitch, and Save changes after a title edit. Cleanup is API/form with `[e2e]` titles, never the Delete button.
+Replace the harness-only smoke story with the two cases Phase 4 must keep: the signed-in add → TBR → mood stitch, and Save changes after a title edit. Cleanup is API/form with `[e2e]` titles, never the Delete button. Finish retiring `tests/e2e/seed.spec.ts` (still in the tree as a tagged skip) so its paragraph-role oracle cannot be copied.
 
 **Behaviour asserted:** US-01 + FR-002/FR-004/FR-005 — a signed-in user adds a book, sees it on Your TBR, picks it by mood; an edit save updates the list set.
 **Regression caught:** Add/Save `fetch` URL or form `action` dying during S-07; **View your TBR** / **Pick by mood** href dropped; add succeeding only on the session list and never on Your TBR.
@@ -194,7 +196,7 @@ Replace the harness-only smoke story with the two cases Phase 4 must keep: the s
 
 **Intent**: Create and delete user-D books through the running app using the already-signed-in cookie jar, without importing `test-books.ts`.
 
-**Contract**: Helpers take Playwright `APIRequestContext` (the `request` fixture) and `baseURL`. Create: `POST /api/books` JSON, expect 201, return `book.id` and title. Delete: `POST /api/books/{id}/delete` as a form post with the app Origin, expect a redirect. Titles used for create/delete must start with `[e2e]`. No Supabase JS client in this file.
+**Contract**: Helpers take Playwright `page.request` (or `context.request`) — the `APIRequestContext` that shares the browser cookie jar — plus `baseURL`. Do not use the standalone `request` fixture; it has no `storageState` cookies. Create: `POST /api/books` JSON, expect 201, unwrap `body.book.id` (response is `{ book, duplicate }`), return id and title; payload must include title, author, and at least one trope. Delete: `POST /api/books/{id}/delete` as a form post with an explicit `Origin` header set to the app origin, `maxRedirects: 0`, expect 302 or 303. Titles used for create/delete must start with `[e2e]`. No Supabase JS client in this file.
 
 #### 2. Critical-path journey
 
@@ -202,7 +204,7 @@ Replace the harness-only smoke story with the two cases Phase 4 must keep: the s
 
 **Intent**: Drive the island + navigation stitch a restyle can break, and assert the book title on Your TBR and on mood results.
 
-**Contract**: Starts already signed in. Title prefix `[e2e]` plus a unique suffix; unique trope string (not reused from fixtures). Flow: `/` → **Add a book** → fill Title, Author, Tropes → Enter to commit the chip → **Add to TBR** (wait for `POST /api/books` 201 and keep the id for cleanup) → **View your TBR** → URL `/books` → title text visible → **Pick by mood** → open Tropes disclosure → tick the unique trope → **Find my next read** → title text visible. `finally`: delete by id via the helper. Do not click Delete. Do not assert session-list markup on Add a book as the journey oracle.
+**Contract**: Starts already signed in. Title prefix `[e2e]` plus a unique suffix; unique trope string (not reused from fixtures). Flow: `/` → **Add a book** → wait for the Add island to hydrate (same class of `toPass()` as `auth.setup.ts` / the leftover seed): fill Tropes, press Enter, retry until the Remove-chip is visible; fill Title and Author and retry until `.toHaveValue` matches → **Add to TBR** (wait for `POST /api/books` 201 and keep the id for cleanup) → **View your TBR** → URL `/books` → title text visible → **Pick by mood** → open Tropes disclosure (`getByRole` + `/^Tropes/`, not `getByText("Tropes")`) → tick `getByRole("checkbox", { name: uniqueTrope })` → **Find my next read** → title text visible. `finally`: delete by id via the helper. Do not click Delete. Do not assert session-list markup on Add a book as the journey oracle. Do not treat a single fill+Enter before hydration as enough.
 
 #### 3. Save changes case
 
@@ -210,7 +212,7 @@ Replace the harness-only smoke story with the two cases Phase 4 must keep: the s
 
 **Intent**: Click **Save changes** (the remaining unproven island) and prove the list set changed.
 
-**Contract**: Starts already signed in. Create a `[e2e]` book via the helper. `goto` `/books/{id}/edit`. Change Title to a different `[e2e]` title. Click **Save changes**. Land on `/books`. Assert the new title is visible and the old title is not. `finally`: delete by id via the helper. Do not use `getByRole("link", { name: \`Edit ${title}\` })` as the presence/absence oracle.
+**Contract**: Starts already signed in. Create a `[e2e]` book via the helper. `goto` `/books/{id}/edit`. Wait for the Save island to hydrate: change Title to a different `[e2e]` title and retry with `toPass()` until `.toHaveValue` matches. Click **Save changes**. Land on `/books`. Assert the new title is visible and the old title is not. `finally`: delete by id via the helper. Do not use `getByRole("link", { name: \`Edit ${title}\` })` as the presence/absence oracle.
 
 #### 4. Keep or fold the home smoke
 
@@ -219,6 +221,14 @@ Replace the harness-only smoke story with the two cases Phase 4 must keep: the s
 **Intent**: Avoid a redundant fourth case once the journey already opens `/` and clicks **Add a book**.
 
 **Contract**: Delete `signed-in-home.spec.ts` if `critical-path.spec.ts` starts at `/` and uses **Add a book**. Keep it only if the journey is changed to start on `/books/new`.
+
+#### 5. Retire the leftover seed
+
+**File**: `tests/e2e/seed.spec.ts`, `package.json`
+
+**Intent**: Phase 1 kept the seed behind `--grep-invert @seed` instead of deleting it. Finish that retirement so the skipped paragraph-role oracle cannot be copied into the S-07 net.
+
+**Contract**: Lift the working bits into `support.ts` and the new specs: hydration `toPass`, wait for POST 201, unwrap `body.book.id`, `page.request` form-delete with Origin and `maxRedirects: 0`. Delete `tests/e2e/seed.spec.ts`. Set `"test:e2e": "playwright test"` (no `--grep-invert`). Do not copy `getByRole("paragraph")` as the list oracle — assert title text.
 
 ### Success Criteria:
 
@@ -229,12 +239,13 @@ Replace the harness-only smoke story with the two cases Phase 4 must keep: the s
 - Save changes asserts the new title is present and the old title is absent on Your TBR
 - No spec asserts CSS classes, snapshots, element counts, or `Edit ${title}` as the only list proof
 - Cleanup is helper/form delete with `[e2e]` titles, not the Delete / Permanently delete buttons
+- `tests/e2e/seed.spec.ts` is gone; `"test:e2e"` is `playwright test` with no `--grep-invert`
 - `npm test` still passes
 - `npm run lint` passes
 
 #### Manual Verification:
 
-**2.8 — Add a book, see it on Your TBR, pick it by mood**
+**2.9 — Add a book, see it on Your TBR, pick it by mood**
 
 **Setup:** Local app running (`npm run dev`) with the usual local database. Sign in as `user-d@example.test` / `password123`.
 
@@ -252,7 +263,7 @@ Replace the harness-only smoke story with the two cases Phase 4 must keep: the s
 
 **Pass if:** You saw the title on Your TBR and in mood results, and you removed the leftover book.
 
-**2.9 — Save changes updates the list**
+**2.10 — Save changes updates the list**
 
 **Setup:** Still signed in as `user-d@example.test`. Add another `[e2e]` book (or reuse the form) so you have one book to edit.
 
@@ -300,7 +311,7 @@ Make the browser net a required PR gate in the existing `ci` job, and write down
 
 **Intent**: Replace the TBD with the pattern that actually shipped, so the next e2e case inherits the engine matrix and oracles.
 
-**Contract**: State: files go in `tests/e2e/` as `*.spec.ts` (setup files `*.setup.ts`); run `npm run test:e2e`; reuse `storageState` (do not re-click Sign in except in `auth.setup.ts`); mutate only user D with `[e2e]` titles; clean via the request helper; assert titles, URLs, and product control names; never classes, structure, counts, or snapshots; a new case is added once and inherits Chromium/Firefox/WebKit from config. Mention Docker + local Supabase, the same as integration. Mention the WebKit-on-CI quarantine hook. Do not rewrite §1–§3, §5, or §7.
+**Contract**: State: files go in `tests/e2e/` as `*.spec.ts` (setup files `*.setup.ts`); run `npm run test:e2e`; reuse `storageState` (do not re-click Sign in except in `auth.setup.ts`); mutate only user D with `[e2e]` titles; clean via the `page.request` helper (explicit Origin on form delete); assert titles, URLs, and product control names; never classes, structure, counts, or snapshots; a new case is added once and inherits Chromium/Firefox/WebKit from config. Mention Docker + local Supabase, the same as integration. Mention the WebKit-on-CI quarantine hook. Do not rewrite §1–§3, §5, or §7.
 
 #### 3. Stale §4 e2e row
 
@@ -440,32 +451,33 @@ The “full-suite run before S-07” remains a **local-once** owner gate after t
 
 #### Automated
 
-- [x] 1.1 `npm run test:e2e` passes: setup clicks Sign in, smoke runs on Chromium, Firefox, and WebKit
-- [x] 1.2 `tests/e2e/seed.spec.ts` is gone
-- [x] 1.3 Reserved-prefix unit test passes (`npm run test:unit`)
-- [x] 1.4 `npm test` still passes
-- [x] 1.5 `npm run lint` passes
+- [x] 1.1 `npm run test:e2e` passes: setup clicks Sign in, smoke runs on Chromium, Firefox, and WebKit — 27b6b63
+- [x] 1.2 `tests/e2e/seed.spec.ts` is gone — 27b6b63
+- [x] 1.3 Reserved-prefix unit test passes (`npm run test:unit`) — 27b6b63
+- [x] 1.4 `npm test` still passes — 27b6b63
+- [x] 1.5 `npm run lint` passes — 27b6b63
 
 #### Manual
 
-- [x] 1.6 Watch the local browser net sign in
+- [x] 1.6 Watch the local browser net sign in — 27b6b63
 
 ### Phase 2: Thin journey + Save changes
 
 #### Automated
 
-- [ ] 2.1 `npm run test:e2e` passes the journey and Save changes cases on three engines
-- [ ] 2.2 Journey asserts title text on Your TBR and on mood results
-- [ ] 2.3 Save changes asserts new title present and old title absent
-- [ ] 2.4 No class / snapshot / count / Edit-link-only oracles
-- [ ] 2.5 Cleanup is helper/form delete with `[e2e]` titles
-- [ ] 2.6 `npm test` still passes
-- [ ] 2.7 `npm run lint` passes
+- [x] 2.1 `npm run test:e2e` passes the journey and Save changes cases on three engines
+- [x] 2.2 Journey asserts title text on Your TBR and on mood results
+- [x] 2.3 Save changes asserts new title present and old title absent
+- [x] 2.4 No class / snapshot / count / Edit-link-only oracles
+- [x] 2.5 Cleanup is helper/form delete with `[e2e]` titles
+- [x] 2.6 `tests/e2e/seed.spec.ts` is gone; `test:e2e` has no `--grep-invert`
+- [x] 2.7 `npm test` still passes
+- [x] 2.8 `npm run lint` passes
 
 #### Manual
 
-- [ ] 2.8 Add a book, see it on Your TBR, pick it by mood
-- [ ] 2.9 Save changes updates the list
+- [ ] 2.9 Add a book, see it on Your TBR, pick it by mood
+- [ ] 2.10 Save changes updates the list
 
 ### Phase 3: CI gate + cookbook + stale docs
 
