@@ -401,8 +401,8 @@ No database or API migration. Existing books render in the new chrome with no da
 
 #### Automated
 
-- [x] 3.1 The Phase 4 row in `context/foundation/test-plan.md` shows Status `complete` and the archive path
+- [x] 3.1 The Phase 4 row in `context/foundation/test-plan.md` shows Status `complete` and the archive path — c58b907
 
 #### Manual
 
-- [x] 3.2 Stale gate is gone
+- [x] 3.2 Stale gate is gone — c58b907
