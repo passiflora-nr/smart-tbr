@@ -465,33 +465,33 @@ The “full-suite run before S-07” remains a **local-once** owner gate after t
 
 #### Automated
 
-- [x] 2.1 `npm run test:e2e` passes the journey and Save changes cases on three engines
-- [x] 2.2 Journey asserts title text on Your TBR and on mood results
-- [x] 2.3 Save changes asserts new title present and old title absent
-- [x] 2.4 No class / snapshot / count / Edit-link-only oracles
-- [x] 2.5 Cleanup is helper/form delete with `[e2e]` titles
-- [x] 2.6 `tests/e2e/seed.spec.ts` is gone; `test:e2e` has no `--grep-invert`
-- [x] 2.7 `npm test` still passes
-- [x] 2.8 `npm run lint` passes
+- [x] 2.1 `npm run test:e2e` passes the journey and Save changes cases on three engines — 43ba606
+- [x] 2.2 Journey asserts title text on Your TBR and on mood results — 43ba606
+- [x] 2.3 Save changes asserts new title present and old title absent — 43ba606
+- [x] 2.4 No class / snapshot / count / Edit-link-only oracles — 43ba606
+- [x] 2.5 Cleanup is helper/form delete with `[e2e]` titles — 43ba606
+- [x] 2.6 `tests/e2e/seed.spec.ts` is gone; `test:e2e` has no `--grep-invert` — 43ba606
+- [x] 2.7 `npm test` still passes — 43ba606
+- [x] 2.8 `npm run lint` passes — 43ba606
 
 #### Manual
 
-- [ ] 2.9 Add a book, see it on Your TBR, pick it by mood
-- [ ] 2.10 Save changes updates the list
+- [x] 2.9 Add a book, see it on Your TBR, pick it by mood — 43ba606
+- [x] 2.10 Save changes updates the list — 43ba606
 
 ### Phase 3: CI gate + cookbook + stale docs
 
 #### Automated
 
-- [ ] 3.1 `ci.yml` runs Playwright install + `test:e2e` after `npm test`, before build
-- [ ] 3.2 Cookbook §6.3 is no longer TBD
-- [ ] 3.3 §4 e2e row no longer says “none yet”
-- [ ] 3.4 `infrastructure.md` CI sentences include test + e2e
-- [ ] 3.5 `AGENTS.md` and `README.md` list `npm run test:e2e`
-- [ ] 3.6 `npm run lint` passes
+- [x] 3.1 `ci.yml` runs Playwright install + `test:e2e` after `npm test`, before build
+- [x] 3.2 Cookbook §6.3 is no longer TBD
+- [x] 3.3 §4 e2e row no longer says “none yet”
+- [x] 3.4 `infrastructure.md` CI sentences include test + e2e
+- [x] 3.5 `AGENTS.md` and `README.md` list `npm run test:e2e`
+- [x] 3.6 `npm run lint` passes
 
 #### Manual
 
-- [ ] 3.7 Confirm GitHub ran the browser net
-- [ ] 3.8 Cookbook matches what shipped
-- [ ] 3.9 Full suite once before the restyle
+- [x] 3.7 Confirm GitHub ran the browser net
+- [x] 3.8 Cookbook matches what shipped
+- [x] 3.9 Full suite once before the restyle

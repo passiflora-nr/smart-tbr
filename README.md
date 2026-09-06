@@ -53,17 +53,18 @@ To **run tests only** (no local app, no admin key): start Docker, then `npm test
 
 ## Scripts
 
-| Command                    | Purpose                                                                               |
-| -------------------------- | ------------------------------------------------------------------------------------- |
-| `npm run dev`              | Astro dev server on the Cloudflare adapter                                            |
-| `npm run build`            | Production build (needs Supabase env set)                                             |
-| `npm run preview`          | Preview production build locally                                                      |
-| `npm run lint`             | ESLint with type-checked rules (`astro sync` first if env/schema changed; CI runs it) |
-| `npm run lint:fix`         | ESLint with `--fix`                                                                   |
-| `npm run format`           | Prettier                                                                              |
-| `npm test`                 | Unit + integration Vitest projects (integration needs local Supabase + Docker)        |
-| `npm run test:unit`        | Unit project only (`tests/unit/`)                                                     |
-| `npm run test:integration` | Integration project only (`tests/integration/`)                                       |
+| Command                    | Purpose                                                                                                                            |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run dev`              | Astro dev server on the Cloudflare adapter                                                                                         |
+| `npm run build`            | Production build (needs Supabase env set)                                                                                          |
+| `npm run preview`          | Preview production build locally                                                                                                   |
+| `npm run lint`             | ESLint with type-checked rules (`astro sync` first if env/schema changed; CI runs it)                                              |
+| `npm run lint:fix`         | ESLint with `--fix`                                                                                                                |
+| `npm run format`           | Prettier                                                                                                                           |
+| `npm test`                 | Unit + integration Vitest projects (integration needs local Supabase + Docker)                                                     |
+| `npm run test:unit`        | Unit project only (`tests/unit/`)                                                                                                  |
+| `npm run test:integration` | Integration project only (`tests/integration/`)                                                                                    |
+| `npm run test:e2e`         | Playwright critical-path net (Chromium, Firefox, WebKit). Needs Docker + local Supabase; `npx playwright install` once per machine |
 
 ## Project layout
 
@@ -165,7 +166,7 @@ Protected paths are centralized in **`PROTECTED_ROUTES`** in [`src/middleware.ts
 
 No Docker image or `Dockerfile` is involved — [`@astrojs/cloudflare`](./astro.config.mjs) builds a Worker bundle deployed with Wrangler.
 
-**Routine deploy:** merge to `main` — CI runs lint → test → build, then auto-deploys via [`wrangler-action`](./.github/workflows/ci.yml). **Manual redeploy:** GitHub Actions → **CI** → **Run workflow**. **Local emergency:** `npm run build && npx wrangler deploy`.
+**Routine deploy:** merge to `main` — CI runs lint → test → e2e → build, then auto-deploys via [`wrangler-action`](./.github/workflows/ci.yml). **Manual redeploy:** GitHub Actions → **CI** → **Run workflow**. **Local emergency:** `npm run build && npx wrangler deploy`.
 
 Configure **`SUPABASE_URL`**, **`SUPABASE_KEY`** (anon / publishable), and **`SUPABASE_SERVICE_ROLE_KEY`** (secret / `service_role`; account deletion only) as [Wrangler secrets](https://developers.cloudflare.com/workers/configuration/secrets/) for production (CI uploads them on each deploy). Never put the secret key in `SUPABASE_KEY`.
 
@@ -175,7 +176,7 @@ Ops reference: [`context/foundation/infrastructure.md`](./context/foundation/inf
 
 ## CI
 
-[`.github/workflows/ci.yml`](./.github/workflows/ci.yml) runs **`npm ci` → `npx astro sync` → `npm run lint` → `npm test` → `npm run build`** on pushes and PRs to **`main`**. The test step starts local Supabase via Docker and does not receive hosted Supabase secrets.
+[`.github/workflows/ci.yml`](./.github/workflows/ci.yml) runs **`npm ci` → `npx astro sync` → `npm run lint` → `npm test` → `npm run test:e2e` → `npm run build`** on pushes and PRs to **`main`**. The test and e2e steps use local Supabase via Docker and do not receive hosted Supabase secrets. Playwright browsers are installed in CI with `npx playwright install --with-deps` immediately before `npm run test:e2e`.
 
 On **push to `main`**, a **`deploy`** job (after CI passes) runs **`wrangler deploy`** via [`cloudflare/wrangler-action@v3`](https://github.com/cloudflare/wrangler-action) and uploads Worker secrets. Trigger a manual redeploy from the Actions tab with **`workflow_dispatch`**.
 

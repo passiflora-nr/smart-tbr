@@ -21,6 +21,8 @@ jobs:
       - run: npm run lint
       - run: npx supabase start --exclude studio,imgproxy,edge-runtime,supavisor,logflare,vector
       - run: npm test
+      - run: npx playwright install --with-deps
+      - run: npm run test:e2e
       - run: npm run build
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}

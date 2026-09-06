@@ -47,7 +47,11 @@ Vitest 4 runs two named projects:
 
 - `npm run test:unit` — pure logic in `tests/unit/` (no Astro or Supabase runtime).
 - `npm run test:integration` — raw HTTP against the Astro dev server and local Supabase; requires Docker for the local stack.
-- `npm test` — both projects in non-watch mode; required in `@.github/workflows/ci.yml` between `lint` and `build`.
+- `npm test` — both projects in non-watch mode; required in `@.github/workflows/ci.yml` after `lint`.
+
+Playwright runs the browser net separately (not inside `npm test`):
+
+- `npm run test:e2e` — Chromium, Firefox, and WebKit against the local stack; Docker + local Supabase (same as integration). Install browsers once per machine with `npx playwright install`. Required in `@.github/workflows/ci.yml` after `npm test` and before `build`.
 
 Integration tests fail closed on non-loopback Supabase coordinates, mutate only user-D rows with the `[integration-test]` title prefix, and clean those rows in `finally`. Do not parse `.env` or `.dev.vars` as test coordinates. Tests do not need `.dev.vars` or `SUPABASE_SERVICE_ROLE_KEY` — Docker plus `npm test` is enough (same path as CI).
 
@@ -64,4 +68,4 @@ Progress checklist titles in `plan.md` may stay short; the matching `#### Manual
 
 ## Commit & Pull Request Guidelines
 
-History is single-commit; no convention is established yet — prefer Conventional Commits (`feat:`, `fix:`, `chore:`). **All changes land on `main` through PRs only** — branch from `main`, push the branch, open a PR; never commit or push directly to `main`. CI runs `npm ci → npx astro sync → npm run lint → npm test → npm run build` and must pass (`@.github/workflows/ci.yml`). Husky `pre-commit` runs lint-staged (see `@package.json`): ESLint on staged `*.{ts,tsx,astro}`, Prettier on staged `*.{json,css,md}`, and `vitest related` for the **unit** project on staged `*.{ts,tsx}`. `npm ci` / `npm install` runs `prepare` to set `core.hooksPath` — don't bypass with `--no-verify`.
+History is single-commit; no convention is established yet — prefer Conventional Commits (`feat:`, `fix:`, `chore:`). **All changes land on `main` through PRs only** — branch from `main`, push the branch, open a PR; never commit or push directly to `main`. CI runs `npm ci → npx astro sync → npm run lint → npm test → npm run test:e2e → npm run build` and must pass (`@.github/workflows/ci.yml`). Husky `pre-commit` runs lint-staged (see `@package.json`): ESLint on staged `*.{ts,tsx,astro}`, Prettier on staged `*.{json,css,md}`, and `vitest related` for the **unit** project on staged `*.{ts,tsx}`. `npm ci` / `npm install` runs `prepare` to set `core.hooksPath` — don't bypass with `--no-verify`.
