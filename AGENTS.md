@@ -24,7 +24,7 @@ Astro v6 server-rendered app with React 19 islands, Tailwind v4, and Supabase Au
 - `src/layouts/`, `src/lib/`, `src/middleware.ts`, `src/styles/global.css` (Tailwind v4 entry).
 - `supabase/config.toml` — local stack config; `wrangler.jsonc` — Cloudflare deploy; `public/` — static assets.
 - Setup, auth routes, and deployment steps: `@README.md`.
-- Production ops, rollback, and remaining manual tasks: `@context/foundation/infrastructure.md` (rollout log: `@context/archive/deploy-plan.md`).
+- Production ops and rollback: `@context/foundation/infrastructure.md` (rollout log: `@context/archive/deploy-plan.md`).
 
 ## Build, Test, and Development Commands
 

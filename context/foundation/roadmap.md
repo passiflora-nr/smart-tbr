@@ -1,12 +1,15 @@
 ---
 project: SmartTBR
 version: 1
-status: draft
+status: complete
 created: 2026-06-14
 updated: 2026-09-06
 prd_version: 1
 main_goal: speed
 top_blocker: time
+milestone_id: private-mood-trope-tbr
+milestone_seq: 1
+milestone_status: done
 ---
 
 # Roadmap: SmartTBR
@@ -14,6 +17,15 @@ top_blocker: time
 > Derived from `context/foundation/prd.md` (v1) + auto-researched codebase baseline.
 > Edit-in-place; archive when superseded.
 > Slices below are listed in dependency order. The "At a glance" table is the index.
+
+## Milestone
+
+**M-01: Private mood-trope TBR** — Status: done
+
+- **Intent:** Prove that a private, trope-indexed TBR plus mood-trope selection can replace a scattered 100+ book backlog — the reader adds their own books, picks 1–3 of their own tropes, and gets up to 3 matching titles from their pile.
+- **Source materials:** `context/foundation/prd.md` (v1)
+- **Done when:** every F-NN and S-NN below is `done`.
+- **Scope anchors:** US-01, FR-001–FR-013, Access Control, NFR isolation / ≤30s entry / ≤2s mood pick.
 
 ## Vision recap
 
@@ -51,7 +63,7 @@ Navigation aid - groups items that share a Prerequisites chain. Canonical orderi
 | A      | Validation spine  | `F-01` -> `S-01` -> `S-05` | North-star path complete (S-05 done).                                              |
 | B      | TBR management    | `S-02` -> `S-03` / `S-04`  | Joins Stream A at `S-01`; `S-03` and `S-04` are parallel after `S-02` (both done). |
 | C      | Account lifecycle | `S-06`                     | Depends on `F-01` + present auth; parallel with Stream B.                          |
-| D      | Presentation      | `S-07`                     | Optional; runs last because it restyles every surface Streams A-C build.           |
+| D      | Presentation      | `S-07`                     | Optional stretch; ran last and is now done.                                        |
 
 ## Dependency graph (illustration)
 
@@ -77,7 +89,7 @@ flowchart TB
   end
 
   subgraph D["Stream D · Presentation"]
-    S07["S-07 · Café Romance theme<br/>(optional)"]
+    S07["S-07 · Café Romance theme<br/>(done)"]
   end
 
   F01 --> S01
@@ -96,7 +108,7 @@ flowchart TB
 
 ## Baseline
 
-What's already in place in the codebase as of 2026-06-14 (auto-researched + user-confirmed). Foundations below assume these are present and do NOT re-scaffold them.
+Historical snapshot of the codebase as of 2026-06-14 (auto-researched + user-confirmed), before any roadmap slice landed. It is **not** current state — see **At a glance** and **Done**. Foundations below assumed these were present and did NOT re-scaffold them.
 
 - **Frontend:** present - Astro v6 + React 19 islands, Tailwind v4, shadcn (`new-york`); `src/layouts/Layout.astro`, `src/components/`, `src/pages/dashboard.astro`.
 - **Backend / API:** partial - auth endpoints only (`src/pages/api/auth/{signin,signup,signout}.ts`); no book/TBR/recommendation routes.
@@ -203,22 +215,22 @@ What's already in place in the codebase as of 2026-06-14 (auto-researched + user
 - **Blockers:** -
 - **Unknowns:** -
 - **Sequencing:** Deliberately the **last** slice in the roadmap. Do not apply it early or in pieces while functional slices are still landing - a half-restyled app costs more to finish than an unstyled one.
-- **Opportunity:** Extract a shared signed-in navigation component as part of the rewrite. There is no shared nav today: `Topbar.astro` serves home with text links, while `/books`, `/mood`, `/books/new`, and `/books/[id]/edit` each hand-roll a bordered-button row ending in `SignOutButton.astro`. Leaving that alone is the right call for functional slices (each row differs, the edit page's links carry an unsaved-changes guard, and unifying home's text-link styling with the others is itself a design change) - but S-07 rewrites all of this chrome anyway, so consolidating during the restyle costs little and removes the drift risk of maintaining five rows by hand.
-- **Risk:** Pure polish - drop it if the timeline runs out; no slice depends on it. Not a token-swap job: the current pages hardcode cosmic Tailwind classes (`bg-cosmic`, `bg-white/10 backdrop-blur`, `text-blue-100/*`, gradient headings) instead of the semantic shadcn tokens, so the work is a per-page rewrite plus a token pass, and every slice built before it adds surface to rewrite. Palette spec lives in `context/changes/ui-theme-cafe-romance/change.md`.
+- **Opportunity:** Extract a shared signed-in navigation component as part of the rewrite. Done — `SignedInNav.astro` now serves home, `/books`, `/mood`, `/books/new`, `/books/[id]/edit`, and `/account` (edit still passes `guardUnsavedLeave`).
+- **Risk:** Pure polish - drop it if the timeline runs out; no slice depends on it. Not a token-swap job: pages hardcoded cosmic Tailwind classes (`bg-cosmic`, `bg-white/10 backdrop-blur`, `text-blue-100/*`, gradient headings) instead of the semantic shadcn tokens, so the work was a per-page rewrite plus a token pass. Palette spec lives in `context/archive/2026-08-08-ui-theme-cafe-romance/change.md`.
 - **Status:** done
 
 ## Backlog Handoff
 
-| Roadmap ID | Change ID                 | Suggested issue title                          | Ready for /10x-plan | Notes                                                                                             |
-| ---------- | ------------------------- | ---------------------------------------------- | ------------------- | ------------------------------------------------------------------------------------------------- |
-| F-01       | tbr-data-and-isolation    | TBR data layer with per-user RLS isolation     | done                | Archived 2026-08-01                                                                               |
-| S-01       | add-book-to-tbr           | Add a book to the TBR                          | done                | Archived 2026-08-08                                                                               |
-| S-06       | account-lifecycle         | Account gating + self-serve deletion           | done                | Archived 2026-08-22                                                                               |
-| S-05       | mood-trope-recommendation | Pick next book by mood-tropes (north star)     | done                | Archived 2026-08-15                                                                               |
-| S-02       | browse-tbr-list           | Browse the TBR list                            | done                | Archived 2026-08-11                                                                               |
-| S-03       | edit-delete-book          | Edit and delete a book                         | done                | Archived 2026-08-14                                                                               |
-| S-04       | search-filter-tbr         | Search and filter the TBR                      | done                | Archived 2026-08-15                                                                               |
-| S-07       | ui-theme-cafe-romance     | Apply the Café Romance UI theme across the app | yes                 | Optional stretch; all functional slices done. Wait until test-plan Phase 4 (e2e net) is archived. |
+| Roadmap ID | Change ID                 | Suggested issue title                          | Ready for /10x-plan | Notes               |
+| ---------- | ------------------------- | ---------------------------------------------- | ------------------- | ------------------- |
+| F-01       | tbr-data-and-isolation    | TBR data layer with per-user RLS isolation     | done                | Archived 2026-08-01 |
+| S-01       | add-book-to-tbr           | Add a book to the TBR                          | done                | Archived 2026-08-08 |
+| S-06       | account-lifecycle         | Account gating + self-serve deletion           | done                | Archived 2026-08-22 |
+| S-05       | mood-trope-recommendation | Pick next book by mood-tropes (north star)     | done                | Archived 2026-08-15 |
+| S-02       | browse-tbr-list           | Browse the TBR list                            | done                | Archived 2026-08-11 |
+| S-03       | edit-delete-book          | Edit and delete a book                         | done                | Archived 2026-08-14 |
+| S-04       | search-filter-tbr         | Search and filter the TBR                      | done                | Archived 2026-08-15 |
+| S-07       | ui-theme-cafe-romance     | Apply the Café Romance UI theme across the app | done                | Archived 2026-09-06 |
 
 ## Open Roadmap Questions
 
@@ -234,6 +246,10 @@ What's already in place in the codebase as of 2026-06-14 (auto-researched + user
 - **Trope autocomplete (per-user)** - Why parked: PRD Non-Goal in v1; v2+ candidate triggered by lived fragmentation pain.
 - **Global curated trope vocabulary / canonical normalization** - Why parked: permanent PRD Non-Goal; user wording IS the data.
 - **Dark mode ("Velvet Evening" palette) and a light/dark toggle** - Why parked: S-07 ships the light Café Romance theme only; a second theme doubles the surface to verify for no validation gain.
+
+## Milestone History
+
+- **M-01: Private mood-trope TBR** (`private-mood-trope-tbr`) — closed 2026-09-06. Private TBR with per-user isolation, add/browse/edit/delete/search, mood-trope pick (north star), account self-delete, and Café Romance theme.
 
 ## Done
 
