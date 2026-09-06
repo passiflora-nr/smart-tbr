@@ -1,7 +1,8 @@
-import { spawn, spawnSync, type ChildProcess } from "node:child_process";
+import { spawn, spawnSync, type ChildProcess, type ChildProcessByStdio } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { createInterface } from "node:readline";
+import type { Readable } from "node:stream";
 import {
   assertDevVarsDoNotOverrideLocalCoordinates,
   assertLocalSupabaseCoordinates,
@@ -17,6 +18,9 @@ const ASTRO_PORT = 14567;
 const READINESS_TIMEOUT_MS = 90_000;
 const READINESS_INTERVAL_MS = 500;
 const ASTRO_STOP_GRACE_MS = 5_000;
+
+/** stdin ignored; stdout/stderr piped for readiness logs (integration default). */
+type AstroDevProcess = ChildProcessByStdio<null, Readable, Readable>;
 
 export interface LocalServiceHandles {
   astroBaseUrl: string;
@@ -225,11 +229,8 @@ async function waitForHttpOk(url: string, timeoutMs: number, child: ChildProcess
   throw new Error(`Timed out waiting for HTTP readiness at ${url}`);
 }
 
-function captureProcessOutput(child: ChildProcess, buffer: string[]): void {
-  const attach = (stream: NodeJS.ReadableStream | null) => {
-    if (!stream) {
-      return;
-    }
+function captureProcessOutput(child: AstroDevProcess, buffer: string[]): void {
+  const attach = (stream: Readable) => {
     const reader = createInterface({ input: stream });
     reader.on("line", (line) => {
       buffer.push(redactSensitiveOutput(line));
@@ -301,7 +302,13 @@ function readDevVarsIfPresent(): Record<string, string> {
   return parseDotEnv(readFileSync(devVarsPath, "utf8"));
 }
 
-function startAstroDev(supabaseUrl: string, supabaseKey: string, surviveParentExit: boolean): ChildProcess {
+function startAstroDev(supabaseUrl: string, supabaseKey: string, surviveParentExit?: false): AstroDevProcess;
+function startAstroDev(supabaseUrl: string, supabaseKey: string, surviveParentExit: true): ChildProcess;
+function startAstroDev(
+  supabaseUrl: string,
+  supabaseKey: string,
+  surviveParentExit = false,
+): ChildProcess | AstroDevProcess {
   const child = spawn(NPM_BIN, ["run", "dev", "--", "--host", ASTRO_HOST, "--port", String(ASTRO_PORT)], {
     cwd: REPO_ROOT,
     env: {
@@ -386,9 +393,12 @@ export async function startLocalServices(options: StartLocalServicesOptions = {}
     await assertLoopbackPortFree(ASTRO_HOST, ASTRO_PORT);
 
     const astroOutput: string[] = [];
-    astroProcess = startAstroDev(supabaseUrl, supabaseKey, surviveParentExit);
-    if (!surviveParentExit) {
-      captureProcessOutput(astroProcess, astroOutput);
+    if (surviveParentExit) {
+      astroProcess = startAstroDev(supabaseUrl, supabaseKey, true);
+    } else {
+      const pipedAstroProcess = startAstroDev(supabaseUrl, supabaseKey);
+      captureProcessOutput(pipedAstroProcess, astroOutput);
+      astroProcess = pipedAstroProcess;
     }
 
     const astroBaseUrl = `http://${ASTRO_HOST}:${ASTRO_PORT}`;
