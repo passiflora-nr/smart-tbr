@@ -7,18 +7,22 @@ interface Props {
 }
 
 const { books } = Astro.props;
+
+const tropePillClasses = ["bg-trope-blush", "bg-trope-oat", "bg-trope-stone"] as const;
 ---
 
 <ul class="space-y-4">
   {
     books.map((book) => (
-      <li class="rounded-lg border border-white/10 bg-white/5 p-4">
-        <p class="font-medium break-words text-white">{book.title}</p>
-        <p class="text-sm text-blue-100/70">{book.author}</p>
+      <li class="border-border bg-card rounded-lg border p-4 shadow-sm">
+        <p class="text-foreground font-medium break-words">{book.title}</p>
+        <p class="text-muted-foreground text-sm">{book.author}</p>
         <BookDescription description={book.description} />
         <ul class="mt-2 flex flex-wrap gap-1.5">
-          {book.tropes.map((trope) => (
-            <li class="rounded-md bg-white/15 px-2 py-0.5 text-xs text-white">{trope}</li>
+          {book.tropes.map((trope, index) => (
+            <li class:list={["text-trope-text rounded-md px-2 py-0.5 text-xs", tropePillClasses[index % 3]]}>
+              {trope}
+            </li>
           ))}
         </ul>
       </li>

@@ -1,10 +1,10 @@
 ---
 change_id: ui-theme-cafe-romance
 title: Café Romance UI theme
-status: new
+status: archived
 created: 2026-08-08
 updated: 2026-09-06
-archived_at: null
+archived_at: 2026-09-06T16:48:11Z
 ---
 
 ## Notes
@@ -17,7 +17,7 @@ Replaces the starter's cosmic/purple-glass chrome (`bg-cosmic`, `bg-white/10 bac
 
 | Role             | Hex       | Use                               |
 | ---------------- | --------- | --------------------------------- |
-| Background       | `#F7F3EE` | Warm linen page                   |
+| Background       | `#E9E1D4` | Warm oat page                     |
 | Card / surface   | `#FDFBF8` | Cream cards                       |
 | Foreground       | `#3D2E2A` | Espresso body text                |
 | Muted foreground | `#8B7355` | Warm taupe, secondary text        |
@@ -34,10 +34,10 @@ Trope pills rotate across `#F0D4D8` (blush), `#E8DFD0` (oat), `#D4C4B8` (warm st
 - Light mode only; the dark "Velvet Evening" variant is parked (see Parked in the roadmap).
 - Flat cream cards with a soft shadow — no glassmorphism, no gradient text.
 - Trope pills are the most colourful element on the page.
-- Covers are the hero in list views; title/author secondary.
+- Book lists stay title-and-author first. Do not add cover images, a cover field, or a cover-forward grid — that is more change than this slice should take on.
 - Headings in a soft serif (Fraunces or Cormorant Garamond), body/UI in DM Sans.
 - Radius bumped to `0.75rem`.
 
 ### Scope note
 
-Swapping the shadcn tokens in `src/styles/global.css` (`--background`, `--foreground`, `--card`, `--primary`, `--secondary`, `--muted-foreground`, `--accent`, `--border`, `--radius`) is the small part. The pages and islands do not consume those tokens today - they hardcode cosmic Tailwind classes (`bg-cosmic`, `bg-white/10 backdrop-blur`, `border-white/10`, `text-blue-100/*`, `from-blue-200 to-purple-200` gradient headings). So the bulk of this slice is rewriting those classes surface by surface, dropping the `bg-cosmic` utility and the star-field / orb markup in `Welcome.astro`, wiring the fonts, and rebuilding the book list as a cover-forward grid. Estimate it as a per-page pass, not a variables edit.
+Swapping the shadcn tokens in `src/styles/global.css` (`--background`, `--foreground`, `--card`, `--primary`, `--secondary`, `--muted-foreground`, `--accent`, `--border`, `--radius`) is the small part. The pages and islands do not consume those tokens today - they hardcode cosmic Tailwind classes (`bg-cosmic`, `bg-white/10 backdrop-blur`, `border-white/10`, `text-blue-100/*`, `from-blue-200 to-purple-200` gradient headings). So the bulk of this slice is rewriting those classes surface by surface, dropping the `bg-cosmic` utility and the star-field / orb markup in `Welcome.astro`, and wiring the fonts. The TBR list keeps its current stacked-row layout (title, author, tropes, optional description) — restyle the rows, do not rebuild them as a grid. Estimate it as a per-page pass, not a variables edit.

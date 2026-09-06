@@ -25,17 +25,17 @@ const modalId = "delete-account";
     <span class="sr-only">Cancel account deletion</span>
   </a>
   <div class="delete-modal-panel">
-    <h2 id={`${modalId}-heading`} class="text-lg font-semibold text-white">Delete account?</h2>
-    <p class="mt-2 text-sm text-red-200">
+    <h2 id={`${modalId}-heading`} class="text-lg font-semibold">Delete account?</h2>
+    <p class="mt-2 text-sm text-red-800">
       This permanently removes your account, every book, and every trope tag. It cannot be recovered.
     </p>
     <form method="POST" action="/api/account/delete" class="mt-4">
       {
         error ? (
-          <p class="mb-3 rounded-lg border border-red-500/40 bg-red-950/60 px-3 py-2 text-sm text-red-200">{error}</p>
+          <p class="mb-3 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800">{error}</p>
         ) : null
       }
-      <label for={`${modalId}-confirmation`} class="mb-1 block text-sm text-red-100">
+      <label for={`${modalId}-confirmation`} class="mb-1 block text-sm text-red-800">
         Type {ACCOUNT_DELETE_CONFIRMATION_WORD} to confirm
       </label>
       <input
@@ -44,18 +44,18 @@ const modalId = "delete-account";
         name={ACCOUNT_DELETE_CONFIRMATION_FIELD}
         autocomplete="off"
         spellcheck="false"
-        class="w-full rounded-lg border border-red-500/40 bg-red-950/60 px-3 py-2 text-sm text-white placeholder:text-red-200/40"
+        class="border-input bg-card text-foreground placeholder:text-muted-foreground w-full rounded-lg border px-3 py-2 text-sm"
       />
       <div class="mt-4 flex flex-wrap gap-2">
         <a
           href={dismissHref}
-          class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm text-white transition-colors outline-none hover:bg-white/20 focus-visible:ring-2 focus-visible:ring-white/40"
+          class="border-border bg-card text-foreground hover:bg-background focus-visible:ring-primary/40 rounded-lg border px-4 py-2 text-sm transition-colors outline-none focus-visible:ring-2"
         >
           Cancel
         </a>
         <button
           type="submit"
-          class="rounded-lg border border-red-500/40 bg-red-900/40 px-4 py-2 text-sm text-red-100 transition-colors outline-none hover:bg-red-900/60 focus-visible:ring-2 focus-visible:ring-red-400/60"
+          class="rounded-lg border border-red-700 bg-red-700 px-4 py-2 text-sm text-white transition-colors outline-none hover:bg-red-800 focus-visible:ring-2 focus-visible:ring-red-400/60"
         >
           Delete account permanently
         </button>

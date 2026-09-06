@@ -3,7 +3,7 @@ import Layout from "@/layouts/Layout.astro";
 import BookFilterBar from "@/components/books/BookFilterBar.astro";
 import BookList from "@/components/books/BookList.astro";
 import DeleteBookModal from "@/components/books/DeleteBookModal.astro";
-import SignOutButton from "@/components/auth/SignOutButton.astro";
+import SignedInNav from "@/components/SignedInNav.astro";
 import {
   buildBooksHref,
   collectTropeVocabulary,
@@ -145,11 +145,11 @@ function describeActiveFilters(activeFilters: BookFilters): string {
 ---
 
 <Layout title="Your TBR">
-  <div class="bg-cosmic flex min-h-screen items-start justify-center p-4 pt-12">
-    <div class="w-full max-w-2xl rounded-2xl border border-white/10 bg-white/10 p-8 text-white backdrop-blur-xl">
+  <div class="bg-background flex min-h-screen items-start justify-center p-4 pt-12">
+    <div class="border-border bg-card text-foreground w-full max-w-4xl rounded-2xl border p-8 shadow-sm">
       {
         redirectError ? (
-          <p class="mb-4 flex w-full items-center justify-center gap-2 rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-center text-sm text-red-300">
+          <p class="mb-4 flex w-full items-center justify-center gap-2 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-center text-sm text-red-800">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
@@ -170,48 +170,18 @@ function describeActiveFilters(activeFilters: BookFilters): string {
             {redirectError}
           </p>
         ) : redirectNotice ? (
-          <p class="mb-4 w-full rounded-lg border border-amber-500/30 bg-amber-900/20 px-3 py-2 text-center text-sm text-amber-200">
+          <p class="border-border bg-accent/50 text-foreground mb-4 w-full rounded-lg border px-3 py-2 text-center text-sm">
             {redirectNotice}
           </p>
         ) : null
       }
 
-      <div class="mb-6 flex flex-col gap-4">
-        <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent">
-          {headingText}
-        </h1>
-        <div class="flex flex-wrap gap-2">
-          <a
-            href="/mood"
-            class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
-          >
-            Pick by mood
-          </a>
-          <a
-            href="/books/new"
-            class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
-          >
-            Add a book
-          </a>
-          <a
-            href="/"
-            class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
-          >
-            Home
-          </a>
-          <a
-            href="/account"
-            class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
-          >
-            Account
-          </a>
-          <SignOutButton />
-        </div>
-      </div>
+      <SignedInNav />
+      <h1 class="mb-6 text-2xl font-bold">{headingText}</h1>
 
       {
         state === "failed" ? (
-          <p class="flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-sm text-red-300">
+          <p class="flex items-center gap-2 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
@@ -233,10 +203,10 @@ function describeActiveFilters(activeFilters: BookFilters): string {
           </p>
         ) : state === "empty" ? (
           <div>
-            <p class="mb-6 text-blue-100/80">Your TBR is empty — add your first book to get started.</p>
+            <p class="text-muted-foreground mb-6">Your TBR is empty — add your first book to get started.</p>
             <a
               href="/books/new"
-              class="inline-block rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
+              class="border-border bg-card text-foreground hover:bg-background inline-block rounded-lg border px-4 py-2 text-sm transition-colors"
             >
               Add your first book
             </a>
@@ -244,7 +214,7 @@ function describeActiveFilters(activeFilters: BookFilters): string {
         ) : state === "no-match" ? (
           <div>
             <BookFilterBar filters={filters} tropeVocabulary={tropeVocabulary} />
-            <p class="text-blue-100/80">No books match your {describeActiveFilters(filters)}.</p>
+            <p class="text-muted-foreground">No books match your {describeActiveFilters(filters)}.</p>
           </div>
         ) : (
           <div>

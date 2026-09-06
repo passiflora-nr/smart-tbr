@@ -40,6 +40,7 @@ supabase/snippets/
 # 10xdevs
 .cursor/**/10x-*
 .10x-cli-manifest.json
+10x-skills-cheatsheet.html
 
 # cursor
 .cursor/cli.json

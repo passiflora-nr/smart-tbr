@@ -16,15 +16,15 @@ const { description } = Astro.props;
     description.length > DESCRIPTION_CLAMP_CHARS ? (
       <details class="group mt-1">
         <summary class="cursor-pointer list-none [&::-webkit-details-marker]:hidden">
-          <span class="line-clamp-2 text-sm text-blue-100/60 group-open:line-clamp-none">{description}</span>
-          <span class="mt-1 inline-block text-xs text-purple-300 transition-colors group-hover:text-purple-200">
+          <span class="text-muted-foreground line-clamp-2 text-sm group-open:line-clamp-none">{description}</span>
+          <span class="text-primary group-hover:text-primary-hover mt-1 inline-block text-xs transition-colors">
             <span class="group-open:hidden">Show more</span>
             <span class="hidden group-open:inline">Show less</span>
           </span>
         </summary>
       </details>
     ) : (
-      <p class="mt-1 text-sm text-blue-100/60">{description}</p>
+      <p class="text-muted-foreground mt-1 text-sm">{description}</p>
     )
   ) : null
 }

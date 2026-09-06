@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig, envField } from "astro/config";
+import { defineConfig, envField, fontProviders } from "astro/config";
 
 import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
@@ -26,4 +26,24 @@ export default defineConfig({
       SUPABASE_SERVICE_ROLE_KEY: envField.string({ context: "server", access: "secret", optional: true }),
     },
   },
+  fonts: [
+    {
+      name: "Fraunces",
+      cssVariable: "--font-fraunces",
+      provider: fontProviders.google(),
+      weights: [600, 700],
+      styles: ["normal"],
+      subsets: ["latin"],
+      formats: ["woff2"],
+    },
+    {
+      name: "DM Sans",
+      cssVariable: "--font-dm-sans",
+      provider: fontProviders.google(),
+      weights: [400, 500, 600],
+      styles: ["normal"],
+      subsets: ["latin"],
+      formats: ["woff2"],
+    },
+  ],
 });

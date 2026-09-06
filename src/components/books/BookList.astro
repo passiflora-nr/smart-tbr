@@ -10,22 +10,24 @@ interface Props {
 }
 
 const { books, filterQuery } = Astro.props;
+
+const tropePillClasses = ["bg-trope-blush", "bg-trope-oat", "bg-trope-stone"] as const;
 ---
 
 <ul class="space-y-4">
   {
     books.map((book) => (
-      <li id={`book-${book.id}`} class="book-row rounded-lg border border-white/10 bg-white/5 p-4">
+      <li id={`book-${book.id}`} class="book-row border-border bg-card rounded-lg border p-4 shadow-sm">
         <div class="flex items-start justify-between gap-2">
           <div class="min-w-0 flex-1">
-            <p class="font-medium break-words text-white">{book.title}</p>
-            <p class="text-sm text-blue-100/70">{book.author}</p>
+            <p class="text-foreground font-medium break-words">{book.title}</p>
+            <p class="text-muted-foreground text-sm">{book.author}</p>
           </div>
           <div class="flex shrink-0 flex-wrap items-start justify-end gap-2">
             <a
               href={buildEditHref(book.id, filterQuery)}
               aria-label={`Edit ${book.title}`}
-              class="rounded-lg border border-white/20 bg-white/10 px-3 py-1.5 text-sm transition-colors hover:bg-white/20"
+              class="border-border bg-card text-foreground hover:bg-background rounded-lg border px-3 py-1.5 text-sm transition-colors"
             >
               Edit
             </a>
@@ -34,8 +36,10 @@ const { books, filterQuery } = Astro.props;
         </div>
         <BookDescription description={book.description} />
         <ul class="mt-2 flex flex-wrap gap-1.5">
-          {book.tropes.map((trope) => (
-            <li class="rounded-md bg-white/15 px-2 py-0.5 text-xs text-white">{trope}</li>
+          {book.tropes.map((trope, index) => (
+            <li class:list={["text-trope-text rounded-md px-2 py-0.5 text-xs", tropePillClasses[index % 3]]}>
+              {trope}
+            </li>
           ))}
         </ul>
       </li>

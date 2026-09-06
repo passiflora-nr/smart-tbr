@@ -76,5 +76,5 @@
 
 - **Context**: Anytime a hook reports an issue
 - **Problem**: The hooks fail but the agent doesn't do anything about it.
-- **Rule**: Hook checks are there for a reason - they should ALWAYS be considered and failures should be addressed and fixed. It doesn not matter if the check is about a file the agent didn't touch or if the check is irrelevant for the current phase the agent is currently working on. Hook check issues should ALWAYS be addressed and fixed.
+- **Rule**: Hook checks are there for a reason — they should ALWAYS be considered and failures should be addressed and fixed. It does not matter if the check is about a file the agent didn't touch or if the check is irrelevant for the current phase the agent is currently working on. Hook check issues should ALWAYS be addressed and fixed.
 - **Applies to**: all

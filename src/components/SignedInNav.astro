@@ -1,0 +1,24 @@
+---
+import SignOutButton from "@/components/auth/SignOutButton.astro";
+
+interface Props {
+  guardUnsavedLeave?: boolean;
+  booksHref?: string;
+}
+
+const { guardUnsavedLeave = false, booksHref = "/books" } = Astro.props;
+const unsavedGuard = guardUnsavedLeave ? "" : undefined;
+const linkClass =
+  "inline-flex shrink-0 items-center justify-center rounded-lg px-2.5 py-2 text-sm text-primary transition-colors hover:bg-accent hover:text-primary-hover";
+---
+
+<nav
+  class="border-border bg-card mb-6 flex w-full flex-wrap items-center justify-center gap-2 rounded-xl border px-4 py-2 shadow-sm sm:justify-between sm:px-8"
+>
+  <a href="/" data-unsaved-guard={unsavedGuard} class:list={[linkClass]}>Home</a>
+  <a href={booksHref} data-unsaved-guard={unsavedGuard} class:list={[linkClass]}>View your TBR</a>
+  <a href="/books/new" data-unsaved-guard={unsavedGuard} class:list={[linkClass]}>Add a book</a>
+  <a href="/mood" data-unsaved-guard={unsavedGuard} class:list={[linkClass]}>Pick by mood</a>
+  <a href="/account" data-unsaved-guard={unsavedGuard} class:list={[linkClass]}>Account</a>
+  <SignOutButton guardUnsavedLeave={guardUnsavedLeave} />
+</nav>
