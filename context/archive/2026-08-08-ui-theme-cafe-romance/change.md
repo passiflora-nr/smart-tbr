@@ -1,10 +1,10 @@
 ---
 change_id: ui-theme-cafe-romance
 title: Café Romance UI theme
-status: impl_reviewed
+status: archived
 created: 2026-08-08
 updated: 2026-09-06
-archived_at: null
+archived_at: 2026-09-06T16:48:11Z
 ---
 
 ## Notes
