@@ -2,7 +2,7 @@
 
 SmartTBR is a web app for heavy readers who keep a large “To Be Read” backlog and prefer to choose the **next book by trope and mood** rather than digging through scattered lists (Instagram saves, wishlists, notes). Product goals and MVP scope live in [`context/foundation/prd.md`](./context/foundation/prd.md).
 
-**Current codebase:** authentication, route protection, add-book, and browse-TBR flows are in place; mood-trope recommendation is next on the validation spine.
+**Current codebase:** the MVP functional slices are in place (auth, private TBR, add/edit/delete, search/filter, mood-trope pick, account deletion). Remaining product work is optional polish (Café Romance theme).
 
 Repository conventions for contributors and tooling are summarized in [`AGENTS.md`](./AGENTS.md).
 
@@ -53,17 +53,18 @@ To **run tests only** (no local app, no admin key): start Docker, then `npm test
 
 ## Scripts
 
-| Command                    | Purpose                                                                               |
-| -------------------------- | ------------------------------------------------------------------------------------- |
-| `npm run dev`              | Astro dev server on the Cloudflare adapter                                            |
-| `npm run build`            | Production build (needs Supabase env set)                                             |
-| `npm run preview`          | Preview production build locally                                                      |
-| `npm run lint`             | ESLint with type-checked rules (`astro sync` first if env/schema changed; CI runs it) |
-| `npm run lint:fix`         | ESLint with `--fix`                                                                   |
-| `npm run format`           | Prettier                                                                              |
-| `npm test`                 | Unit + integration Vitest projects (integration needs local Supabase + Docker)        |
-| `npm run test:unit`        | Unit project only (`tests/unit/`)                                                     |
-| `npm run test:integration` | Integration project only (`tests/integration/`)                                       |
+| Command                    | Purpose                                                                                                                            |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run dev`              | Astro dev server on the Cloudflare adapter                                                                                         |
+| `npm run build`            | Production build (needs Supabase env set)                                                                                          |
+| `npm run preview`          | Preview production build locally                                                                                                   |
+| `npm run lint`             | ESLint with type-checked rules (`astro sync` first if env/schema changed; CI runs it)                                              |
+| `npm run lint:fix`         | ESLint with `--fix`                                                                                                                |
+| `npm run format`           | Prettier                                                                                                                           |
+| `npm test`                 | Unit + integration Vitest projects (integration needs local Supabase + Docker)                                                     |
+| `npm run test:unit`        | Unit project only (`tests/unit/`)                                                                                                  |
+| `npm run test:integration` | Integration project only (`tests/integration/`)                                                                                    |
+| `npm run test:e2e`         | Playwright critical-path net (Chromium, Firefox, WebKit). Needs Docker + local Supabase; `npx playwright install` once per machine |
 
 ## Project layout
 
@@ -75,7 +76,7 @@ src/
 ├── layouts/
 ├── pages/           # Routes; `pages/api/` for endpoints
 ├── lib/             # Shared TS (e.g. Supabase client helpers)
-├── middleware.ts    # Auth gating (`PROTECTED_ROUTES`)
+├── middleware.ts    # Auth gating (reads `PROTECTED_ROUTE_PREFIXES`)
 └── styles/          # Tailwind entry (`global.css`)
 public/               # Static assets
 supabase/             # Local Supabase CLI config (`config.toml`)
@@ -129,9 +130,7 @@ npx supabase start
 
 3. Paste the anon URL and anon key printed by the CLI into **both** `.env` and `.dev.vars` as `SUPABASE_URL` / `SUPABASE_KEY`. Do **not** paste the printed **secret / `service_role`** key into those files.
 
-4. Studio: `http://localhost:54323`. Stop when done: `npx supabase stop`.
-
-For early development you only need **`auth.users`**; app-specific tables appear as the TBR backend is implemented (see PRD).
+4. Studio: `http://localhost:54323`. Stop when done: `npx supabase stop`. The local stack also seeds test users and a `books` table (see [`supabase/seed.sql`](./supabase/seed.sql)).
 
 ### Hosted Supabase
 
@@ -155,9 +154,10 @@ Supabase often requires verified email before sign-in. To skip confirmation in d
 | `/mood`               | Pick next read by 1–3 tropes from your TBR (protected)                                                                                        |
 | `/books`              | Browse full TBR (protected)                                                                                                                   |
 | `/books/new`          | Add a book (protected)                                                                                                                        |
+| `/books/[id]/edit`    | Edit a book (protected)                                                                                                                       |
 | `/account`            | Signed-in email and account-deletion danger zone (protected)                                                                                  |
 
-Protected paths are centralized in **`PROTECTED_ROUTES`** in [`src/middleware.ts`](./src/middleware.ts); add paths there only.
+Protected page prefixes live in **`PROTECTED_ROUTE_PREFIXES`** in [`src/lib/protected-routes.ts`](./src/lib/protected-routes.ts); middleware applies them. Add new auth-required page prefixes there only.
 
 ## Deployment
 
@@ -165,17 +165,17 @@ Protected paths are centralized in **`PROTECTED_ROUTES`** in [`src/middleware.ts
 
 No Docker image or `Dockerfile` is involved — [`@astrojs/cloudflare`](./astro.config.mjs) builds a Worker bundle deployed with Wrangler.
 
-**Routine deploy:** merge to `main` — CI runs lint → test → build, then auto-deploys via [`wrangler-action`](./.github/workflows/ci.yml). **Manual redeploy:** GitHub Actions → **CI** → **Run workflow**. **Local emergency:** `npm run build && npx wrangler deploy`.
+**Routine deploy:** merge to `main` — CI runs lint → test → e2e → build, then auto-deploys via [`wrangler-action`](./.github/workflows/ci.yml). **Manual redeploy:** GitHub Actions → **CI** → **Run workflow**. **Local emergency:** `npm run build && npx wrangler deploy`.
 
 Configure **`SUPABASE_URL`**, **`SUPABASE_KEY`** (anon / publishable), and **`SUPABASE_SERVICE_ROLE_KEY`** (secret / `service_role`; account deletion only) as [Wrangler secrets](https://developers.cloudflare.com/workers/configuration/secrets/) for production (CI uploads them on each deploy). Never put the secret key in `SUPABASE_KEY`.
 
-[`wrangler.jsonc`](./wrangler.jsonc) sets `assets.run_worker_first: ["/api/*"]` so API routes (auth, future TBR endpoints) hit the Worker instead of Static Assets. Keep this when adding paths under `src/pages/api/`.
+[`wrangler.jsonc`](./wrangler.jsonc) sets `assets.run_worker_first: ["/api/*"]` so API routes (auth, books, account) hit the Worker instead of Static Assets. Keep this when adding paths under `src/pages/api/`.
 
 Ops reference: [`context/foundation/infrastructure.md`](./context/foundation/infrastructure.md) · archived rollout log: [`context/archive/deploy-plan.md`](./context/archive/deploy-plan.md)
 
 ## CI
 
-[`.github/workflows/ci.yml`](./.github/workflows/ci.yml) runs **`npm ci` → `npx astro sync` → `npm run lint` → `npm test` → `npm run build`** on pushes and PRs to **`main`**. The test step starts local Supabase via Docker and does not receive hosted Supabase secrets.
+[`.github/workflows/ci.yml`](./.github/workflows/ci.yml) runs **`npm ci` → `npx astro sync` → `npm run lint` → `npm test` → `npm run test:e2e` → `npm run build`** on pushes and PRs to **`main`**. The test and e2e steps use local Supabase via Docker and do not receive hosted Supabase secrets. Playwright browsers are installed in CI with `npx playwright install --with-deps` immediately before `npm run test:e2e`.
 
 On **push to `main`**, a **`deploy`** job (after CI passes) runs **`wrangler deploy`** via [`cloudflare/wrangler-action@v3`](https://github.com/cloudflare/wrangler-action) and uploads Worker secrets. Trigger a manual redeploy from the Actions tab with **`workflow_dispatch`**.
 

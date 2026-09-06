@@ -9,7 +9,7 @@ Astro v6 server-rendered app with React 19 islands, Tailwind v4, and Supabase Au
 - **Supabase env is server-only.** `SUPABASE_URL`, `SUPABASE_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` are declared `context: "server"`, `access: "secret"` (`optional: true`) in `@astro.config.mjs`. Import only from `astro:env/server`; never read them in client code or a React island. `SUPABASE_KEY` is the anon / publishable key. `SUPABASE_SERVICE_ROLE_KEY` is used only for `auth.admin.deleteUser` via `@src/lib/supabase-admin.ts` — never write it into `SUPABASE_KEY` (that would bypass Row-Level Security on every TBR query).
 - **The admin key is a production Worker secret only.** Do not put `SUPABASE_SERVICE_ROLE_KEY` in `.dev.vars` or `.env`. Local **Delete account** is not required (try it on the live site). Integration tests refuse to start if that key is set in `.dev.vars`.
 - **Local secrets live in `.dev.vars`, not `.env`.** Cloudflare workerd (used by `npm run dev`) reads `.dev.vars`; `.env` is for the Supabase CLI. Copy `@.env.example` to both. Those files hold `SUPABASE_URL` and `SUPABASE_KEY` only. Both are gitignored.
-- **Protected routes are gated by `PROTECTED_ROUTES` in `@src/middleware.ts`.** Add new auth-required paths there; nowhere else. Routes under `src/pages/api/` are the exception: they self-authenticate with `supabase.auth.getUser()` and return 401 (or redirect, for form-post routes) rather than being listed there, so a JSON caller never gets an HTML sign-in page.
+- **Protected routes are gated by `PROTECTED_ROUTE_PREFIXES` in `@src/lib/protected-routes.ts`.** Middleware reads that list; add new auth-required page prefixes there; nowhere else. Routes under `src/pages/api/` are the exception: they self-authenticate with `supabase.auth.getUser()` and return 401 (or redirect, for form-post routes) rather than being listed there, so a JSON caller never gets an HTML sign-in page.
 - **Never turn off `security.checkOrigin`** (pinned `true` in `@astro.config.mjs`). `POST /api/books/[id]/delete` is a cookie-authenticated hard delete driven by a plain HTML form; the origin check plus `@supabase/ssr`'s `SameSite=Lax` cookie default are the only things stopping a cross-site page from forging it. Don't pass `cookieOptions: { sameSite: "none" }` to `createServerClient` either. If a webhook route needs to accept cross-origin posts, exempt that route — don't disable the check globally.
 - **`createClient` in `@src/lib/supabase.ts` can return `null`** when env is unset — always null-check before using the client.
 - **Dev runs in workerd, not Node.** Code in `src/pages/api/**` and `src/middleware.ts` should avoid Node-only APIs unless covered by `nodejs_compat` (`@wrangler.jsonc`). Before adding npm packages, confirm they work on Workers/edge; prefer Supabase REST over raw Postgres drivers.
@@ -47,7 +47,11 @@ Vitest 4 runs two named projects:
 
 - `npm run test:unit` — pure logic in `tests/unit/` (no Astro or Supabase runtime).
 - `npm run test:integration` — raw HTTP against the Astro dev server and local Supabase; requires Docker for the local stack.
-- `npm test` — both projects in non-watch mode; required in `@.github/workflows/ci.yml` between `lint` and `build`.
+- `npm test` — both projects in non-watch mode; required in `@.github/workflows/ci.yml` after `lint`.
+
+Playwright runs the browser net separately (not inside `npm test`):
+
+- `npm run test:e2e` — Chromium, Firefox, and WebKit against the local stack; Docker + local Supabase (same as integration). Install browsers once per machine with `npx playwright install`. Required in `@.github/workflows/ci.yml` after `npm test` and before `build`.
 
 Integration tests fail closed on non-loopback Supabase coordinates, mutate only user-D rows with the `[integration-test]` title prefix, and clean those rows in `finally`. Do not parse `.env` or `.dev.vars` as test coordinates. Tests do not need `.dev.vars` or `SUPABASE_SERVICE_ROLE_KEY` — Docker plus `npm test` is enough (same path as CI).
 
@@ -64,4 +68,4 @@ Progress checklist titles in `plan.md` may stay short; the matching `#### Manual
 
 ## Commit & Pull Request Guidelines
 
-History is single-commit; no convention is established yet — prefer Conventional Commits (`feat:`, `fix:`, `chore:`). **All changes land on `main` through PRs only** — branch from `main`, push the branch, open a PR; never commit or push directly to `main`. CI runs `npm ci → npx astro sync → npm run lint → npm test → npm run build` and must pass (`@.github/workflows/ci.yml`). Husky `pre-commit` runs lint-staged (see `@package.json`): ESLint on staged `*.{ts,tsx,astro}`, Prettier on staged `*.{json,css,md}`, and `vitest related` for the **unit** project on staged `*.{ts,tsx}`. `npm ci` / `npm install` runs `prepare` to set `core.hooksPath` — don't bypass with `--no-verify`.
+History is single-commit; no convention is established yet — prefer Conventional Commits (`feat:`, `fix:`, `chore:`). **All changes land on `main` through PRs only** — branch from `main`, push the branch, open a PR; never commit or push directly to `main`. CI runs `npm ci → npx astro sync → npm run lint → npm test → npm run test:e2e → npm run build` and must pass (`@.github/workflows/ci.yml`). Husky `pre-commit` runs lint-staged (see `@package.json`): ESLint on staged `*.{ts,tsx,astro}`, Prettier on staged `*.{json,css,md}`, and `vitest related` for the **unit** project on staged `*.{ts,tsx}`. `npm ci` / `npm install` runs `prepare` to set `core.hooksPath` — don't bypass with `--no-verify`.

@@ -9,6 +9,7 @@ import {
   createBookViaApi,
   createRunTitlePrefix,
   deleteBookViaAstroForm,
+  E2E_TEST_TITLE_PREFIX,
   INTEGRATION_TEST_TITLE_PREFIX,
   listBooksWithTitlePrefix,
   USER_D_EMAIL,
@@ -112,6 +113,7 @@ describe("books surface over HTTP", () => {
     await assertUserDHasOnlyReservedFixtures(verificationClient);
     try {
       await cleanupBooksWithTitlePrefix(verificationClient, INTEGRATION_TEST_TITLE_PREFIX);
+      await cleanupBooksWithTitlePrefix(verificationClient, E2E_TEST_TITLE_PREFIX);
       const html = await getBooksHtml(`${astroBaseUrl}/books`);
       const titles = fixtureTitles(runTitlePrefix);
       expect(html).toContain(EMPTY_SENTENCE);
@@ -121,6 +123,7 @@ describe("books surface over HTTP", () => {
       expect(html).not.toContain(titles.neither);
     } finally {
       await cleanupBooksWithTitlePrefix(verificationClient, INTEGRATION_TEST_TITLE_PREFIX);
+      await cleanupBooksWithTitlePrefix(verificationClient, E2E_TEST_TITLE_PREFIX);
     }
   });
 

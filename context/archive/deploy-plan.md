@@ -55,9 +55,9 @@ Set up the accounts and credentials you'll need before touching the codebase. No
 
 ### Edge cases / extra support
 
-- *Wrong account on `wrangler login`.* If you have multiple Cloudflare logins, `wrangler` picks the most-recent. Run `npx wrangler logout` then `wrangler login` again, and pick the right account in the OAuth popup.
-- *Token template scopes.* The "Edit Cloudflare Workers" template grants `Account > Workers Scripts: Edit` + `Account > Account Settings: Read` + `User > User Details: Read` — these are exactly what `wrangler-action@v3` needs. **Do not** use the "Read All Resources" template; it has no write scope and fails with the unhelpful `code: 10000` auth error in CI. (Verified against [cloudflare/wrangler-action README](https://github.com/cloudflare/wrangler-action) and current community reports.)
-- *Token expiry.* Default templates are non-expiring; if you opt into an expiry, calendar a reminder before the date or CI silently breaks.
+- _Wrong account on `wrangler login`._ If you have multiple Cloudflare logins, `wrangler` picks the most-recent. Run `npx wrangler logout` then `wrangler login` again, and pick the right account in the OAuth popup.
+- _Token template scopes._ The "Edit Cloudflare Workers" template grants `Account > Workers Scripts: Edit` + `Account > Account Settings: Read` + `User > User Details: Read` — these are exactly what `wrangler-action@v3` needs. **Do not** use the "Read All Resources" template; it has no write scope and fails with the unhelpful `code: 10000` auth error in CI. (Verified against [cloudflare/wrangler-action README](https://github.com/cloudflare/wrangler-action) and current community reports.)
+- _Token expiry._ Default templates are non-expiring; if you opt into an expiry, calendar a reminder before the date or CI silently breaks.
 
 ---
 
@@ -74,9 +74,9 @@ Confirm the existing workerd-based dev loop works. `.dev.vars` and `.env` now us
 
 ### Edge cases / extra support
 
-- *workerd vs. node mismatch.* If something works under `npm run dev` but you have doubts, also run `npx wrangler dev` against the built `dist/` to see the exact production-style runtime. The infra doc's Risk Register (line 90) flags `wrangler dev` vs production parity gaps — not relevant for MVP scope but good muscle memory.
-- *Email confirmation loop.* Per [README](../../README.md) lines 109–111, Supabase often enforces email confirmation. If sign-up succeeds but sign-in says "email not confirmed", either click through the email or temporarily disable **Authentication → Email → Confirm email** in the Supabase dashboard.
-- *Stale Astro env types.* If you edit [astro.config.mjs](../../astro.config.mjs) env schema and the IDE complains, `npx astro sync` regenerates types (CI already does this — [.github/workflows/ci.yml](../../.github/workflows/ci.yml) line 19).
+- _workerd vs. node mismatch._ If something works under `npm run dev` but you have doubts, also run `npx wrangler dev` against the built `dist/` to see the exact production-style runtime. The infra doc's Risk Register (line 90) flags `wrangler dev` vs production parity gaps — not relevant for MVP scope but good muscle memory.
+- _Email confirmation loop._ Per [README](../../README.md) lines 109–111, Supabase often enforces email confirmation. If sign-up succeeds but sign-in says "email not confirmed", either click through the email or temporarily disable **Authentication → Email → Confirm email** in the Supabase dashboard.
+- _Stale Astro env types._ If you edit [astro.config.mjs](../../astro.config.mjs) env schema and the IDE complains, `npx astro sync` regenerates types (CI already does this — [.github/workflows/ci.yml](../../.github/workflows/ci.yml) line 19).
 
 ### Optional: local Supabase with Docker
 
@@ -107,10 +107,10 @@ Manual deploy now so the human is in the loop when the workers.dev subdomain, th
 
 ### Edge cases / extra support
 
-- *"Worker not found" on first `secret put`.* If you accidentally try `wrangler secret put` *before* the first `wrangler deploy`, wrangler will interactively offer to create a draft worker (fine locally), but the same flow fails in non-interactive CI. The deploy-first-secrets-second order in this checklist avoids that entirely.
-- *workers.dev subdomain disabled.* By default the workers.dev subdomain is enabled per-Worker. If your account has previously disabled it globally (Workers & Pages → Subdomain), enable it for this Worker via Settings → Triggers → Custom Domains or via `workers_dev: true` in [wrangler.jsonc](../../wrangler.jsonc). Not common, worth knowing if the printed URL doesn't resolve.
-- *Account selection.* If `wrangler whoami` shows you're in multiple accounts, add `account_id` to [wrangler.jsonc](../../wrangler.jsonc) to lock the deploy target (one-line addition). **Done** — `account_id: 10e6c5de7ae20000c186703ad894eab2` added 2026-06-11.
-- *Build failure on missing `dist/`.* The `assets.directory: ./dist` binding requires the build artifact to exist — never run `wrangler deploy` without `npm run build` first.
+- _"Worker not found" on first `secret put`._ If you accidentally try `wrangler secret put` _before_ the first `wrangler deploy`, wrangler will interactively offer to create a draft worker (fine locally), but the same flow fails in non-interactive CI. The deploy-first-secrets-second order in this checklist avoids that entirely.
+- _workers.dev subdomain disabled._ By default the workers.dev subdomain is enabled per-Worker. If your account has previously disabled it globally (Workers & Pages → Subdomain), enable it for this Worker via Settings → Triggers → Custom Domains or via `workers_dev: true` in [wrangler.jsonc](../../wrangler.jsonc). Not common, worth knowing if the printed URL doesn't resolve.
+- _Account selection._ If `wrangler whoami` shows you're in multiple accounts, add `account_id` to [wrangler.jsonc](../../wrangler.jsonc) to lock the deploy target (one-line addition). **Done** — `account_id: 10e6c5de7ae20000c186703ad894eab2` added 2026-06-11.
+- _Build failure on missing `dist/`._ The `assets.directory: ./dist` binding requires the build artifact to exist — never run `wrangler deploy` without `npm run build` first.
 
 ---
 
@@ -126,9 +126,9 @@ The most common silently-broken thing after a Workers deploy is Supabase Auth re
 
 ### Edge cases / extra support
 
-- *Exact-match trap.* Supabase Auth redirect URLs are **exact-match** unless you use wildcards. `https://smart-tbr.xyz.workers.dev` (no path) will NOT match `https://smart-tbr.xyz.workers.dev/dashboard`. Always include the `/**` wildcard. (Verified via Supabase docs and [supabase/auth#123](https://github.com/supabase/auth/issues/123).)
-- *Wrong scheme.* Supabase compares scheme + host + port + path; `http://` won't match `https://`. Workers always serves HTTPS on workers.dev — never add an `http://` entry for production.
-- *Preview-branch URL drift.* If you're on Supabase Branching, preview branches can silently reset URL config to defaults ([supabase/supabase#42323](https://github.com/supabase/supabase/issues/42323)). MVP only uses one production project, so this doesn't bite you yet — but worth knowing if you later add a staging Supabase branch.
+- _Exact-match trap._ Supabase Auth redirect URLs are **exact-match** unless you use wildcards. `https://smart-tbr.xyz.workers.dev` (no path) will NOT match `https://smart-tbr.xyz.workers.dev/dashboard`. Always include the `/**` wildcard. (Verified via Supabase docs and [supabase/auth#123](https://github.com/supabase/auth/issues/123).)
+- _Wrong scheme._ Supabase compares scheme + host + port + path; `http://` won't match `https://`. Workers always serves HTTPS on workers.dev — never add an `http://` entry for production.
+- _Preview-branch URL drift._ If you're on Supabase Branching, preview branches can silently reset URL config to defaults ([supabase/supabase#42323](https://github.com/supabase/supabase/issues/42323)). MVP only uses one production project, so this doesn't bite you yet — but worth knowing if you later add a staging Supabase branch.
 
 ---
 
@@ -146,10 +146,10 @@ Confirm the full flow works end-to-end and put the ops surface in place so you c
 
 ### Edge cases / extra support
 
-- *Rollback ≠ data revert.* The infra doc spells this out (line 76): `wrangler rollback` reverts only the Worker bundle, not Supabase schema. If you ever ship a deploy with a Supabase migration, plan the migration reversal separately in Supabase Studio.
-- *`wrangler tail` shows nothing.* If `observability.enabled` is false the tail might be empty; in our [wrangler.jsonc](../../wrangler.jsonc) lines 13–15 it's `true`, so this should just work. If logs are still missing, confirm you're tailing the right environment (`--env`) and that the Worker actually received the request (check the Cloudflare dashboard request count for the same minute).
-- *Free-tier CPU alert.* In addition to the request-count alert, eyeball **Workers & Pages → smart-tbr → Metrics → CPU Time** weekly during the MVP. Per [context/foundation/lessons.md](../foundation/lessons.md) line 12, the 30 s CPU ceiling per request is your real cliff — not the request count.
-- *Surprise paid bill.* Per infra Risk Register row 6, keep a card off-file until you're ready to commit; the worst case on the free tier is request throttling, not a charge.
+- _Rollback ≠ data revert._ The infra doc spells this out (line 76): `wrangler rollback` reverts only the Worker bundle, not Supabase schema. If you ever ship a deploy with a Supabase migration, plan the migration reversal separately in Supabase Studio.
+- _`wrangler tail` shows nothing._ If `observability.enabled` is false the tail might be empty; in our [wrangler.jsonc](../../wrangler.jsonc) lines 13–15 it's `true`, so this should just work. If logs are still missing, confirm you're tailing the right environment (`--env`) and that the Worker actually received the request (check the Cloudflare dashboard request count for the same minute).
+- _Free-tier CPU alert._ In addition to the request-count alert, eyeball **Workers & Pages → smart-tbr → Metrics → CPU Time** weekly during the MVP. Per [context/foundation/lessons.md](../foundation/lessons.md) line 12, the 30 s CPU ceiling per request is your real cliff — not the request count.
+- _Surprise paid bill._ Per infra Risk Register row 6, keep a card off-file until you're ready to commit; the worst case on the free tier is request throttling, not a charge.
 
 ---
 
@@ -169,19 +169,19 @@ Extend [.github/workflows/ci.yml](../../.github/workflows/ci.yml) (or split into
 
 ### Edge cases / extra support
 
-- *Auth error code 10000 in CI.* Almost always the wrong API token template (e.g. read-only). Re-mint with "Edit Cloudflare Workers" — see Phase 0.
-- *`Missing account_id`.* Either set `accountId` in the action input, or add `account_id = "..."` to [wrangler.jsonc](../../wrangler.jsonc). Cleaner to keep it in the action so the file stays portable.
-- *`wrangler secret put` rejected with "latest version not deployed".* This is the "gradual deployments" trap. The `secrets:` input on `wrangler-action@v3` handles it correctly by ordering bulk-upload before deploy. If you ever drop down to raw `wrangler secret put` in CI, use `wrangler versions secret put` instead. (Confirmed in [workers-sdk PR #11882](https://github.com/cloudflare/workers-sdk/pull/11882).)
-- *Manual approval gate.* The infra doc (line 77) recommends a human gate on production. Cheapest version: turn the `deploy` job's environment into a GitHub Environment with required reviewers (Settings → Environments → `production` → Required reviewers). Then any push to `main` waits for your one-click approval. Adds ~10 s of friction for the safety net.
-- *Concurrent deploys.* If two pushes land back-to-back, the second overwrites the first version. Add `concurrency: { group: deploy, cancel-in-progress: false }` to the deploy job so they queue cleanly.
+- _Auth error code 10000 in CI._ Almost always the wrong API token template (e.g. read-only). Re-mint with "Edit Cloudflare Workers" — see Phase 0.
+- _`Missing account_id`._ Either set `accountId` in the action input, or add `account_id = "..."` to [wrangler.jsonc](../../wrangler.jsonc). Cleaner to keep it in the action so the file stays portable.
+- _`wrangler secret put` rejected with "latest version not deployed"._ This is the "gradual deployments" trap. The `secrets:` input on `wrangler-action@v3` handles it correctly by ordering bulk-upload before deploy. If you ever drop down to raw `wrangler secret put` in CI, use `wrangler versions secret put` instead. (Confirmed in [workers-sdk PR #11882](https://github.com/cloudflare/workers-sdk/pull/11882).)
+- _Manual approval gate._ The infra doc (line 77) recommends a human gate on production. Cheapest version: turn the `deploy` job's environment into a GitHub Environment with required reviewers (Settings → Environments → `production` → Required reviewers). Then any push to `main` waits for your one-click approval. Adds ~10 s of friction for the safety net.
+- _Concurrent deploys._ If two pushes land back-to-back, the second overwrites the first version. Add `concurrency: { group: deploy, cancel-in-progress: false }` to the deploy job so they queue cleanly.
 
 ---
 
-## Phase 6 — Agent tooling (MCP) *(optional; infra doc step 7)*
+## Phase 6 — Agent tooling (MCP) _(optional; infra doc step 7)_
 
 **Optional.** Skip this phase unless you want the agent to read Cloudflare logs and triage deploys via MCP tools instead of `wrangler tail` and the dashboard. Not required for deploy, auth, or CI.
 
-- [ ] *(skipped)* Create `.cursor/mcp.json` at repo root with Cloudflare Code Mode + Observability servers — deferred; user opted out of MCP for this rollout.
+- [ ] _(skipped)_ Create `.cursor/mcp.json` at repo root with Cloudflare Code Mode + Observability servers — deferred; user opted out of MCP for this rollout.
 - [ ] Restart Cursor; verify the agent can list MCP tools from both servers.
 - [ ] Quick test: ask the agent to read the last 5 minutes of Worker logs via the observability server.
 
@@ -202,9 +202,9 @@ Extend [.github/workflows/ci.yml](../../.github/workflows/ci.yml) (or split into
 
 ### Edge cases / extra support
 
-- *OAuth loop.* If the OAuth flow keeps re-prompting, kill cached creds in `~/.cursor/` and retry. Known to be flaky on first-ever login to a new MCP server.
-- *Token bleed.* MCP servers run in the agent context — they have whatever scopes the OAuth flow granted. Don't grant write scopes you don't want the agent to use unattended.
-- *No deploy-on-behalf without approval.* The infra doc Operational Story (line 77) lists which actions are agent-safe vs. require human approval. Re-read it before you give the agent the green light to run `wrangler deploy` itself.
+- _OAuth loop._ If the OAuth flow keeps re-prompting, kill cached creds in `~/.cursor/` and retry. Known to be flaky on first-ever login to a new MCP server.
+- _Token bleed._ MCP servers run in the agent context — they have whatever scopes the OAuth flow granted. Don't grant write scopes you don't want the agent to use unattended.
+- _No deploy-on-behalf without approval._ The infra doc Operational Story (line 77) lists which actions are agent-safe vs. require human approval. Re-read it before you give the agent the green light to run `wrangler deploy` itself.
 
 ---
 
@@ -219,17 +219,17 @@ Extend [.github/workflows/ci.yml](../../.github/workflows/ci.yml) (or split into
 
 ## Remaining manual ops (post-rollout)
 
-Rollout is **complete** (Phases 0–5). These unchecked items are optional dashboard/hygiene tasks — not blockers for deploy or CI.
+Rollout is **complete** (Phases 0–5). Dashboard hygiene below was owner-confirmed done on 2026-09-06 (done at/after first deploy, not recorded until then).
 
-| Item | Phase | Owner | Notes |
-| ---- | ----- | ----- | ----- |
-| Browser sign-up → confirm → sign-in → `/dashboard` | 4 | You | One-time production smoke test in the browser |
-| `npx wrangler tail --format pretty` while clicking around | 4 | You | Confirms observability wiring |
-| Cloudflare usage alert at 80k req/day | 4 | You | [Worker settings](https://dash.cloudflare.com/10e6c5de7ae20000c186703ad894eab2/workers/services/view/smart-tbr) |
-| Bookmark ops dashboard links | 4 | You | Links in Phase 4 checklist above |
-| Confirm signup email template uses Site URL | 3 | You | Only if email confirmation stays enabled in production |
-| Local Docker: localhost-only network / `supabase stop` | 1 | You | Optional; only when using local stack |
-| MCP agent tooling | 6 | — | **Skipped** — user opted out |
+| Item                                                      | Phase | Owner | Notes                                                                                                                      |
+| --------------------------------------------------------- | ----- | ----- | -------------------------------------------------------------------------------------------------------------------------- |
+| Browser sign-up → confirm → sign-in → `/`                 | 4     | You   | **Done** — one-time production smoke (home is `/`, not `/dashboard`)                                                       |
+| `npx wrangler tail --format pretty` while clicking around | 4     | You   | **Done** — confirms observability wiring                                                                                   |
+| Cloudflare usage alert at 80k req/day                     | 4     | You   | **Done** — [Worker settings](https://dash.cloudflare.com/10e6c5de7ae20000c186703ad894eab2/workers/services/view/smart-tbr) |
+| Bookmark ops dashboard links                              | 4     | You   | **Done**                                                                                                                   |
+| Confirm signup email template uses Site URL               | 3     | You   | Only if email confirmation stays enabled in production                                                                     |
+| Local Docker: localhost-only network / `supabase stop`    | 1     | You   | Optional; only when using local stack                                                                                      |
+| MCP agent tooling                                         | 6     | —     | **Skipped** — user opted out                                                                                               |
 
 ---
 
@@ -237,4 +237,3 @@ Rollout is **complete** (Phases 0–5). These unchecked items are optional dashb
 
 - This plan is **archived** — rollout finished 2026-06-11. Live app: `https://smart-tbr.nicole-rozanska93.workers.dev`.
 - For ongoing ops, use [infrastructure.md](../foundation/infrastructure.md) and [lessons.md](../foundation/lessons.md).
-- Tick remaining manual ops above when convenient; no code changes required.

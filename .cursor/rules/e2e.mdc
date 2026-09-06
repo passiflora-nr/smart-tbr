@@ -1,0 +1,19 @@
+---
+description: Playwright E2E quality rules for tests/e2e
+globs: tests/e2e/**/*.ts
+alwaysApply: false
+---
+
+# E2E Testing Rules
+
+- Prefer getByRole and getByLabel. Use getByText when the control has no useful role (the Pick by mood Tropes disclosure is a `<summary>` exposed as a generic named Tropes, not a button — click it with `getByText("Tropes", { exact: true })`; `exact: true` is required so “Pick 1 to 3 tropes” is not also matched).
+  Fall back to getByTestId only when accessibility attributes are ambiguous.
+- Never use CSS selectors, XPath, or DOM structure for locating elements.
+- Each test must be independently runnable — no shared state between tests.
+- Never use page.waitForTimeout(). Wait for specific conditions:
+  toBeVisible(), waitForURL(), waitForResponse().
+- Assert the business outcome, not implementation details.
+- Use unique identifiers (e.g., timestamp suffix) for test data
+  to avoid collisions in parallel runs. Clean up in `finally` via the `page.request` helper (explicit Origin on form delete), not the Delete button.
+- Use storageState for authentication — never log in through the UI
+  in individual tests (Sign in lives only in auth.setup.ts).

@@ -1,8 +1,7 @@
-import { spawn, spawnSync, type ChildProcessByStdio } from "node:child_process";
+import { spawn, spawnSync, type ChildProcess } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { createInterface } from "node:readline";
-import type { Readable } from "node:stream";
 import {
   assertDevVarsDoNotOverrideLocalCoordinates,
   assertLocalSupabaseCoordinates,
@@ -19,17 +18,24 @@ const READINESS_TIMEOUT_MS = 90_000;
 const READINESS_INTERVAL_MS = 500;
 const ASTRO_STOP_GRACE_MS = 5_000;
 
-/** stdin is ignored on spawn; stdout and stderr stay piped for readiness logs. */
-type AstroDevProcess = ChildProcessByStdio<null, Readable, Readable>;
-
 export interface LocalServiceHandles {
   astroBaseUrl: string;
   supabaseUrl: string;
   supabaseKey: string;
   supabaseDbUrl: string;
   startedSupabase: boolean;
-  astroProcess: AstroDevProcess;
+  astroProcess: ChildProcess;
   astroOutput: string[];
+}
+
+export interface LocalServiceSnapshot {
+  astroPid: number;
+  startedSupabase: boolean;
+}
+
+export interface StartLocalServicesOptions {
+  /** Keep Astro running after this process exits (Playwright globalSetup). */
+  surviveParentExit?: boolean;
 }
 
 interface SupabaseStatusJson {
@@ -92,7 +98,53 @@ function resolveLocalSupabaseKey(status: SupabaseStatusJson): string {
   return key;
 }
 
-function signalAstroTree(child: AstroDevProcess, signal: NodeJS.Signals): void {
+function signalPidTree(pid: number, signal: NodeJS.Signals): void {
+  try {
+    if (process.platform !== "win32") {
+      process.kill(-pid, signal);
+      return;
+    }
+    process.kill(pid, signal);
+  } catch {
+    try {
+      process.kill(pid, signal);
+    } catch {
+      // already gone
+    }
+  }
+}
+
+function isPidAlive(pid: number): boolean {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function waitForPidExit(pid: number, timeoutMs: number): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (!isPidAlive(pid)) {
+      return;
+    }
+    await new Promise((resolve) => {
+      setTimeout(resolve, 100);
+    });
+  }
+}
+
+async function stopAstroProcessByPid(pid: number): Promise<void> {
+  signalPidTree(pid, "SIGTERM");
+  await waitForPidExit(pid, ASTRO_STOP_GRACE_MS);
+  if (isPidAlive(pid)) {
+    signalPidTree(pid, "SIGKILL");
+    await waitForPidExit(pid, 1_000);
+  }
+}
+
+function signalAstroTree(child: ChildProcess, signal: NodeJS.Signals): void {
   const pid = child.pid;
   if (!pid) {
     return;
@@ -112,7 +164,7 @@ function signalAstroTree(child: AstroDevProcess, signal: NodeJS.Signals): void {
   }
 }
 
-async function waitForProcessExit(child: AstroDevProcess, timeoutMs: number): Promise<void> {
+async function waitForProcessExit(child: ChildProcess, timeoutMs: number): Promise<void> {
   if (child.exitCode !== null || child.signalCode !== null) {
     return;
   }
@@ -125,7 +177,7 @@ async function waitForProcessExit(child: AstroDevProcess, timeoutMs: number): Pr
   });
 }
 
-async function stopAstroProcess(child: AstroDevProcess): Promise<void> {
+async function stopAstroProcess(child: ChildProcess): Promise<void> {
   signalAstroTree(child, "SIGTERM");
   await waitForProcessExit(child, ASTRO_STOP_GRACE_MS);
   if (child.exitCode === null && child.signalCode === null) {
@@ -154,7 +206,7 @@ async function assertLoopbackPortFree(host: string, port: number): Promise<void>
   }
 }
 
-async function waitForHttpOk(url: string, timeoutMs: number, child: AstroDevProcess): Promise<void> {
+async function waitForHttpOk(url: string, timeoutMs: number, child: ChildProcess): Promise<void> {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
     if (child.exitCode !== null) {
@@ -173,15 +225,18 @@ async function waitForHttpOk(url: string, timeoutMs: number, child: AstroDevProc
   throw new Error(`Timed out waiting for HTTP readiness at ${url}`);
 }
 
-function captureProcessOutput(process: AstroDevProcess, buffer: string[]): void {
-  const attach = (stream: NodeJS.ReadableStream) => {
+function captureProcessOutput(child: ChildProcess, buffer: string[]): void {
+  const attach = (stream: NodeJS.ReadableStream | null) => {
+    if (!stream) {
+      return;
+    }
     const reader = createInterface({ input: stream });
     reader.on("line", (line) => {
       buffer.push(redactSensitiveOutput(line));
     });
   };
-  attach(process.stdout);
-  attach(process.stderr);
+  attach(child.stdout);
+  attach(child.stderr);
 }
 
 function isSupabaseHealthy(status: SupabaseStatusJson | null): status is SupabaseStatusJson & {
@@ -246,7 +301,7 @@ function readDevVarsIfPresent(): Record<string, string> {
   return parseDotEnv(readFileSync(devVarsPath, "utf8"));
 }
 
-function startAstroDev(supabaseUrl: string, supabaseKey: string): AstroDevProcess {
+function startAstroDev(supabaseUrl: string, supabaseKey: string, surviveParentExit: boolean): ChildProcess {
   const child = spawn(NPM_BIN, ["run", "dev", "--", "--host", ASTRO_HOST, "--port", String(ASTRO_PORT)], {
     cwd: REPO_ROOT,
     env: {
@@ -255,7 +310,7 @@ function startAstroDev(supabaseUrl: string, supabaseKey: string): AstroDevProces
       SUPABASE_KEY: supabaseKey,
       SUPABASE_SERVICE_ROLE_KEY: "",
     },
-    stdio: ["ignore", "pipe", "pipe"],
+    stdio: surviveParentExit ? "ignore" : ["ignore", "pipe", "pipe"],
     detached: process.platform !== "win32",
   });
 
@@ -266,9 +321,42 @@ function startAstroDev(supabaseUrl: string, supabaseKey: string): AstroDevProces
   return child;
 }
 
-export async function startLocalServices(): Promise<LocalServiceHandles> {
+export function toLocalServiceSnapshot(handles: LocalServiceHandles): LocalServiceSnapshot {
+  const astroPid = handles.astroProcess.pid;
+  if (typeof astroPid !== "number") {
+    throw new Error("Astro process has no pid to persist for Playwright teardown");
+  }
+  return { astroPid, startedSupabase: handles.startedSupabase };
+}
+
+export function parseLocalServiceSnapshot(raw: string): LocalServiceSnapshot {
+  const parsed: unknown = JSON.parse(raw);
+  if (typeof parsed !== "object" || parsed === null) {
+    throw new Error("Invalid Playwright local-service snapshot");
+  }
+  if (!("astroPid" in parsed) || !("startedSupabase" in parsed)) {
+    throw new Error("Invalid Playwright local-service snapshot");
+  }
+  if (typeof parsed.astroPid !== "number" || !Number.isInteger(parsed.astroPid) || parsed.astroPid <= 0) {
+    throw new Error("Invalid Playwright local-service snapshot");
+  }
+  if (typeof parsed.startedSupabase !== "boolean") {
+    throw new Error("Invalid Playwright local-service snapshot");
+  }
+  return { astroPid: parsed.astroPid, startedSupabase: parsed.startedSupabase };
+}
+
+export async function stopLocalServicesFromSnapshot(snapshot: LocalServiceSnapshot): Promise<void> {
+  await stopAstroProcessByPid(snapshot.astroPid);
+  if (snapshot.startedSupabase) {
+    stopSupabaseStack();
+  }
+}
+
+export async function startLocalServices(options: StartLocalServicesOptions = {}): Promise<LocalServiceHandles> {
+  const surviveParentExit = options.surviveParentExit === true;
   let startedSupabase = false;
-  let astroProcess: AstroDevProcess | undefined;
+  let astroProcess: ChildProcess | undefined;
 
   try {
     let status = readSupabaseStatus();
@@ -298,8 +386,10 @@ export async function startLocalServices(): Promise<LocalServiceHandles> {
     await assertLoopbackPortFree(ASTRO_HOST, ASTRO_PORT);
 
     const astroOutput: string[] = [];
-    astroProcess = startAstroDev(supabaseUrl, supabaseKey);
-    captureProcessOutput(astroProcess, astroOutput);
+    astroProcess = startAstroDev(supabaseUrl, supabaseKey, surviveParentExit);
+    if (!surviveParentExit) {
+      captureProcessOutput(astroProcess, astroOutput);
+    }
 
     const astroBaseUrl = `http://${ASTRO_HOST}:${ASTRO_PORT}`;
 
@@ -318,6 +408,10 @@ export async function startLocalServices(): Promise<LocalServiceHandles> {
 
     if (supabaseUrl !== LOCAL_SUPABASE_API_URL) {
       throw new Error("Refusing to run integration tests against unexpected Supabase API URL");
+    }
+
+    if (surviveParentExit) {
+      astroProcess.unref();
     }
 
     return {

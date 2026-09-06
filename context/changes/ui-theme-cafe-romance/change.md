@@ -3,29 +3,29 @@ change_id: ui-theme-cafe-romance
 title: Café Romance UI theme
 status: new
 created: 2026-08-08
-updated: 2026-08-08
+updated: 2026-09-06
 archived_at: null
 ---
 
 ## Notes
 
-S-07 from @context/foundation/roadmap.md — **optional**, and **implemented last**: only pick this up once S-02 through S-06 have all landed, and only if time remains. Do not apply the palette early or slice-by-slice; a half-restyled app is more work to finish than an unstyled one.
+S-07 from @context/foundation/roadmap.md — **optional**, and **implemented last**: functional slices S-02 through S-06 have all landed. Do not start this restyle until test-plan Phase 4 (the critical-path e2e net) is archived. Do not apply the palette early or slice-by-slice; a half-restyled app is more work to finish than an unstyled one.
 
 Replaces the starter's cosmic/purple-glass chrome (`bg-cosmic`, `bg-white/10 backdrop-blur`, blue→purple gradient headings) with a warm, book-forward light theme aimed at the 25-35 Bookstagram romance reader.
 
 ### Palette: Café Romance
 
-| Role | Hex | Use |
-|---|---|---|
-| Background | `#F7F3EE` | Warm linen page |
-| Card / surface | `#FDFBF8` | Cream cards |
-| Foreground | `#3D2E2A` | Espresso body text |
-| Muted foreground | `#8B7355` | Warm taupe, secondary text |
-| Primary | `#7A4E57` | Dusty mauve-rose — buttons, links |
-| Primary hover | `#6B4249` | Deeper rose-brown |
-| Accent | `#E8C4C8` | Pale blush highlights |
-| Border / input | `#E5DDD3` | Soft sand |
-| Success | `#6B7F6A` | Sage, for "saved" states |
+| Role             | Hex       | Use                               |
+| ---------------- | --------- | --------------------------------- |
+| Background       | `#F7F3EE` | Warm linen page                   |
+| Card / surface   | `#FDFBF8` | Cream cards                       |
+| Foreground       | `#3D2E2A` | Espresso body text                |
+| Muted foreground | `#8B7355` | Warm taupe, secondary text        |
+| Primary          | `#7A4E57` | Dusty mauve-rose — buttons, links |
+| Primary hover    | `#6B4249` | Deeper rose-brown                 |
+| Accent           | `#E8C4C8` | Pale blush highlights             |
+| Border / input   | `#E5DDD3` | Soft sand                         |
+| Success          | `#6B7F6A` | Sage, for "saved" states          |
 
 Trope pills rotate across `#F0D4D8` (blush), `#E8DFD0` (oat), `#D4C4B8` (warm stone) with `#5C4A42` text.
 
