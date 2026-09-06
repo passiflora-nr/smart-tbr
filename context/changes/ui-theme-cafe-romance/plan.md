@@ -384,25 +384,25 @@ No database or API migration. Existing books render in the new chrome with no da
 
 #### Automated
 
-- [x] 2.1 Linting passes: `npm run lint`
-- [x] 2.2 Unit tests pass: `npm run test:unit`
-- [x] 2.3 Integration tests pass: `npm run test:integration`
-- [x] 2.4 End-to-end tests pass: `npm run test:e2e`
-- [x] 2.5 Production build succeeds: `npm run build`
-- [x] 2.6 No remaining `bg-cosmic`, `from-blue-200`, `bg-purple-600`, `bg-white/10`, `backdrop-blur`, `text-purple-`, `text-blue-100`, or `border-white/10` in `src/`
+- [x] 2.1 Linting passes: `npm run lint` — 16a65f7
+- [x] 2.2 Unit tests pass: `npm run test:unit` — 16a65f7
+- [x] 2.3 Integration tests pass: `npm run test:integration` — 16a65f7
+- [x] 2.4 End-to-end tests pass: `npm run test:e2e` — 16a65f7
+- [x] 2.5 Production build succeeds: `npm run build` — 16a65f7
+- [x] 2.6 No remaining `bg-cosmic`, `from-blue-200`, `bg-purple-600`, `bg-white/10`, `backdrop-blur`, `text-purple-`, `text-blue-100`, or `border-white/10` in `src/` — 16a65f7
 
 #### Manual
 
-- [x] 2.7 Every page on a wide screen (signed out)
-- [x] 2.8 Every signed-in page on a wide screen
-- [x] 2.9 Delete dialogs stay clearly dangerous
+- [x] 2.7 Every page on a wide screen (signed out) — 16a65f7
+- [x] 2.8 Every signed-in page on a wide screen — 16a65f7
+- [x] 2.9 Delete dialogs stay clearly dangerous — 16a65f7
 
 ### Phase 3: Test-plan Phase 4 status cleanup
 
 #### Automated
 
-- [ ] 3.1 The Phase 4 row in `context/foundation/test-plan.md` shows Status `complete` and the archive path
+- [x] 3.1 The Phase 4 row in `context/foundation/test-plan.md` shows Status `complete` and the archive path
 
 #### Manual
 
-- [ ] 3.2 Stale gate is gone
+- [x] 3.2 Stale gate is gone
