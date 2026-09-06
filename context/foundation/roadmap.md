@@ -29,16 +29,16 @@ SmartTBR collapses a 100+ book "to be read" backlog that today lives scattered a
 
 ## At a glance
 
-| ID   | Change ID                 | Outcome (user can ...)                                                                | Prerequisites                          | PRD refs                                       | Status   |
-| ---- | ------------------------- | ------------------------------------------------------------------------------------- | -------------------------------------- | ---------------------------------------------- | -------- |
-| F-01 | tbr-data-and-isolation    | (foundation) books + trope tags persisted with per-user RLS isolation                 | -                                      | FR-011, Access Control, NFR: isolation         | done     |
-| S-01 | add-book-to-tbr           | add a book (title, author, tropes, optional description) to their private TBR         | F-01 ✓                                 | FR-004, NFR: <=30s entry                       | done     |
-| S-06 | account-lifecycle         | rely on gated routes and self-delete their account + all data                         | F-01 ✓                                 | FR-003, FR-013, FR-001, FR-002, Access Control | done     |
-| S-05 | mood-trope-recommendation | pick 1-3 mood tropes and get up to 3 matching books from their own TBR                | F-01 ✓, S-01 ✓                         | US-01, FR-008, FR-009, FR-010, NFR: <=2s       | done     |
-| S-02 | browse-tbr-list           | browse their full TBR as a list                                                       | S-01 ✓                                 | FR-005                                         | done     |
-| S-03 | edit-delete-book          | edit or delete any book in their TBR                                                  | S-02 ✓                                 | FR-006, FR-007                                 | done     |
-| S-04 | search-filter-tbr         | narrow the TBR by title/author substring and/or trope filter                          | S-02 ✓                                 | FR-012                                         | done     |
-| S-07 | ui-theme-cafe-romance     | see the whole app in the "Café Romance" palette instead of the starter's cosmic theme | S-02 ✓, S-03 ✓, S-04 ✓, S-05 ✓, S-06 ✓ | - (UX polish)                                  | optional |
+| ID   | Change ID                 | Outcome (user can ...)                                                                | Prerequisites                          | PRD refs                                       | Status      |
+| ---- | ------------------------- | ------------------------------------------------------------------------------------- | -------------------------------------- | ---------------------------------------------- | ----------- |
+| F-01 | tbr-data-and-isolation    | (foundation) books + trope tags persisted with per-user RLS isolation                 | -                                      | FR-011, Access Control, NFR: isolation         | done        |
+| S-01 | add-book-to-tbr           | add a book (title, author, tropes, optional description) to their private TBR         | F-01 ✓                                 | FR-004, NFR: <=30s entry                       | done        |
+| S-06 | account-lifecycle         | rely on gated routes and self-delete their account + all data                         | F-01 ✓                                 | FR-003, FR-013, FR-001, FR-002, Access Control | done        |
+| S-05 | mood-trope-recommendation | pick 1-3 mood tropes and get up to 3 matching books from their own TBR                | F-01 ✓, S-01 ✓                         | US-01, FR-008, FR-009, FR-010, NFR: <=2s       | done        |
+| S-02 | browse-tbr-list           | browse their full TBR as a list                                                       | S-01 ✓                                 | FR-005                                         | done        |
+| S-03 | edit-delete-book          | edit or delete any book in their TBR                                                  | S-02 ✓                                 | FR-006, FR-007                                 | done        |
+| S-04 | search-filter-tbr         | narrow the TBR by title/author substring and/or trope filter                          | S-02 ✓                                 | FR-012                                         | done        |
+| S-07 | ui-theme-cafe-romance     | see the whole app in the "Café Romance" palette instead of the starter's cosmic theme | S-02 ✓, S-03 ✓, S-04 ✓, S-05 ✓, S-06 ✓ | - (UX polish)                                  | in-progress |
 
 > **Status:** `done` = archived · `ready` = prerequisites met, start with `/10x-plan <change-id>` · `proposed` = blocked on prerequisites · `optional` = not required by any PRD success criterion; pick up only if time remains after the functional slices. A ✓ in Prerequisites marks a satisfied dependency.
 
@@ -205,7 +205,7 @@ What's already in place in the codebase as of 2026-06-14 (auto-researched + user
 - **Sequencing:** Deliberately the **last** slice in the roadmap. Do not apply it early or in pieces while functional slices are still landing - a half-restyled app costs more to finish than an unstyled one.
 - **Opportunity:** Extract a shared signed-in navigation component as part of the rewrite. There is no shared nav today: `Topbar.astro` serves home with text links, while `/books`, `/mood`, `/books/new`, and `/books/[id]/edit` each hand-roll a bordered-button row ending in `SignOutButton.astro`. Leaving that alone is the right call for functional slices (each row differs, the edit page's links carry an unsaved-changes guard, and unifying home's text-link styling with the others is itself a design change) - but S-07 rewrites all of this chrome anyway, so consolidating during the restyle costs little and removes the drift risk of maintaining five rows by hand.
 - **Risk:** Pure polish - drop it if the timeline runs out; no slice depends on it. Not a token-swap job: the current pages hardcode cosmic Tailwind classes (`bg-cosmic`, `bg-white/10 backdrop-blur`, `text-blue-100/*`, gradient headings) instead of the semantic shadcn tokens, so the work is a per-page rewrite plus a token pass, and every slice built before it adds surface to rewrite. Palette spec lives in `context/changes/ui-theme-cafe-romance/change.md`.
-- **Status:** optional
+- **Status:** in-progress
 
 ## Backlog Handoff
 
