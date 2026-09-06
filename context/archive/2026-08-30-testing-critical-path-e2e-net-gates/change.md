@@ -1,10 +1,10 @@
 ---
 change_id: testing-critical-path-e2e-net-gates
 title: Critical-path e2e net and CI gates
-status: impl_reviewed
+status: archived
 created: 2026-08-30
 updated: 2026-09-06
-archived_at: null
+archived_at: 2026-09-06T13:51:51Z
 ---
 
 ## Notes
