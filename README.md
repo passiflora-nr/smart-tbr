@@ -2,7 +2,7 @@
 
 SmartTBR is a web app for heavy readers who keep a large “To Be Read” backlog and prefer to choose the **next book by trope and mood** rather than digging through scattered lists (Instagram saves, wishlists, notes). Product goals and MVP scope live in [`context/foundation/prd.md`](./context/foundation/prd.md).
 
-**Current codebase:** the MVP functional slices are in place (auth, private TBR, add/edit/delete, search/filter, mood-trope pick, account deletion). Remaining product work is optional polish (Café Romance theme).
+**Current codebase:** the MVP is in place (auth, private TBR, add/edit/delete, search/filter, mood-trope pick, account deletion, Café Romance theme). There is no remaining roadmap slice — parked ideas live in [`context/foundation/roadmap.md`](./context/foundation/roadmap.md#parked).
 
 Repository conventions for contributors and tooling are summarized in [`AGENTS.md`](./AGENTS.md).
 
