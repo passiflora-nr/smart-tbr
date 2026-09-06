@@ -5,7 +5,7 @@
 
 :root {
   --radius: 0.75rem;
-  --background: #f7f3ee;
+  --background: #e9e1d4;
   --foreground: #3d2e2a;
   --card: #fdfbf8;
   --card-foreground: #3d2e2a;
@@ -124,16 +124,17 @@
   --color-sidebar-ring: var(--sidebar-ring);
 }
 
-@utility bg-cosmic {
-  background-image: linear-gradient(to bottom, #0a0e1a, #0f1529, #0a0e1a);
-}
-
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground font-sans;
+  }
+  h1,
+  h2,
+  h3 {
+    @apply text-foreground font-serif;
   }
   button:not(:disabled),
   [role="button"]:not(:disabled) {
@@ -143,12 +144,12 @@
 
 @keyframes book-row-emphasis {
   0% {
-    border-color: rgb(192 132 252 / 0.6);
-    box-shadow: 0 0 0 2px rgb(192 132 252 / 0.25);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--accent);
   }
   100% {
-    border-color: rgb(255 255 255 / 0.1);
-    box-shadow: none;
+    border-color: var(--border);
+    box-shadow: 0 1px 2px 0 rgb(61 46 42 / 0.06);
   }
 }
 
@@ -186,9 +187,11 @@
   position: relative;
   z-index: 1;
   width: min(100%, 28rem);
-  border-radius: 1rem;
-  border: 1px solid rgb(239 68 68 / 0.35);
-  background: rgb(69 10 10 / 0.95);
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--card);
   padding: 1.5rem;
-  box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.5);
+  box-shadow:
+    0 0 0 2px rgb(185 28 28 / 0.45),
+    0 10px 30px -12px rgb(61 46 42 / 0.18);
 }

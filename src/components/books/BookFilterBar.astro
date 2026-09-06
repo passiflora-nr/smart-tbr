@@ -19,10 +19,10 @@ const clearSearchHref = buildBooksHref(serializeBookFilters({ q: "", tropes: fil
 const filtersActive = hasActiveFilters(filters);
 ---
 
-<form method="GET" action="/books" class="mb-6 rounded-lg border border-white/10 bg-white/5 p-4">
+<form method="GET" action="/books" class="border-border bg-card mb-6 rounded-lg border p-4 shadow-sm">
   <div class="flex flex-col gap-3 sm:flex-row sm:items-end">
     <div class="min-w-0 flex-1">
-      <label for="book-filter-q" class="mb-1 block text-sm text-blue-100/80">Search title or author</label>
+      <label for="book-filter-q" class="text-foreground mb-1 block text-sm">Search title or author</label>
       <div class="relative">
         <input
           type="text"
@@ -31,14 +31,14 @@ const filtersActive = hasActiveFilters(filters);
           value={filters.q}
           maxlength={300}
           placeholder="Search…"
-          class="w-full rounded-lg border border-white/20 bg-white/10 py-2 pr-9 pl-3 text-sm text-white placeholder:text-blue-100/40"
+          class="border-input bg-card text-foreground placeholder:text-muted-foreground w-full rounded-lg border py-2 pr-9 pl-3 text-sm"
         />
         {
           filters.q.length > 0 ? (
             <a
               href={clearSearchHref}
               aria-label="Clear search"
-              class="absolute top-1/2 right-2 inline-flex -translate-y-1/2 rounded-md p-1 text-blue-100/80 transition-colors hover:bg-white/10 hover:text-white"
+              class="text-muted-foreground hover:bg-background hover:text-foreground absolute top-1/2 right-2 inline-flex -translate-y-1/2 rounded-md p-1 transition-colors"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -66,13 +66,13 @@ const filtersActive = hasActiveFilters(filters);
       tropeVocabulary.length > 0 ? (
         <div class="relative shrink-0">
           <p
-            class="mb-1 block text-sm text-blue-100/80 sm:invisible sm:mb-0 sm:h-0 sm:overflow-hidden"
+            class="text-foreground mb-1 block text-sm sm:invisible sm:mb-0 sm:h-0 sm:overflow-hidden"
             aria-hidden="true"
           >
             Tropes
           </p>
           <details class="group">
-            <summary class="flex cursor-pointer list-none items-center gap-2 rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm text-white transition-colors hover:bg-white/20 [&::-webkit-details-marker]:hidden">
+            <summary class="border-border bg-card text-foreground hover:bg-background flex cursor-pointer list-none items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors [&::-webkit-details-marker]:hidden">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="16"
@@ -83,26 +83,26 @@ const filtersActive = hasActiveFilters(filters);
                 stroke-width="2"
                 stroke-linecap="round"
                 stroke-linejoin="round"
-                class="size-4 shrink-0 text-blue-100/70 transition-transform group-open:rotate-180"
+                class="text-muted-foreground size-4 shrink-0 transition-transform group-open:rotate-180"
                 aria-hidden="true"
               >
                 <path d="m6 9 6 6 6-6" />
               </svg>
               {tropeSummaryLabel}
             </summary>
-            <div class="absolute left-0 z-10 mt-1 max-h-64 w-72 overflow-y-auto rounded-lg border border-white/10 bg-slate-900/95 p-3 shadow-lg backdrop-blur-xl sm:right-0 sm:left-auto">
+            <div class="border-border bg-card absolute left-0 z-10 mt-1 max-h-64 w-72 overflow-y-auto rounded-lg border p-3 shadow-sm sm:right-0 sm:left-auto">
               <fieldset>
                 <legend class="sr-only">Filter by tropes</legend>
                 <ul class="space-y-2">
                   {tropeVocabulary.map((trope) => (
                     <li>
-                      <label class="flex cursor-pointer items-start gap-2 text-sm text-blue-100/80">
+                      <label class="text-foreground flex cursor-pointer items-start gap-2 text-sm">
                         <input
                           type="checkbox"
                           name="trope"
                           value={trope}
                           checked={selectedTropes.has(trope)}
-                          class="mt-0.5 shrink-0 rounded border-white/20 bg-white/10 text-purple-400"
+                          class="border-input bg-card text-primary mt-0.5 shrink-0 rounded"
                         />
                         <span class="min-w-0 break-words">{trope}</span>
                       </label>
@@ -119,7 +119,7 @@ const filtersActive = hasActiveFilters(filters);
     <div class="flex shrink-0 flex-wrap items-center gap-3">
       <button
         type="submit"
-        class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
+        class="border-border bg-card text-foreground hover:bg-background rounded-lg border px-4 py-2 text-sm transition-colors"
       >
         Apply filters
       </button>
@@ -128,8 +128,8 @@ const filtersActive = hasActiveFilters(filters);
           <a
             href="/books"
             class:list={[
-              "rounded-lg border border-white/20 px-4 py-2 text-sm transition-colors",
-              "bg-white/10 text-purple-200 hover:bg-white/20 hover:text-white",
+              "rounded-lg border px-4 py-2 text-sm transition-colors",
+              "border-border bg-card text-primary hover:bg-background hover:text-primary-hover",
             ]}
           >
             Clear filters
@@ -137,8 +137,8 @@ const filtersActive = hasActiveFilters(filters);
         ) : (
           <span
             class:list={[
-              "rounded-lg border border-white/20 px-4 py-2 text-sm transition-colors",
-              "cursor-not-allowed border-white/10 bg-white/5 text-blue-100/40",
+              "rounded-lg border px-4 py-2 text-sm transition-colors",
+              "border-border bg-background text-muted-foreground cursor-not-allowed",
             ]}
             aria-disabled="true"
           >

@@ -18,6 +18,6 @@ setup("sign in as user D", async ({ page }) => {
   }).toPass();
   await page.getByRole("button", { name: "Sign in" }).click();
   await page.waitForURL((url) => url.pathname === "/");
-  await expect(page.getByRole("link", { name: "Pick by mood" })).toBeVisible();
+  await expect(page.getByRole("navigation").getByRole("link", { name: "Pick by mood" })).toBeVisible();
   await page.context().storageState({ path: AUTH_FILE });
 });

@@ -1,7 +1,7 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import DeleteAccountModal from "@/components/account/DeleteAccountModal.astro";
-import SignOutButton from "@/components/auth/SignOutButton.astro";
+import SignedInNav from "@/components/SignedInNav.astro";
 
 const REDIRECT_ERRORS: Record<string, string> = {
   confirm_mismatch: "Type the exact confirmation word to delete your account.",
@@ -47,11 +47,11 @@ const pageError = dialogError ? null : redirectError;
 ---
 
 <Layout title="Account">
-  <div class="bg-cosmic flex min-h-screen items-start justify-center p-4 pt-12">
-    <div class="w-full max-w-2xl rounded-2xl border border-white/10 bg-white/10 p-8 text-white backdrop-blur-xl">
+  <div class="bg-background flex min-h-screen items-start justify-center p-4 pt-12">
+    <div class="border-border bg-card text-foreground w-full max-w-4xl rounded-2xl border p-8 shadow-sm">
       {
         pageError ? (
-          <p class="mb-4 flex w-full items-center justify-center gap-2 rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-center text-sm text-red-300">
+          <p class="mb-4 flex w-full items-center justify-center gap-2 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-center text-sm text-red-800">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
@@ -74,46 +74,22 @@ const pageError = dialogError ? null : redirectError;
         ) : null
       }
 
-      <div class="mb-6 flex flex-col gap-4">
-        <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent">
-          Account
-        </h1>
-        <div class="flex flex-wrap gap-2">
-          <a
-            href="/books"
-            class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
-          >
-            View your TBR
-          </a>
-          <a
-            href="/mood"
-            class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
-          >
-            Pick by mood
-          </a>
-          <a
-            href="/"
-            class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
-          >
-            Home
-          </a>
-          <SignOutButton />
-        </div>
-      </div>
+      <SignedInNav />
+      <h1 class="mb-6 text-2xl font-bold">Account</h1>
 
-      <p class="mb-8 text-blue-100/80">
-        Signed in as <span class="font-medium text-white">{user.email}</span>
+      <p class="text-muted-foreground mb-8">
+        Signed in as <span class="text-foreground font-medium">{user.email}</span>
       </p>
 
-      <section class="border-t border-white/10 pt-6" aria-labelledby="danger-zone-heading">
-        <h2 id="danger-zone-heading" class="text-lg font-semibold text-white">Danger zone</h2>
-        <p class="mt-2 text-sm text-blue-100/80">
+      <section class="border-border border-t pt-6" aria-labelledby="danger-zone-heading">
+        <h2 id="danger-zone-heading" class="text-lg font-semibold">Danger zone</h2>
+        <p class="text-muted-foreground mt-2 text-sm">
           Permanently delete your account and every book you have saved. This cannot be undone.
         </p>
         <a
           id="delete-account-trigger"
           href="#delete-account"
-          class="mt-4 inline-block rounded-lg border border-red-500/30 bg-red-900/20 px-4 py-2 text-sm text-red-300 transition-colors outline-none hover:bg-red-900/30 focus-visible:ring-2 focus-visible:ring-red-400/60"
+          class="mt-4 inline-block rounded-lg border border-red-700 bg-red-700 px-4 py-2 text-sm text-white transition-colors outline-none hover:bg-red-800 focus-visible:ring-2 focus-visible:ring-red-400/60"
         >
           Delete account
         </a>

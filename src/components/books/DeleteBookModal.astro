@@ -34,21 +34,21 @@ const modalId = `delete-${id}`;
     <span class="sr-only">Cancel deletion</span>
   </a>
   <div class="delete-modal-panel">
-    <h2 id={`${modalId}-heading`} class="text-lg font-semibold text-white">Delete book?</h2>
+    <h2 id={`${modalId}-heading`} class="text-lg font-semibold">Delete book?</h2>
     {
       genericConfirm ? (
-        <p class="mt-2 text-sm text-red-200">Permanently delete this book?</p>
+        <p class="mt-2 text-sm text-red-800">Permanently delete this book?</p>
       ) : (
-        <p class="mt-2 text-sm text-red-200">
-          Permanently delete <span class="font-medium break-words text-red-100">{title}</span>?
+        <p class="mt-2 text-sm text-red-800">
+          Permanently delete <span class="font-medium break-words text-red-900">{title}</span>?
         </p>
       )
     }
-    <p class="mt-1 text-sm text-red-200">This cannot be undone.</p>
+    <p class="mt-1 text-sm text-red-800">This cannot be undone.</p>
     <div class="mt-4 flex flex-wrap justify-end gap-2">
       <a
         href={dismissHref}
-        class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm text-white transition-colors hover:bg-white/20"
+        class="border-border bg-card text-foreground hover:bg-background rounded-lg border px-4 py-2 text-sm transition-colors"
       >
         Cancel
       </a>
@@ -58,7 +58,7 @@ const modalId = `delete-${id}`;
         <button
           type="submit"
           aria-label={`Permanently delete ${title}`}
-          class="rounded-lg border border-red-500/40 bg-red-900/40 px-4 py-2 text-sm text-red-100 transition-colors hover:bg-red-900/60"
+          class="rounded-lg border border-red-700 bg-red-700 px-4 py-2 text-sm text-white transition-colors hover:bg-red-800"
         >
           Delete permanently
         </button>

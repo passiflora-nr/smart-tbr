@@ -233,15 +233,15 @@ export default function AddBookForm() {
         />
 
         {duplicateNotice ? (
-          <p className="rounded-lg border border-amber-500/30 bg-amber-900/20 px-3 py-2 text-sm text-amber-200">
+          <p className="border-border bg-accent/50 text-foreground rounded-lg border px-3 py-2 text-sm">
             {duplicateNotice}
           </p>
         ) : null}
 
         {sessionExpired ? (
-          <p className="flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-sm text-red-300">
+          <p className="flex items-center gap-2 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800">
             Your session has ended.{" "}
-            <a href="/auth/signin" className="text-purple-300 underline hover:text-purple-200">
+            <a href="/auth/signin" className="text-primary hover:text-primary-hover underline">
               Sign in
             </a>{" "}
             to continue.

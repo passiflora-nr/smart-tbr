@@ -371,31 +371,31 @@ No database or API migration. Existing books render in the new chrome with no da
 
 #### Automated
 
-- [x] 1.1 After the Astro config change, `npx astro sync` completes
-- [x] 1.2 Linting passes: `npm run lint`
-- [x] 1.3 Unit tests pass: `npm run test:unit`
-- [x] 1.4 Production build succeeds (fonts download at build): `npm run build`
+- [x] 1.1 After the Astro config change, `npx astro sync` completes — ae8f4ec
+- [x] 1.2 Linting passes: `npm run lint` — ae8f4ec
+- [x] 1.3 Unit tests pass: `npm run test:unit` — ae8f4ec
+- [x] 1.4 Production build succeeds (fonts download at build): `npm run build` — ae8f4ec
 
 #### Manual
 
-- [x] 1.5 App still loads with the old look
+- [x] 1.5 App still loads with the old look — ae8f4ec
 
 ### Phase 2: Apply Café Romance everywhere
 
 #### Automated
 
-- [ ] 2.1 Linting passes: `npm run lint`
-- [ ] 2.2 Unit tests pass: `npm run test:unit`
-- [ ] 2.3 Integration tests pass: `npm run test:integration`
-- [ ] 2.4 End-to-end tests pass: `npm run test:e2e`
-- [ ] 2.5 Production build succeeds: `npm run build`
-- [ ] 2.6 No remaining `bg-cosmic`, `from-blue-200`, `bg-purple-600`, `bg-white/10`, `backdrop-blur`, `text-purple-`, `text-blue-100`, or `border-white/10` in `src/`
+- [x] 2.1 Linting passes: `npm run lint`
+- [x] 2.2 Unit tests pass: `npm run test:unit`
+- [x] 2.3 Integration tests pass: `npm run test:integration`
+- [x] 2.4 End-to-end tests pass: `npm run test:e2e`
+- [x] 2.5 Production build succeeds: `npm run build`
+- [x] 2.6 No remaining `bg-cosmic`, `from-blue-200`, `bg-purple-600`, `bg-white/10`, `backdrop-blur`, `text-purple-`, `text-blue-100`, or `border-white/10` in `src/`
 
 #### Manual
 
-- [ ] 2.7 Every page on a wide screen (signed out)
-- [ ] 2.8 Every signed-in page on a wide screen
-- [ ] 2.9 Delete dialogs stay clearly dangerous
+- [x] 2.7 Every page on a wide screen (signed out)
+- [x] 2.8 Every signed-in page on a wide screen
+- [x] 2.9 Delete dialogs stay clearly dangerous
 
 ### Phase 3: Test-plan Phase 4 status cleanup
 

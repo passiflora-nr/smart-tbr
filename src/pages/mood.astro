@@ -2,7 +2,7 @@
 import Layout from "@/layouts/Layout.astro";
 import MoodPicker from "@/components/books/MoodPicker.astro";
 import MoodResultList from "@/components/books/MoodResultList.astro";
-import SignOutButton from "@/components/auth/SignOutButton.astro";
+import SignedInNav from "@/components/SignedInNav.astro";
 import { collectTropeVocabulary } from "@/lib/book-filters";
 import {
   MOOD_STEP_SIZE,
@@ -92,38 +92,14 @@ if (!supabase) {
 ---
 
 <Layout title="Pick by mood">
-  <div class="bg-cosmic flex min-h-screen items-start justify-center p-4 pt-12">
-    <div class="w-full max-w-2xl rounded-2xl border border-white/10 bg-white/10 p-8 text-white backdrop-blur-xl">
-      <div class="mb-6 flex flex-col gap-4">
-        <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent">
-          Pick by mood
-        </h1>
-        <div class="flex flex-wrap gap-2">
-          <a
-            href="/books"
-            class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
-          >
-            View your TBR
-          </a>
-          <a
-            href="/"
-            class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
-          >
-            Home
-          </a>
-          <a
-            href="/account"
-            class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
-          >
-            Account
-          </a>
-          <SignOutButton />
-        </div>
-      </div>
+  <div class="bg-background flex min-h-screen items-start justify-center p-4 pt-12">
+    <div class="border-border bg-card text-foreground w-full max-w-4xl rounded-2xl border p-8 shadow-sm">
+      <SignedInNav />
+      <h1 class="mb-6 text-2xl font-bold">Pick by mood</h1>
 
       {
         state === "failed" ? (
-          <p class="flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-sm text-red-300">
+          <p class="flex items-center gap-2 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
@@ -145,10 +121,10 @@ if (!supabase) {
           </p>
         ) : state === "empty-tbr" || state === "empty-vocabulary" ? (
           <div>
-            <p class="mb-6 text-blue-100/80">Add a book to your TBR first.</p>
+            <p class="text-muted-foreground mb-6">Add a book to your TBR first.</p>
             <a
               href="/books/new"
-              class="inline-block rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
+              class="border-border bg-card text-foreground hover:bg-background inline-block rounded-lg border px-4 py-2 text-sm transition-colors"
             >
               Add a book
             </a>
@@ -157,10 +133,10 @@ if (!supabase) {
           <div>
             <MoodPicker tropeVocabulary={tropeVocabulary} selectedTropes={selectedTropes} errorMessage={pickerError} />
             {state === "no-match" ? (
-              <p class="text-blue-100/80">No matches — try different tropes.</p>
+              <p class="text-muted-foreground">No matches — try different tropes.</p>
             ) : state === "results" ? (
               <div>
-                <p class="mb-4 text-sm text-blue-100/80">
+                <p class="text-muted-foreground mb-4 text-sm">
                   {matchVisibleCount < matchTotal
                     ? `Showing ${matchVisibleCount} of ${matchTotal} matches`
                     : matchTotal === 1
@@ -172,13 +148,13 @@ if (!supabase) {
                   <p class="mt-4">
                     <a
                       href={buildMoodHref(resultTropes, nextShow)}
-                      class="text-sm text-blue-200 underline underline-offset-2 transition-colors hover:text-blue-100"
+                      class="text-primary hover:text-primary-hover text-sm underline underline-offset-2 transition-colors"
                     >
                       {buildMoodMoreLabel(matchVisibleCount, matchTotal)}
                     </a>
                   </p>
                 ) : matchTotal > MOOD_STEP_SIZE ? (
-                  <p class="mt-4 text-sm text-blue-100/60">No more matches for this mood.</p>
+                  <p class="text-muted-foreground mt-4 text-sm">No more matches for this mood.</p>
                 ) : null}
               </div>
             ) : null}

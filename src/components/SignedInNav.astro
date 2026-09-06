@@ -1,4 +1,6 @@
 ---
+import SignOutButton from "@/components/auth/SignOutButton.astro";
+
 interface Props {
   guardUnsavedLeave?: boolean;
   booksHref?: string;
@@ -7,16 +9,14 @@ interface Props {
 const { guardUnsavedLeave = false, booksHref = "/books" } = Astro.props;
 const unsavedGuard = guardUnsavedLeave ? "" : undefined;
 const linkClass =
-  "rounded-lg px-3 py-2 text-sm text-primary transition-colors hover:bg-accent hover:text-primary-hover";
+  "inline-flex shrink-0 items-center justify-center rounded-lg px-2.5 py-2 text-sm text-primary transition-colors hover:bg-accent hover:text-primary-hover";
 ---
 
-<nav class="border-border bg-card mb-6 flex flex-wrap items-center gap-2 rounded-xl border p-3 shadow-sm">
+<nav class="border-border bg-card mb-6 flex w-full items-center justify-between rounded-xl border px-8 py-2 shadow-sm">
   <a href="/" data-unsaved-guard={unsavedGuard} class:list={[linkClass]}>Home</a>
   <a href={booksHref} data-unsaved-guard={unsavedGuard} class:list={[linkClass]}>View your TBR</a>
   <a href="/books/new" data-unsaved-guard={unsavedGuard} class:list={[linkClass]}>Add a book</a>
   <a href="/mood" data-unsaved-guard={unsavedGuard} class:list={[linkClass]}>Pick by mood</a>
   <a href="/account" data-unsaved-guard={unsavedGuard} class:list={[linkClass]}>Account</a>
-  <form method="POST" action="/api/auth/signout" data-unsaved-guard={unsavedGuard}>
-    <button type="submit" class:list={[linkClass]}>Sign out</button>
-  </form>
+  <SignOutButton guardUnsavedLeave={guardUnsavedLeave} />
 </nav>

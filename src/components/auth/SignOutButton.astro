@@ -8,10 +8,10 @@ interface Props {
 const { guardUnsavedLeave = false } = Astro.props;
 ---
 
-<form method="POST" action="/api/auth/signout" data-unsaved-guard={guardUnsavedLeave ? "" : undefined}>
+<form method="POST" action="/api/auth/signout" class="inline" data-unsaved-guard={guardUnsavedLeave ? "" : undefined}>
   <button
     type="submit"
-    class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
+    class="text-primary hover:bg-accent hover:text-primary-hover rounded-lg px-2.5 py-2 text-sm transition-colors"
   >
     Sign out
   </button>

@@ -12,7 +12,7 @@ test.describe("Critical-path island hops", () => {
     try {
       // Open Add a book from home.
       await page.goto("/");
-      await page.getByRole("link", { name: "Add a book" }).click();
+      await page.getByRole("navigation").getByRole("link", { name: "Add a book" }).click();
       await page.waitForURL((url) => url.pathname === "/books/new");
       await expect(page.getByRole("button", { name: "Add to TBR" })).toBeVisible();
 

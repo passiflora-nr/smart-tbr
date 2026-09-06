@@ -33,7 +33,7 @@ interface EditBookFormProps {
 const UNSAVED_LEAVE_MESSAGE = "You have unsaved changes. Leave without saving?";
 
 // Both attributes are set in src/pages/books/[id]/edit.astro (and, for the
-// sign-out form, by SignOutButton's guardUnsavedLeave prop). Nothing type-checks
+// sign-out form, by SignedInNav's guardUnsavedLeave prop). Nothing type-checks
 // the pairing, so renaming either string here silently disables the guard.
 const LEAVE_GUARD_ATTRIBUTE = "data-unsaved-guard";
 const DELETE_CONTROLS_ATTRIBUTE = "data-edit-delete-controls";
@@ -277,7 +277,7 @@ export default function EditBookForm({
 
   if (notFound) {
     return (
-      <p className="w-full rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-center text-sm text-red-300">
+      <p className="w-full rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-center text-sm text-red-800">
         This book is no longer in your TBR.
       </p>
     );
@@ -346,9 +346,9 @@ export default function EditBookForm({
       />
 
       {sessionExpired ? (
-        <p className="flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-900/30 px-3 py-2 text-sm text-red-300">
+        <p className="flex items-center gap-2 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800">
           Your session has ended.{" "}
-          <a href="/auth/signin" data-unsaved-guard className="text-purple-300 underline hover:text-purple-200">
+          <a href="/auth/signin" data-unsaved-guard className="text-primary hover:text-primary-hover underline">
             Sign in
           </a>{" "}
           to continue.
@@ -361,7 +361,7 @@ export default function EditBookForm({
         <a
           href={buildBooksHref(filterQuery, { hash: `book-${id}` })}
           data-unsaved-guard
-          className="inline-flex shrink-0 items-center justify-center rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
+          className="border-border bg-card text-foreground hover:bg-background inline-flex shrink-0 items-center justify-center rounded-lg border px-4 py-2 text-sm transition-colors"
         >
           Cancel
         </a>

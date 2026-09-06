@@ -1,5 +1,5 @@
 ---
-import Topbar from "@/components/Topbar.astro";
+import SignedInNav from "@/components/SignedInNav.astro";
 
 interface Props {
   notice: string | null;
@@ -7,104 +7,76 @@ interface Props {
 
 const { notice } = Astro.props;
 const user = Astro.locals.user;
+
+const heroPrimaryClass =
+  "inline-flex items-center justify-center rounded-lg bg-primary px-6 py-3 text-base font-medium text-primary-foreground transition-colors hover:bg-primary-hover";
+const heroSecondaryClass =
+  "inline-flex items-center justify-center rounded-lg border border-border bg-card px-6 py-3 text-base font-medium text-foreground transition-colors hover:bg-background";
+const featureCardClass = "border-border bg-card rounded-xl border p-6 shadow-sm";
 ---
 
-<div class="bg-cosmic relative min-h-screen w-full overflow-hidden">
-  <!-- Cosmic orbs -->
-  <div
-    class="pointer-events-none absolute top-1/4 -left-24 h-[350px] w-[350px] rounded-full bg-purple-500/20 blur-[120px]"
-  >
-  </div>
-  <div
-    class="pointer-events-none absolute top-2/3 -right-16 h-[250px] w-[250px] rounded-full bg-blue-500/15 blur-[100px]"
-  >
-  </div>
-  <div
-    class="pointer-events-none absolute top-0 left-1/2 h-[300px] w-[300px] -translate-x-1/2 rounded-full bg-indigo-400/10 blur-[140px]"
-  >
-  </div>
-
-  <!-- Star field -->
-  <div
-    class="pointer-events-none absolute inset-0"
-    style="background-image: radial-gradient(circle, rgba(255,255,255,0.15) 1px, transparent 1px), radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px), radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1px); background-size: 200px 200px, 150px 150px, 100px 100px; background-position: 0 0, 40px 60px, 80px 30px;"
-  >
-  </div>
-
-  <div class="relative z-10 p-4 sm:p-8">
-    {user ? <Topbar /> : null}
+<div class="bg-background flex min-h-dvh w-full flex-col">
+  <div class="relative mx-auto flex min-h-dvh w-full max-w-4xl flex-col px-4 py-6 sm:px-8">
+    {
+      user ? (
+        <div class="absolute inset-x-4 top-6 z-10 sm:inset-x-8">
+          <SignedInNav />
+        </div>
+      ) : null
+    }
 
     {
       user ? (
-        <div class="mx-auto flex max-w-4xl flex-col items-center justify-center px-4 py-24 text-center sm:py-32 lg:py-40">
+        <div class="flex flex-1 flex-col items-center justify-center px-4 text-center">
           {notice ? (
-            <p class="mb-6 w-full max-w-2xl rounded-lg border border-amber-500/30 bg-amber-900/20 px-3 py-2 text-center text-sm text-amber-200">
+            <p class="border-border bg-accent/50 text-foreground mb-6 w-full max-w-2xl rounded-lg border px-3 py-2 text-center text-sm">
               {notice}
             </p>
           ) : null}
-          <h1 class="mb-6 bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200 bg-clip-text text-5xl leading-tight font-bold text-transparent sm:text-6xl lg:text-7xl">
-            SmartTBR
-          </h1>
-          <p class="mb-10 max-w-2xl text-lg text-blue-100/70 sm:text-xl">
+          <h1 class="mb-4 text-5xl leading-tight font-bold sm:text-6xl">SmartTBR</h1>
+          <p class="text-muted-foreground mb-8 max-w-2xl text-lg sm:text-xl">
             Your private, trope-indexed To Be Read pile.
             <br />
             Pick your next romance read by mood, not by scrolling forever.
           </p>
           <div class="flex flex-col gap-4 sm:flex-row">
-            <a
-              href="/mood"
-              class="inline-flex items-center justify-center rounded-lg bg-purple-600 px-6 py-3 text-base font-medium text-white transition-colors hover:bg-purple-500"
-            >
+            <a href="/mood" class:list={[heroPrimaryClass]}>
               Pick by mood
             </a>
-            <a
-              href="/books"
-              class="inline-flex items-center justify-center rounded-lg border border-white/20 px-6 py-3 text-base font-medium text-white transition-colors hover:bg-white/10"
-            >
+            <a href="/books" class:list={[heroSecondaryClass]}>
               View your TBR
             </a>
-            <a
-              href="/books/new"
-              class="inline-flex items-center justify-center rounded-lg border border-white/20 px-6 py-3 text-base font-medium text-white transition-colors hover:bg-white/10"
-            >
+            <a href="/books/new" class:list={[heroSecondaryClass]}>
               Add a book
             </a>
           </div>
         </div>
       ) : (
-        <>
-          <div class="mx-auto flex max-w-4xl flex-col items-center justify-center px-4 py-24 text-center sm:py-32 lg:py-40">
+        <div class="flex flex-1 flex-col items-center justify-center">
+          <div class="flex flex-col items-center px-4 text-center">
             {notice ? (
-              <p class="mb-6 w-full max-w-2xl rounded-lg border border-amber-500/30 bg-amber-900/20 px-3 py-2 text-center text-sm text-amber-200">
+              <p class="border-border bg-accent/50 text-foreground mb-6 w-full max-w-2xl rounded-lg border px-3 py-2 text-center text-sm">
                 {notice}
               </p>
             ) : null}
-            <h1 class="mb-6 bg-gradient-to-r from-blue-200 via-purple-200 to-pink-200 bg-clip-text text-5xl leading-tight font-bold text-transparent sm:text-6xl lg:text-7xl">
-              SmartTBR
-            </h1>
-            <p class="mb-10 max-w-2xl text-lg text-blue-100/70 sm:text-xl">
+            <h1 class="mb-4 text-4xl leading-tight font-bold sm:text-5xl">SmartTBR</h1>
+            <p class="text-muted-foreground mb-6 max-w-2xl text-base sm:text-lg">
               Your private, trope-indexed To Be Read pile.
               <br />
               Pick your next romance read by mood, not by scrolling forever.
             </p>
-            <div class="flex flex-col gap-4 sm:flex-row">
-              <a
-                href="/auth/signin"
-                class="inline-flex items-center justify-center rounded-lg bg-purple-600 px-6 py-3 text-base font-medium text-white transition-colors hover:bg-purple-500"
-              >
+            <div class="mb-12 flex flex-col gap-4 sm:mb-14 sm:flex-row">
+              <a href="/auth/signin" class:list={[heroPrimaryClass]}>
                 Sign In
               </a>
-              <a
-                href="/auth/signup"
-                class="inline-flex items-center justify-center rounded-lg border border-white/20 px-6 py-3 text-base font-medium text-white transition-colors hover:bg-white/10"
-              >
+              <a href="/auth/signup" class:list={[heroSecondaryClass]}>
                 Sign Up
               </a>
             </div>
           </div>
 
-          <div class="mx-auto grid max-w-4xl grid-cols-1 gap-6 px-4 pb-24 sm:grid-cols-3">
-            <div class="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
+          <div class="grid w-full grid-cols-1 gap-6 px-4 sm:grid-cols-3">
+            <div class:list={[featureCardClass]}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
@@ -115,18 +87,18 @@ const user = Astro.locals.user;
                 stroke-width="2"
                 stroke-linecap="round"
                 stroke-linejoin="round"
-                class="mb-4 text-purple-300"
+                class="text-primary mb-4"
               >
                 <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
               </svg>
-              <h3 class="mb-2 text-lg font-semibold text-white">Your tropes, your pile</h3>
-              <p class="text-sm leading-relaxed text-blue-100/60">
+              <h3 class="mb-2 text-lg font-semibold">Your tropes, your pile</h3>
+              <p class="text-muted-foreground text-sm leading-relaxed">
                 Tag books with the romance tropes you actually use — enemies to lovers, slow burn, found family, and
                 whatever else you care about.
               </p>
             </div>
 
-            <div class="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
+            <div class:list={[featureCardClass]}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
@@ -137,17 +109,17 @@ const user = Astro.locals.user;
                 stroke-width="2"
                 stroke-linecap="round"
                 stroke-linejoin="round"
-                class="mb-4 text-purple-300"
+                class="text-primary mb-4"
               >
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" />
               </svg>
-              <h3 class="mb-2 text-lg font-semibold text-white">Private by default</h3>
-              <p class="text-sm leading-relaxed text-blue-100/60">
+              <h3 class="mb-2 text-lg font-semibold">Private by default</h3>
+              <p class="text-muted-foreground text-sm leading-relaxed">
                 Your TBR is yours alone — no public profiles, no shared lists, no social graph.
               </p>
             </div>
 
-            <div class="rounded-xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
+            <div class:list={[featureCardClass]}>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="24"
@@ -158,20 +130,20 @@ const user = Astro.locals.user;
                 stroke-width="2"
                 stroke-linecap="round"
                 stroke-linejoin="round"
-                class="mb-4 text-purple-300"
+                class="text-primary mb-4"
               >
                 <circle cx="12" cy="12" r="10" />
                 <path d="M12 16v-4" />
                 <path d="M12 8h.01" />
               </svg>
-              <h3 class="mb-2 text-lg font-semibold text-white">Pick by mood</h3>
-              <p class="text-sm leading-relaxed text-blue-100/60">
+              <h3 class="mb-2 text-lg font-semibold">Pick by mood</h3>
+              <p class="text-muted-foreground text-sm leading-relaxed">
                 Choose 1–3 tropes you&apos;re in the mood for and get matching books from your own backlog — no AI, no
                 global vocabulary.
               </p>
             </div>
           </div>
-        </>
+        </div>
       )
     }
   </div>

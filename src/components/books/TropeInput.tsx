@@ -4,7 +4,9 @@ import { cn } from "@/lib/utils";
 import { tropeListSchema } from "@/lib/book-schema";
 
 const inputBase =
-  "w-full rounded-lg bg-white/10 border px-3 py-2 text-white placeholder-white/40 focus:outline-none focus:ring-2 transition-colors";
+  "w-full rounded-lg bg-card border px-3 py-2 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 transition-colors";
+
+const tropePillClasses = ["bg-trope-blush", "bg-trope-oat", "bg-trope-stone"] as const;
 
 interface TropeInputProps {
   id: string;
@@ -89,11 +91,11 @@ export function TropeInput({
 
   return (
     <div>
-      <label htmlFor={id} className="mb-1 block text-sm text-blue-100/80">
+      <label htmlFor={id} className="text-foreground mb-1 block text-sm">
         {label}
       </label>
       <div className="relative">
-        <span className="absolute top-3 left-3 size-4 text-white/40">
+        <span className="text-muted-foreground absolute top-3 left-3 size-4">
           <Tag className="size-4" />
         </span>
         <div
@@ -101,14 +103,17 @@ export function TropeInput({
             inputBase,
             "flex min-h-[42px] flex-wrap items-center gap-1.5 pl-10",
             error
-              ? "border-red-400/60 focus-within:ring-2 focus-within:ring-red-400"
-              : "border-white/20 focus-within:ring-2 focus-within:ring-purple-400",
+              ? "border-red-400 focus-within:ring-2 focus-within:ring-red-400"
+              : "border-input focus-within:ring-primary focus-within:ring-2",
           )}
         >
           {tags.map((tag, index) => (
             <span
               key={`${tag}-${String(index)}`}
-              className="inline-flex items-center gap-1 rounded-md bg-white/15 px-2 py-0.5 text-sm text-white"
+              className={cn(
+                "text-trope-text inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-sm",
+                tropePillClasses[index % 3],
+              )}
             >
               {tag}
               <button
@@ -117,7 +122,7 @@ export function TropeInput({
                   handleRemoveTag(index);
                 }}
                 aria-label={`Remove ${tag}`}
-                className="rounded text-white/60 hover:text-white focus:outline-none focus-visible:ring-1 focus-visible:ring-purple-400"
+                className="text-trope-text/70 hover:text-trope-text focus-visible:ring-primary rounded focus:outline-none focus-visible:ring-1"
               >
                 <X className="size-3" />
               </button>
@@ -134,14 +139,14 @@ export function TropeInput({
             onKeyDown={handleKeyDown}
             onBlur={commitPendingText}
             placeholder={tags.length === 0 ? "Type a trope and press Enter" : "Add another trope"}
-            className="min-w-[120px] flex-1 bg-transparent py-0.5 text-white placeholder-white/40 focus:outline-none"
+            className="text-foreground placeholder:text-muted-foreground min-w-[120px] flex-1 bg-transparent py-0.5 focus:outline-none"
             aria-invalid={Boolean(error)}
             aria-describedby={error ? errorId : undefined}
           />
         </div>
       </div>
       {error ? (
-        <p id={errorId} role="alert" className="mt-1 flex items-center gap-1 text-xs text-red-300">
+        <p id={errorId} role="alert" className="mt-1 flex items-center gap-1 text-xs text-red-700">
           <CircleAlert className="size-3" />
           {error}
         </p>
