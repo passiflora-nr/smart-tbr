@@ -1,7 +1,7 @@
 ---
 project: SmartTBR
 version: 1
-status: draft
+status: approved
 created: 2026-05-22
 context_type: greenfield
 product_type: web-app
